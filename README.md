@@ -4,7 +4,7 @@ Custom General Utility Modules for Python
 
 ### Import JLpy_Utilities Modules into python
 
-We assume the module folder is stored on the desktop and has the name 'JLpy_Utilities \n
+We assume the module folder is stored on the desktop and has the name 'JLpy_Utilities
 
 `import sys
 desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
