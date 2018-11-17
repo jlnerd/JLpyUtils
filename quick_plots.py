@@ -1,14 +1,23 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[4]:
 
 
 #To call in code, add the following command
-# import sys
+# import sys, os
 # desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-# sys.path.insert(0, desktop_path+'/JLpy_modules')
+# sys.path.insert(0, desktop_path+'/JLpy_Utilities')
 # import quick_plots
+
+#Save the jupyter notebook file as .py to load as module in other
+try:
+    get_ipython().system('jupyter nbconvert --to script quick_plots.ipynb')
+except:
+    print('')
+
+
+import matplotlib.pyplot as plt
 
 #normal plot with blue pts
 def plot(df,x_label,y_label):
@@ -39,6 +48,4 @@ def plot_corr(df,size=10):
     plt.xticks(range(len(corr.columns)), corr.columns,rotation='vertical');
     plt.yticks(range(len(corr.columns)), corr.columns);
     
-#Save this notebook as python version
-get_ipython().system('jupyter nbconvert --to script quick_plots.ipynb')
 
