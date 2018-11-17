@@ -5,13 +5,10 @@
 
 
 #To call in code, add the following command
-#import sys
-#sys.path.insert(0, '.\test')
-
-#class quick_plots():
-   
-def __init__(self):
-    print("quick plots by John Leonard")
+# import sys
+# desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+# sys.path.insert(0, desktop_path+'/JLpy_modules')
+# import quick_plots
 
 #normal plot with blue pts
 def plot(df,x_label,y_label):
@@ -43,4 +40,5 @@ def plot_corr(df,size=10):
     plt.yticks(range(len(corr.columns)), corr.columns);
     
 #Save this notebook as python version
+get_ipython().system('jupyter nbconvert --to script quick_plots.ipynb')
 
