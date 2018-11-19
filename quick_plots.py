@@ -1,26 +1,30 @@
 
 # coding: utf-8
 
-# In[4]:
+# In[1]:
 
 
 #To call in code, add the following command
 # import sys, os
 # desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
 # sys.path.insert(0, desktop_path+'/JLpy_Utilities')
-# import quick_plots
+# import quick_plots as qp
 
-#Save the jupyter notebook file as .py to load as module in other
+#Save the jupyter notebook file as .py to load as module in other notebooks
 try:
     get_ipython().system('jupyter nbconvert --to script quick_plots.ipynb')
 except:
     print('')
 
-
+#Load necessary modules
 import matplotlib.pyplot as plt
 
 #normal plot with blue pts
 def plot(df,x_label,y_label):
+    """
+    simple x-y plot
+    """
+    
     plt.plot(df[x_label],df[y_label],'ob')
     plt.xlabel(x_label,fontsize = 16)
     plt.ylabel(y_label,fontsize = 16)
@@ -30,6 +34,9 @@ def plot(df,x_label,y_label):
 
 #log log plot
 def loglog_plot(df,x_label,y_label):
+    """
+    simple log-log plot
+    """
     plot(df,x_label,y_label)
     plt.xscale("log")
     plt.yscale("log")
@@ -47,5 +54,4 @@ def plot_corr(df,size=10):
     ax.matshow(corr)
     plt.xticks(range(len(corr.columns)), corr.columns,rotation='vertical');
     plt.yticks(range(len(corr.columns)), corr.columns);
-    
 
