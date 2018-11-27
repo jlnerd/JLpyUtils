@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[13]:
+# In[5]:
 
 
 #To call in code, add the following command
@@ -20,17 +20,40 @@ except:
 import matplotlib.pyplot as plt
 
 #normal plot with blue pts
-def plot(df,x_label,y_label):
+def plot(df,x_label,y_label,color='b'):
     """
     simple x-y plot
     """
     
-    plt.plot(df[x_label],df[y_label],'ob')
+    plt.plot(df[x_label],df[y_label],'o',color=color)
     plt.xlabel(x_label,fontsize = 16)
     plt.ylabel(y_label,fontsize = 16)
     plt.grid(which='major',color = 'dimgray')
     plt.grid(which='minor',color='lightgray')
     plt.tick_params(axis='both',labelsize = 14)
+    
+def plot_w_legend(df,x_label,y_label,legend_label='None'):
+    """
+    Description:
+        simple x y plot with legend. The legend and groups of data are produced by finding non-duplicate labels from the legend label column, then plotting for each unique legend label group.
+    """
+  
+    #Build Legend list
+    list_legend_values = df[legend_label].drop_duplicates().reset_index(drop=True)
+    
+    #Build Color list
+    import matplotlib.cm as cm
+    import numpy as np
+    colors = cm.rainbow(np.linspace(0, 1, len(list_legend_values)))
+    
+    for i in range(len(list_legend_values)):
+        legend_value = list_legend_values[i]
+        color = colors[i]
+        df_subset = df[df[legend_label]==legend_value]
+        
+        plot(df_subset,x_label,y_label,color)
+                
+    plt.legend(list_legend_values)
 
 #log log plot
 def loglog_plot(df,x_label,y_label):
@@ -92,23 +115,4 @@ def plot_corr_and_pareto(df,label,size=10):
     plt.show()
     
     return df_correlations, df_label_pareto, df_label_pareto_sorted
-
-
-# In[15]:
-
-
-import pandas as pd
-import numpy as np
-import sys, os
-desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-sys.path.insert(0, desktop_path+'/JLpy_Utilities')
-import quick_plots as qp
-
-df = pd.read_csv(filepath_or_buffer='~/Desktop/ML_Real_Estate/Raw_Data/RDC_InventoryCoreMetrics_Zip_Hist.csv')
-
-df.describe()
-
-df.head()
-
-df_correlations = qp.plot_corr_and_pareto(df,'Median Listing Price',10)
 

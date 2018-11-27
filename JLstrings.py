@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[2]:
+# In[3]:
 
 
 #To call in code, add the following command
@@ -42,6 +42,8 @@ def standardize_headers(df):
             df.columns = df.columns.str.replace(char,'at')
         elif char == 'λ':
             df.columns = df.columns.str.replace(char,'lambda')
+        elif char == '%':
+            df.columns = df.columns.str.replace(char,'prc')
         else:
             df.columns = df.columns.str.replace(char,'')
             
