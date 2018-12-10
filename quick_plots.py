@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[5]:
+# In[7]:
 
 
 #To call in code, add the following command
@@ -12,7 +12,7 @@
 
 #Save the jupyter notebook file as .py to load as module in other notebooks
 try:
-    get_ipython().system('jupyter nbconvert --to script quick_plots.ipynb')
+    get_ipython().system('jupyter nbconvert --to script "~/Desktop/JLpy_Utilities/quick_plots.ipynb"')
 except:
     print('')
 
@@ -32,28 +32,59 @@ def plot(df,x_label,y_label,color='b'):
     plt.grid(which='minor',color='lightgray')
     plt.tick_params(axis='both',labelsize = 14)
     
-def plot_w_legend(df,x_label,y_label,legend_label='None'):
-    """
-    Description:
-        simple x y plot with legend. The legend and groups of data are produced by finding non-duplicate labels from the legend label column, then plotting for each unique legend label group.
-    """
+# def plot_w_legend(df,x_label,y_label,legend_label='None'):
+#     """
+#     Description:
+#         simple x y plot with legend. The legend and groups of data are produced by finding non-duplicate labels from the legend label column, then plotting for each unique legend label group.
+#     """
   
-    #Build Legend list
-    list_legend_values = df[legend_label].drop_duplicates().reset_index(drop=True)
+#     #Build Legend list
+#     list_legend_values = df[legend_label].drop_duplicates().reset_index(drop=True)
     
-    #Build Color list
-    import matplotlib.cm as cm
-    import numpy as np
-    colors = cm.rainbow(np.linspace(0, 1, len(list_legend_values)))
+#     #Build Color list
+#     import matplotlib.cm as cm
+#     import numpy as np
+#     colors = cm.rainbow(np.linspace(0, 1, len(list_legend_values)))
     
-    for i in range(len(list_legend_values)):
-        legend_value = list_legend_values[i]
-        color = colors[i]
-        df_subset = df[df[legend_label]==legend_value]
+#     for i in range(len(list_legend_values)):
+#         legend_value = list_legend_values[i]
+#         color = colors[i]
+#         df_subset = df[df[legend_label]==legend_value]
         
-        plot(df_subset,x_label,y_label,color)
+#         plot(df_subset,x_label,y_label,color)
                 
-    plt.legend(list_legend_values)
+#     plt.legend(list_legend_values,title = legend_label)
+    
+#Standard Plots
+def plot_w_legend(df,x_label,y_label,legend_label=None,**kwargs):
+    #Plot a numeric field.
+    #Multiple lines (xfield vs yfield) for values in groupName
+
+    if not 'fig' in kwargs:
+        fig, ax = plt.subplots()
+    else:
+        fig, ax = kwargs.pop('fig'),kwargs.pop('ax')
+    labels = []
+    if legend_label:
+        for key, grp in df.groupby([legend_label]):
+            ax2 = grp.plot(ax=ax, kind='line', x=x_label, y=y_label,**kwargs)
+            labels.append(key)
+            lines, _ = ax.get_legend_handles_labels()
+            if not 'legend' in kwargs:
+                ax2.legend(lines, labels, loc='best', fontsize='medium')
+            else:
+                if kwargs['legend']:
+                    ax2.legend(lines, labels, loc='best', fontsize='medium')
+    else:
+        ax2 = df.plot(ax=ax, kind='line', x=x_label, y=y_label,**kwargs)
+        
+    plt.xlabel(x_label,fontsize = 16)
+    plt.ylabel(y_label,fontsize = 16)
+    plt.grid(which='major',color = 'dimgray')
+    plt.grid(which='minor',color='lightgray')
+    plt.tick_params(axis='both',labelsize = 14)
+    
+    return fig,ax2
 
 #log log plot
 def loglog_plot(df,x_label,y_label):
