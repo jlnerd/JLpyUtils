@@ -1,21 +1,3 @@
-
-# coding: utf-8
-
-# In[3]:
-
-
-#To call in code, add the following command
-# import sys, os
-# desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-# sys.path.insert(0, desktop_path+'/JLpy_Utilities')
-# import JLstrings
-
-#Save the jupyter notebook file as .py to load as module in other notebooks
-try:
-    get_ipython().system('jupyter nbconvert --to script JLstrings.ipynb')
-except:
-    print('')
-
 #Load necessary modules
 import pandas as pd
 

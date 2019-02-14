@@ -1,23 +1,4 @@
 
-# coding: utf-8
-
-# In[1]:
-
-
-#To call in code, add the following command
-# import sys, os
-# desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-# sys.path.insert(0, desktop_path+'/JLpy_Utilities')
-# import JMPpy
-
-#Save the jupyter notebook file as .py to load as module in other notebooks
-try:
-    get_ipython().system('jupyter nbconvert --to script JMPpy.ipynb')
-except:
-    print('')
-
-
-
 #convert .jmp file to .csv given a file path
 def jmp_to_csv(file_path):
     #Load modules
