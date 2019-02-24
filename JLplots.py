@@ -17,6 +17,7 @@ mpl.rcParams['xtick.top']=True
 mpl.rcParams['ytick.right']=True
 mpl.rcParams['xtick.direction']='inout'
 mpl.rcParams['ytick.direction']='inout'
+mpl.rcParams['figure.dpi']= 300
 
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
@@ -60,7 +61,7 @@ def apply_common_plot_format(x_label,y_label,title_string,
     plt.xlabel(x_label,fontsize=16)
     plt.ylabel(y_label,fontsize=16)
     plt.title(title_string,fontsize=16)
-    plt.grid(which='major',color = 'dimgray')
+    plt.grid(which='major',color = 'darkgray')
     plt.grid(which='minor',color='lightgray')
     plt.tick_params(axis='both',labelsize = 14)
     if legend_anchor_pt == 'best':
