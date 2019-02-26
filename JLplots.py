@@ -17,7 +17,7 @@ mpl.rcParams['xtick.top']=True
 mpl.rcParams['ytick.right']=True
 mpl.rcParams['xtick.direction']='inout'
 mpl.rcParams['ytick.direction']='inout'
-mpl.rcParams['figure.dpi']= 300
+mpl.rcParams['figure.dpi']= 150
 
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
