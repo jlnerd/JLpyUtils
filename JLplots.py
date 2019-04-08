@@ -17,7 +17,7 @@ mpl.rcParams['xtick.top']=True
 mpl.rcParams['ytick.right']=True
 mpl.rcParams['xtick.direction']='inout'
 mpl.rcParams['ytick.direction']='inout'
-mpl.rcParams['figure.dpi']= 150
+mpl.rcParams['figure.dpi']= 100
 
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
@@ -41,16 +41,15 @@ def apply_common_plot_format(x_label,y_label,title_string,
         legend_title: title of legend
         legend_anchor_pt: 'best', (1,1), or some other (x,y) coordinate
     Examples:
-        df_group = df.groupby(group_label)
-        legend_labels = df[group_label].drop_duplicates()
-        legend_labels = [ '%.2f' % label for label in legend_labels ] # round to 2 digits
+        df_grp = df.groupby(legend_axis_label)
+        legend_labels = list(df[legend_axis_label].unique())
         legend_lines = []
         colors = cm.rainbow(np.linspace(0, 1, len(legend_labels)))
         i=0
-        for name, group in df_group:
+        for grp_ID, grp_subset in df_group:
             c = colors[i]
-            plt.plot(group[x_label], group[y_label],color = c, linestyle='-')
             legend_lines.append(Line2D([0], [0], color=c, lw=1)) 
+            plt.plot(grp_subset[x_label], grp_subset[y_label],color = c, linestyle='-')
             i = i+1
         title_string = 'title'
         legend_title = 'legend title'
@@ -120,6 +119,7 @@ def plot_by_group_subgroup(df,
         df_sub_group = group_subset.groupby(sub_group_label)
 
         for sub_group_ID, sub_group_subset in df_sub_group:
+            sub_group_subset = sub_group_subset.sort_values(x_label)
             plt.plot(sub_group_subset[x_label],sub_group_subset[y_label],color = c, **kwargs)
             plt.xscale(xscale)
             plt.yscale(yscale)
