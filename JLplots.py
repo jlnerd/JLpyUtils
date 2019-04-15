@@ -1,11 +1,8 @@
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 
 #https://matplotlib.org/users/customizing.html
-mpl.rcParams['axes.titlesize'] = 16
-mpl.rcParams['xtick.labelsize'] = 14
-mpl.rcParams['ytick.labelsize'] = 14
-mpl.rcParams['legend.fontsize'] = 14
-mpl.rcParams['figure.titlesize'] = 16
+
 mpl.rcParams['grid.color'] =  'lightgray'
 mpl.rcParams['grid.linestyle'] = '-'
 mpl.rcParams['grid.linewidth'] = 1
@@ -17,15 +14,28 @@ mpl.rcParams['xtick.top']=True
 mpl.rcParams['ytick.right']=True
 mpl.rcParams['xtick.direction']='inout'
 mpl.rcParams['ytick.direction']='inout'
-mpl.rcParams['figure.dpi']= 100
-
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import cm
-from matplotlib.lines import Line2D
-import matplotlib.ticker as mtick
+#mpl.rcParams['figure.dpi']= 100
+mpl.rcParams['font.size'] = 14
+mpl.rcParams['figure.facecolor'] = 'w'
 
 import numpy as np
 import pandas as pd
+
+def make_independant_legend(legend_lines,legened_labels,legend_title):
+    plt.legend(legend_lines,legened_labels,title=legend_title)
+    plt.grid(which='both')
+    plt.axis('off')
+    plt.tight_layout(rect=(0,0,.3,.3))
+    plt.show()
+
+def fetch_color_map_for_primary_color(primary_color, n_colors):
+    if primary_color == 'R':
+        color_map = plt.cm.hot(np.linspace(0.1,0.7,n_colors))
+    elif primary_color == 'G':
+        color_map = plt.cm.nipy_spectral(np.linspace(0.4,0.6,n_colors))
+    elif primary_color == 'B':
+        color_map = plt.cm.jet(np.linspace(0,0.3,n_colors))
+    return color_map
 
 def apply_common_plot_format(x_label,y_label,title_string,
                             legend_lines,legend_labels,legend_title, legend_anchor_pt = 'best'
@@ -107,14 +117,14 @@ def plot_by_group_subgroup(df,
                            
     df_group = df.groupby(by=group_label)
     
-    colors = iter(cm.rainbow(np.linspace(0,1,len(df_group))))
+    colors = iter(plt.cm.rainbow(np.linspace(0,1,len(df_group))))
     
     legend_labels = []
     legend_lines = []
     
     for group_ID, group_subset in df_group:
         c = next(colors)
-        legend_lines.append(Line2D([0], [0], color=c, lw=1)) 
+        legend_lines.append(mpl.lines.Line2D([0], [0], color=c, lw=1)) 
         legend_labels.append(group_ID)
         df_sub_group = group_subset.groupby(sub_group_label)
 
