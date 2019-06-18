@@ -24,13 +24,25 @@ def make_independant_legend(legend_lines,legened_labels,legend_title):
     plt.axis('off')
     plt.show()
 
-def fetch_color_map_for_primary_color(primary_color, n_colors):
+def fetch_color_map_for_primary_color(primary_color, n_colors, 
+                                      color_space_range = None):
+    """
+    Default color_space_range = {'R': (0.1,0.7),
+                                 'G': (0.4,0.6),
+                                 'B': (0,0.3)}
+    """
+    if color_space_range == None: # Apply default setting
+        color_space_range = {'R': (0.1,0.7),
+                             'G': (0.4,0.6),
+                             'B': (0,0.3)}
+        color_space_range = color_space_range[primary_color]
+        
     if primary_color == 'R':
-        color_map = plt.cm.hot(np.linspace(0.1,0.7,n_colors))
+        color_map = plt.cm.hot(np.linspace(color_space_range[0],color_space_range[1],n_colors))    
     elif primary_color == 'G':
-        color_map = plt.cm.nipy_spectral(np.linspace(0.4,0.6,n_colors))
+        color_map = plt.cm.nipy_spectral(np.linspace(color_space_range[0],color_space_range[1],n_colors))    
     elif primary_color == 'B':
-        color_map = plt.cm.jet(np.linspace(0,0.3,n_colors))
+        color_map = plt.cm.jet(np.linspace(color_space_range[0],color_space_range[1],n_colors))    
     return color_map
 
 def plot_corr_and_pareto(df,label,size=10):
