@@ -6,10 +6,9 @@ __date__ = "2019.04.28"
 
 
 import sys, os
-
-if os.curdir not in sys.path:
-    sys.path.insert(0, os.curdir)
+if os.path.dirname(os.path.abspath(__file__)) not in sys.path:
+    sys.path.insert(0,  os.path.dirname(os.path.abspath(__file__)))
     
-import JLpy_utils_package.plot as plot
-import JLpy_utils_package.strings as strings
-import JLpy_utils_package.summary_tables as summary_tables
+import plot
+import strings
+import summary_tables
