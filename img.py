@@ -11,7 +11,7 @@ def resize_img(img, y_size, x_size):
 def denoise_img(img):
     return skimage.restoration.denoise_tv_chambolle(img)
 
-def build_crop_array(img,yx_min,yx_max,padding):
+def build_crop_array(img,yx_min,yx_max,padding, use_square = False):
     y_min_index = max(yx_min[0]-padding,0)
     x_min_index = max(yx_min[1]-padding,0)
     
@@ -20,9 +20,19 @@ def build_crop_array(img,yx_min,yx_max,padding):
     
     crop_array = [y_min_index, y_max_index, x_min_index, x_max_index]
     
+    if use_square:
+        mean_width = np.mean((crop_array[1]-crop_array[0],crop_array[3]-crop_array[2]))
+        x_offset = mean_width - (crop_array[1]-crop_array[0])
+        y_offset = mean_width - (crop_array[3]-crop_array[2])
+        
+        crop_array[0] = crop_array[0]-int(x_offset/2)
+        crop_array[1] = crop_array[1]+int(x_offset/2)
+        crop_array[2] = crop_array[2]-int(y_offset/2)
+        crop_array[3] = crop_array[3]+int(y_offset/2)
+    
     return crop_array
 
-def find_img_contours_and_cropping_array(img, contour_level = 0.1, padding = 50):
+def find_img_contours_and_cropping_array(img, contour_level = 0.1, padding = 50, use_square = False):
     
     # Find contours
     contours = skimage.measure.find_contours(img, level = contour_level)
@@ -39,7 +49,7 @@ def find_img_contours_and_cropping_array(img, contour_level = 0.1, padding = 50)
         yx_min = [int(yx_min[:,0].min()), int(yx_min[:,1].min())]
     
     #Build Cropping array  
-    crop_array = build_crop_array(img,yx_min,yx_max,padding)
+    crop_array = build_crop_array(img, yx_min, yx_max, padding, use_square = use_square)
     
     return contours, crop_array
 
@@ -116,132 +126,212 @@ def preprocess_img(img,
     
     return img_resized_cropped_resized
 
+class auto_crop():
 
-def auto_crop_img(img, 
-                  padding = 50,
-                  show_plots = {'processed':True, 
-                                'processing steps':False},
-                  use_square=False):
+    def use_countours(img, 
+                      padding = 50,
+                      show_plots = {'processed':True, 
+                                    'processing steps':False},
+                      use_square=False,
+                      contour_level_max_offset_scalar = 2):
+        """
+        Wrapper to make img cropping simpler. The function converts the img to grayscale, runs the "find_img_countours_and_cropping_array" function, and applies the cropping to the original img (RGB) via img_cropped = img[crop_array[0]:crop_array[1],crop_array[2]:crop_array[3]]. img_cropped is then returned.
+        """
+
+        img = img/img.max()
+        img_gray = skimage.color.rgb2gray(img)
+        img_gray = img_gray/img_gray.max()
+
+        contour_level = img_gray.max()/contour_level_max_offset_scalar
+
+        contours, crop_array = find_img_contours_and_cropping_array(img_gray,
+                                                             contour_level = contour_level,
+                                                             padding = padding,
+                                                                   use_square = use_square)
+
+        img_cropped = img[crop_array[0]:crop_array[1],crop_array[2]:crop_array[3]]
+
+
+        if show_plots['processing steps']:
+            #original image
+            plt.title(title+'\noriginal img')
+            plt.imshow(img)
+            plt.grid(which='both')
+            plt.axis('off')
+            plt.show()
+
+            #gray with cropping points and contours
+            plt.imshow(img_gray, interpolation='nearest', cmap='binary')
+            for n, contour in enumerate(contours):
+                 plt.plot(contour[:, 1], contour[:, 0], linewidth=1, color = 'r')
+            plt.plot(crop_array[2:4],crop_array[0:2],'bo')
+            plt.title('Cropping pts: '+str(crop_array))
+            plt.grid(which='both')
+            plt.axis('off')
+            plt.show()
+
+        if show_plots['processed']:
+            plt.title(img.shape)
+            plt.imshow(img_cropped)
+            plt.grid(which='both')
+            plt.axis('off')
+            plt.show()
+
+        return img_cropped
     
-    img = img/img.max()
-    img_gray = skimage.color.rgb2gray(img)
-
-    contours, crop_array = find_img_contours_and_cropping_array(img_gray,
-                                                         contour_level = img.max()/10,
-                                                         padding = padding)
-
-    if use_square:
-        mean_width = np.mean((crop_array[1]-crop_array[0],crop_array[3]-crop_array[2]))
-        x_offset = mean_width - (crop_array[1]-crop_array[0])
-        y_offset = mean_width - (crop_array[3]-crop_array[2])
+    def use_edges(img, 
+                  edges_dict = {'sigma':10,
+                                'low_threshold':None,
+                                'high_threshold':None},
+                  padding = (0,0),
+                  show_plots = False):
         
-        crop_array[0] = crop_array[0]-int(x_offset/2)
-        crop_array[1] = crop_array[1]+int(x_offset/2)
-        crop_array[2] = crop_array[2]-int(y_offset/2)
-        crop_array[3] = crop_array[3]+int(y_offset/2)
-
-    img_cropped = img[crop_array[0]:crop_array[1],crop_array[2]:crop_array[3]]
-
-
-    if show_plots['processing steps']:
-        #original image
-        plt.title(title+'\noriginal img')
-        plt.imshow(img)
-        plt.grid(which='both')
-        plt.axis('off')
-        plt.show()
-
-        #gray with cropping points and contours
-        plt.imshow(img_gray, interpolation='nearest', cmap='binary')
-        for n, contour in enumerate(contours):
-             plt.plot(contour[:, 1], contour[:, 0], linewidth=1, color = 'r')
-        plt.plot(crop_array[2:4],crop_array[0:2],'bo')
-        plt.title('Cropping pts: '+str(crop_array))
-        plt.grid(which='both')
-        plt.axis('off')
-        plt.show()
-
-    if show_plots['processed']:
-        plt.title(img.shape)
-        plt.imshow(img_cropped)
-        plt.grid(which='both')
-        plt.axis('off')
-        plt.show()
-    
-    return img_cropped
-
-def eval_pixel_yield(img, 
-                     n_LEDs_per_Row, 
-                     failed_pixel_mean_offset_frcn = (0.3,np.inf),
-                     show_plots = True):
-
-    img_gray = skimage.color.rgb2gray(img)
-    img_gray = img_gray / img_gray.max()
-    
-    # calculate downscale factor
-    downscale_factor = int(img_gray.shape[0]/n_LEDs_per_Row)
-
-    img_gray_downscale = skimage.transform.downscale_local_mean(img_gray, 
-                                                                factors=(downscale_factor,downscale_factor))
-
-    if np.min(img_gray_downscale.shape)>2:
-        img_gray_downscale = img_gray_downscale[1:-1,1:-1]
-    
-    img_gray_downscale_flat = img_gray_downscale.flatten()
-    
-    #fit norm dist. model
-    model = scipy.stats.norm
-    mean, sigma = model.fit(img_gray_downscale_flat)
-    
-    # eval pixel count summaries
-    yield_stats_dict = {}
-    yield_stats_dict['n_pixels'] = len(img_gray_downscale_flat)
-    yield_stats_dict['n_failed_pixels'] = len(img_gray_downscale_flat[~np.logical_and(img_gray_downscale_flat>(mean*(1-failed_pixel_mean_offset_frcn[0])), 
-                                                                img_gray_downscale_flat<mean*(1+failed_pixel_mean_offset_frcn[1]))])
-    yield_stats_dict['n_passed_pixels'] = yield_stats_dict['n_pixels'] - yield_stats_dict['n_failed_pixels']
-    
-    yield_stats_dict['yield'] = yield_stats_dict['n_passed_pixels'] /  yield_stats_dict['n_pixels']
-
-    
-    x = np.linspace(img_gray_downscale_flat.min(), 
-                    img_gray_downscale_flat.max(), 100)
-    
-    print(yield_stats_dict)
-
-    #img_gray_rescale = skimage.transform.resize(img_gray, output_shape=(30, 30),)
-    img_failed_pixels = np.ones_like(img_gray_downscale)
-
-    #map on failed pixels
-    img_failed_pixels[~np.logical_and(img_gray_downscale>(mean*(1-failed_pixel_mean_offset_frcn[0])), 
-                                      img_gray_downscale<(mean*(1+failed_pixel_mean_offset_frcn[1])))] = 0
-
-    fig, ax_list = plt.subplots(1,4)
-    if show_plots:
+        """
+        Use skimage.feature.canny method to find edges in the img passed. prior to edge finding, the img is converted to grayscale.
         
-        counts, bins, _ = ax_list[0].hist(img_gray_downscale_flat, 
-                                   bins = 100, 
-                                   density=True) 
-                                   #label='pixel int')
+        Arguments:
+            img: RGB img
+            edges_dict: dictionary containing 'sigma', 'low_threshold', 'high_threshold' settings passed to the canny edge detection method.
+            padding: # of pixels you want to pad on the edges found by the canny edge filter
+            show_plots: boolean to show or not show plots
+        Returns:
+            img_cropped: RGB img with croppining applied
+            img_cropped_gray: grayscale version of the image.
+        """
+        
+        # instantiate img plot
+        if show_plots:
+            fig, ax_list = plt.subplots(1,4)
+            i=0
+        
+            ax_list[i].set_title('original img')
+            ax_list[i].imshow(img)
+            ax_list[i].grid(which='both', visible=False)
+            ax_list[i].axis('off')
+            i+=1
+        
+        #convert to grayscale
+        img_gray = skimage.color.rgb2gray(img)
+        img_gray = img_gray/np.mean(img_gray.flatten()) # mean normalized
+        if show_plots:
+            ax_list[i].set_title('grayscale img')
+            ax_list[i].imshow(img_gray)
+            ax_list[i].grid(which='both', visible=False)
+            ax_list[i].axis('off')
+            i+=1
+        
+        #find edges
+        edges = skimage.feature.canny(img_gray,
+                                        sigma = edges_dict['sigma'],
+                                        low_threshold = edges_dict['low_threshold'],
+                                        high_threshold = edges_dict['high_threshold'],
+                                        mask=None,
+                                        use_quantiles=False)
+        if show_plots:
+            ax_list[i].set_title('edges')
+            ax_list[i].imshow(edges)
+            ax_list[i].grid(which='both', visible=False)
+            ax_list[i].axis('off')
+            i+=1
+        
+        #fetch indices of coner edges
+        edge_indices = np.where(edges==True)
+        ylim = (np.min(edge_indices[0])-padding[0],np.max(edge_indices[0])+padding[0])
+        xlim = (np.min(edge_indices[1])-padding[1],np.max(edge_indices[1])+padding[1])
+        
+        #plot cropped image
+        img_cropped = img[ylim[0]:ylim[1], xlim[0]:xlim[1],:]
+        img_cropped_gray = img_gray[ylim[0]:ylim[1], xlim[0]:xlim[1]]
+        if show_plots:
+            ax_list[i].set_title('cropped img')
+            ax_list[i].imshow(img_cropped)
+            ax_list[i].grid(which='both', visible=False)
+            ax_list[i].axis('off')
+            i+=1
+            
+        if show_plots:
+            fig.tight_layout(rect=(0,0,3,1))
+            plt.show()
+        else:
+            plt.close()
+            
+        return img_cropped, img_cropped_gray
 
-        ax_list[0].plot(x, model.pdf(x, mean, sigma))#, label = 'model')
-        ax_list[0].vlines(mean*(1-failed_pixel_mean_offset_frcn[0]), 0, counts.max(), linestyles='--', color='grey')
-        ax_list[0].vlines(mean*(1+failed_pixel_mean_offset_frcn[1]), 0, counts.max(), linestyles='--', color='grey', 
-                   label = 'thresholds: '+str(failed_pixel_mean_offset_frcn))
-        ax_list[0].grid(which='both')
-        ax_list[0].legend()
-        ax_list[0].set_xlabel('normalized\nimg_gray_downscale')
 
-        ax_list[1].imshow(img_cropped)
-        ax_list[1].grid(which='both', visible=False)
+
+
+# def eval_pixel_yield(img, 
+#                      n_LEDs_per_Row, 
+#                      failed_pixel_mean_offset_frcn = (0.3,np.inf),
+#                      show_plots = True):
+
+#     img_gray = skimage.color.rgb2gray(img)
+#     img_gray = img_gray / img_gray.max()
+    
+#     # calculate downscale factor
+#     downscale_factor = int(img_gray.shape[0]/n_LEDs_per_Row)
+
+#     img_gray_downscale = skimage.transform.downscale_local_mean(img_gray, 
+#                                                                 factors=(downscale_factor,downscale_factor))
+
+#     if np.min(img_gray_downscale.shape)>2:
+#         img_gray_downscale = img_gray_downscale[1:-1,1:-1]
+    
+#     img_gray_downscale_flat = img_gray_downscale.flatten()
+    
+#     #fit norm dist. model
+#     model = scipy.stats.norm
+#     mean, sigma = model.fit(img_gray_downscale_flat)
+    
+#     # eval pixel count summaries
+#     yield_stats_dict = {}
+#     yield_stats_dict['n_pixels'] = len(img_gray_downscale_flat)
+#     yield_stats_dict['n_failed_pixels'] = len(img_gray_downscale_flat[~np.logical_and(img_gray_downscale_flat>(mean*(1-failed_pixel_mean_offset_frcn[0])), 
+#                                                                 img_gray_downscale_flat<mean*(1+failed_pixel_mean_offset_frcn[1]))])
+#     yield_stats_dict['n_passed_pixels'] = yield_stats_dict['n_pixels'] - yield_stats_dict['n_failed_pixels']
+    
+#     yield_stats_dict['yield'] = yield_stats_dict['n_passed_pixels'] /  yield_stats_dict['n_pixels']
+
+    
+#     x = np.linspace(img_gray_downscale_flat.min(), 
+#                     img_gray_downscale_flat.max(), 100)
+    
+#     print(yield_stats_dict)
+
+#     #img_gray_rescale = skimage.transform.resize(img_gray, output_shape=(30, 30),)
+#     img_failed_pixels = np.ones_like(img_gray_downscale)
+
+#     #map on failed pixels
+#     img_failed_pixels[~np.logical_and(img_gray_downscale>(mean*(1-failed_pixel_mean_offset_frcn[0])), 
+#                                       img_gray_downscale<(mean*(1+failed_pixel_mean_offset_frcn[1])))] = 0
+
+#     fig, ax_list = plt.subplots(1,4)
+#     if show_plots:
         
-        ax_list[2].imshow(img_gray_downscale)
-        ax_list[2].grid(which='both', visible=False)
+#         counts, bins, _ = ax_list[0].hist(img_gray_downscale_flat, 
+#                                    bins = 100, 
+#                                    density=True) 
+#                                    #label='pixel int')
+
+#         ax_list[0].plot(x, model.pdf(x, mean, sigma))#, label = 'model')
+#         ax_list[0].vlines(mean*(1-failed_pixel_mean_offset_frcn[0]), 0, counts.max(), linestyles='--', color='grey')
+#         ax_list[0].vlines(mean*(1+failed_pixel_mean_offset_frcn[1]), 0, counts.max(), linestyles='--', color='grey', 
+#                    label = 'thresholds: '+str(failed_pixel_mean_offset_frcn))
+#         ax_list[0].grid(which='both')
+#         ax_list[0].legend()
+#         ax_list[0].set_xlabel('normalized\nimg_gray_downscale')
+
+#         ax_list[1].imshow(img_cropped)
+#         ax_list[1].grid(which='both', visible=False)
         
-        ax_list[3].imshow(img_failed_pixels, vmin=0, vmax = 1)
-        ax_list[3].grid(which='both', visible=False)
+#         ax_list[2].imshow(img_gray_downscale)
+#         ax_list[2].grid(which='both', visible=False)
         
-        plt.tight_layout(rect= [0,0,3,1])
-        plt.show()
+#         ax_list[3].imshow(img_failed_pixels, vmin=0, vmax = 1)
+#         ax_list[3].grid(which='both', visible=False)
         
-    return yield_stats_dict
+#         plt.tight_layout(rect= [0,0,3,1])
+#         plt.show()
+        
+#     return yield_stats_dict
 
