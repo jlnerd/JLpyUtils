@@ -18,3 +18,6 @@ import plot
 import strings
 import summary_tables
 import img
+import JL_ML_models as ML_models
+
+print('JLpy_utils_package mounted (repo: https://github.com/jlnerd/JLpy_utils_package.git)')
