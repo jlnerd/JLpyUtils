@@ -1,5 +1,5 @@
 from __init__ import *
-import skimage, skimage.transform, skimage.restoration, skimage.measure
+import skimage, skimage.transform, skimage.restoration, skimage.measure, skimage.feature
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 #    from transform import rescale, resize, downscale_local_mean
@@ -127,6 +127,9 @@ def preprocess_img(img,
     return img_resized_cropped_resized
 
 class auto_crop():
+    """
+    This class contains helper functions for autocropping and image
+    """
 
     def use_countours(img, 
                       padding = 50,
@@ -236,12 +239,16 @@ class auto_crop():
         
         #fetch indices of coner edges
         edge_indices = np.where(edges==True)
-        ylim = (np.min(edge_indices[0])-padding[0],np.max(edge_indices[0])+padding[0])
-        xlim = (np.min(edge_indices[1])-padding[1],np.max(edge_indices[1])+padding[1])
-        
-        #plot cropped image
-        img_cropped = img[ylim[0]:ylim[1], xlim[0]:xlim[1],:]
-        img_cropped_gray = img_gray[ylim[0]:ylim[1], xlim[0]:xlim[1]]
+        if edge_indices[0].shape[0] != 0 and edge_indices[1].shape[0] != 0 :
+            ylim = (np.min(edge_indices[0])-padding[0],np.max(edge_indices[0])+padding[0])
+            xlim = (np.min(edge_indices[1])-padding[1],np.max(edge_indices[1])+padding[1])
+
+            #plot cropped image
+            img_cropped = img[ylim[0]:ylim[1], xlim[0]:xlim[1],:]
+            img_cropped_gray = img_gray[ylim[0]:ylim[1], xlim[0]:xlim[1]]
+        else:
+            img_cropped = img
+            img_cropped_gray = img_gray
         if show_plots:
             ax_list[i].set_title('cropped img')
             ax_list[i].imshow(img_cropped)
