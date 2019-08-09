@@ -4,7 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-import tensorflow as tf
+
+try:
+    import tensorflow as tf
+except ImportError:
+    sys.exit("""You need tensorflow. run: '!pip install tensorflow' or '!pip install tensorflow-gpu'""")
+
 import tensorflow.keras as keras
 import tensorflow.keras.preprocessing
 import tensorflow.keras.layers as layers

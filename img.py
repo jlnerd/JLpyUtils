@@ -2,6 +2,14 @@ from __init__ import *
 import skimage, skimage.transform, skimage.restoration, skimage.measure, skimage.feature
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+
+import sys
+
+try:
+    import cv2
+except ImportError:
+    sys.exit("""You need cv2. run: '!pip install opencv-python' """)
+
 #    from transform import rescale, resize, downscale_local_mean
     
 
@@ -264,86 +272,6 @@ class auto_crop():
             
         return img_cropped, img_cropped_gray
 
-
-
-
-# def eval_pixel_yield(img, 
-#                      n_LEDs_per_Row, 
-#                      failed_pixel_mean_offset_frcn = (0.3,np.inf),
-#                      show_plots = True):
-
-#     img_gray = skimage.color.rgb2gray(img)
-#     img_gray = img_gray / img_gray.max()
-    
-#     # calculate downscale factor
-#     downscale_factor = int(img_gray.shape[0]/n_LEDs_per_Row)
-
-#     img_gray_downscale = skimage.transform.downscale_local_mean(img_gray, 
-#                                                                 factors=(downscale_factor,downscale_factor))
-
-#     if np.min(img_gray_downscale.shape)>2:
-#         img_gray_downscale = img_gray_downscale[1:-1,1:-1]
-    
-#     img_gray_downscale_flat = img_gray_downscale.flatten()
-    
-#     #fit norm dist. model
-#     model = scipy.stats.norm
-#     mean, sigma = model.fit(img_gray_downscale_flat)
-    
-#     # eval pixel count summaries
-#     yield_stats_dict = {}
-#     yield_stats_dict['n_pixels'] = len(img_gray_downscale_flat)
-#     yield_stats_dict['n_failed_pixels'] = len(img_gray_downscale_flat[~np.logical_and(img_gray_downscale_flat>(mean*(1-failed_pixel_mean_offset_frcn[0])), 
-#                                                                 img_gray_downscale_flat<mean*(1+failed_pixel_mean_offset_frcn[1]))])
-#     yield_stats_dict['n_passed_pixels'] = yield_stats_dict['n_pixels'] - yield_stats_dict['n_failed_pixels']
-    
-#     yield_stats_dict['yield'] = yield_stats_dict['n_passed_pixels'] /  yield_stats_dict['n_pixels']
-
-    
-#     x = np.linspace(img_gray_downscale_flat.min(), 
-#                     img_gray_downscale_flat.max(), 100)
-    
-#     print(yield_stats_dict)
-
-#     #img_gray_rescale = skimage.transform.resize(img_gray, output_shape=(30, 30),)
-#     img_failed_pixels = np.ones_like(img_gray_downscale)
-
-#     #map on failed pixels
-#     img_failed_pixels[~np.logical_and(img_gray_downscale>(mean*(1-failed_pixel_mean_offset_frcn[0])), 
-#                                       img_gray_downscale<(mean*(1+failed_pixel_mean_offset_frcn[1])))] = 0
-
-#     fig, ax_list = plt.subplots(1,4)
-#     if show_plots:
-        
-#         counts, bins, _ = ax_list[0].hist(img_gray_downscale_flat, 
-#                                    bins = 100, 
-#                                    density=True) 
-#                                    #label='pixel int')
-
-#         ax_list[0].plot(x, model.pdf(x, mean, sigma))#, label = 'model')
-#         ax_list[0].vlines(mean*(1-failed_pixel_mean_offset_frcn[0]), 0, counts.max(), linestyles='--', color='grey')
-#         ax_list[0].vlines(mean*(1+failed_pixel_mean_offset_frcn[1]), 0, counts.max(), linestyles='--', color='grey', 
-#                    label = 'thresholds: '+str(failed_pixel_mean_offset_frcn))
-#         ax_list[0].grid(which='both')
-#         ax_list[0].legend()
-#         ax_list[0].set_xlabel('normalized\nimg_gray_downscale')
-
-#         ax_list[1].imshow(img_cropped)
-#         ax_list[1].grid(which='both', visible=False)
-        
-#         ax_list[2].imshow(img_gray_downscale)
-#         ax_list[2].grid(which='both', visible=False)
-        
-#         ax_list[3].imshow(img_failed_pixels, vmin=0, vmax = 1)
-#         ax_list[3].grid(which='both', visible=False)
-        
-#         plt.tight_layout(rect= [0,0,3,1])
-#         plt.show()
-        
-#     return yield_stats_dict
-
-
-import cv2
 
 def decompose_video_to_img(path_video,
                            show_plots = True,
