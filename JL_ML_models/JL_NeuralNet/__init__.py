@@ -4,7 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-
 try:
     import tensorflow as tf
 except ImportError:

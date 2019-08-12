@@ -1,7 +1,10 @@
 from __init__ import *
 
 import sklearn, sklearn.model_selection
-import dill
+try:
+    import dill
+except ImportError:
+    sys.exit("""You need dill. run: '!pip install dill'""")
 
 import tensorflow.keras as keras
 import time
