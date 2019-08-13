@@ -195,7 +195,8 @@ class auto_crop():
                                 'low_threshold':None,
                                 'high_threshold':None},
                   padding = (0,0),
-                  show_plots = False):
+                  show_plots = False,
+                  verbose = 0):
         
         """
         Use skimage.feature.canny method to find edges in the img passed. prior to edge finding, the img is converted to grayscale.
@@ -205,9 +206,10 @@ class auto_crop():
             edges_dict: dictionary containing 'sigma', 'low_threshold', 'high_threshold' settings passed to the canny edge detection method.
             padding: # of pixels you want to pad on the edges found by the canny edge filter
             show_plots: boolean to show or not show plots
+            verbose: integer. Higher value will print more processing statements/info.
         Returns:
-            img_cropped: RGB img with croppining applied
-            img_cropped_gray: grayscale version of the image.
+            img_cropped: RGB img with cropping applied
+            img_cropped_gray: grayscale image with cropping applied.
         """
         
         # instantiate img plot
@@ -269,9 +271,49 @@ class auto_crop():
             plt.show()
         else:
             plt.close()
+           
+        if verbose>=1:
+            print('img.shape:',img.shape)
+            print('img_cropped.shape',img_cropped.shape)
+            print('img reduction factor:', np.prod(img.shape)/np.prod(img_cropped.shape))
             
         return img_cropped, img_cropped_gray
+    
+def autocrop_and_downscale(img, target_min_dim = 256, verbose = 0):
+    """
+    Apply edges-based autocropping and downscale using local mean to reduce the min dimension of an image to be equal to the 'target_min_dimension' argument
+    Arguments:
+        img: RGB or gray-scale
+        target_min_dim: integer. default: 256. min dimension for the output image. If the image is rectangular, the longer axis will be scaled by the same amoutn as the shorter axis such that the output image is not distorted.
+        verbose: integer. default: 0. verbosity of print statements
+    Returns:
+        img_autocrop_downscale: RGB image
+    """
+    
+    img_autocrop, _ = auto_crop.use_edges(img, show_plots = False, verbose=0)
+    
+    #fetch xy dimensions of autocropped image
+    dims = list(img_autocrop.shape)[:2]
+    
+    #calculate downscale factors
+    if len(img.shape)==3: 
+        downscale_factors = (int(np.min(dims)/target_min_dim), int(np.min(dims)/target_min_dim), 1)
+    else:
+        downscale_factors = (int(np.min(dims)/target_min_dim), int(np.min(dims)/target_min_dim))
+    
+    if img_autocrop.max()>1:
+        img_autocrop = img_autocrop/255
+    
+    #downscale img
+    img_autocrop_downscale = skimage.transform.downscale_local_mean(img_autocrop, downscale_factors)
 
+    if verbose>=1:
+        print('img.shape:',img.shape)
+        print('img_autocrop.shape:',img_autocrop.shape)
+        print('img_autocrop_downscale.shape:',img_autocrop_downscale.shape)
+        print('img size reduction factor:', round(np.prod(img.shape)/np.prod(img_autocrop_downscale.shape),0))
+    
+    return img_autocrop_downscale 
 
 def decompose_video_to_img(path_video,
                            show_plots = True,
