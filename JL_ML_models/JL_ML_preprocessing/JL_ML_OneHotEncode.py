@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
-import sklearn, sklear.preprocessing
+import sklearn, sklearn.preprocessing
 
-def transform((df, headers_dict, OneHotEncoder, return_format):
+def transform(df, headers_dict, OneHotEncoder, return_format):
     warnings.filterwarnings('ignore')
     
     df = df.copy()

@@ -11,7 +11,6 @@ if os.path.dirname(os.path.abspath(__file__)) not in sys.path:
     sys.path.insert(0,  os.path.dirname(os.path.abspath(__file__)))
     
 import plot
-import strings
 import summary_tables
 import img
 import JL_ML_models as ML_models
