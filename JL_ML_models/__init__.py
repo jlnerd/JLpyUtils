@@ -1,10 +1,4 @@
-import sys, os, warnings
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-
-import sklearn, sklearn.metrics, sklearn.tree, sklearn.neighbors, sklearn.ensemble,  sklearn.linear_model, sklearn.model_selection
+import sys, os
 
 if os.path.dirname(os.path.abspath(__file__)) not in sys.path:
     sys.path.insert(0,  os.path.dirname(os.path.abspath(__file__)))
