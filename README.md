@@ -15,7 +15,7 @@ To import the package, your notebook/code must either be sitting in the same dir
 After this, the package can be imported:
 ```import JLpy_utils_package as JLutils```
 
-## Overview of Package Modules
+## Modules Overview
 There are several modules in this package:
 ```
 JLutils.summary_tables
