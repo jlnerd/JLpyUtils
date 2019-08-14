@@ -34,7 +34,8 @@ The ```auto_crop``` class allows you to automatically crop an image using counto
 
 The ```decompose_video_to_img()``` is fairly self explanatory and basically uses cv2 to pull out and save all the frames from a video.
 
-###JLutils.video
+### JLutils.video
+...
 
 
 
