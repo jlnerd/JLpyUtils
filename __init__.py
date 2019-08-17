@@ -14,5 +14,6 @@ import plot
 import summary_tables
 import img
 import JL_ML_models as ML_models
+import JL_kaggle as kaggle
 
 print('JLpy_utils_package mounted (repo: https://github.com/jlnerd/JLpy_utils_package.git)')

@@ -1,9 +1,13 @@
 import sklearn, sklearn.model_selection
-
-import JL_NeuralNet as NeuralNet
-
 import dill, sys, os, shutil
 import numpy as np
+
+if os.path.dirname(os.path.abspath(__file__)) not in sys.path:
+    sys.path.insert(0,  os.path.join(os.path.dirname(os.path.abspath(__file__)),'..'))
+    sys.path.insert(0,  os.path.dirname(os.path.abspath(__file__)))
+    
+import JL_ML_fetch_models_dict as fetch_models_dict
+
 
 def save_model_dict(path_model_dir, model_dict):
     if os.path.isdir(path_model_dir)==False:
@@ -20,7 +24,9 @@ def load_model_dict(path_model_dir):
     model_dict = dill.load(f)
     f.close()
     return model_dict
+
 def load_NeuralNet_model_dict(path_model_dir, X_train, y_train, epochs):
+    import JL_NeuralNet as NeuralNet
     #fetch best params
     path_file = os.path.join(path_model_dir,'best_params_.dill')                
     f = open(path_file, 'rb') 
@@ -38,14 +44,15 @@ def load_NeuralNet_model_dict(path_model_dir, X_train, y_train, epochs):
 
     
 def GridSearchCV_single_model(model_dict, X_train, y_train, X_test, y_test, cv, scoring, 
-                              path_model_dir, **kwargs):
+                              path_model_dir, n_jobs=-1, **kwargs):
+    import JL_NeuralNet as NeuralNet
     """
     Run Grid Search CV on a single model specified by the "key" argument
     """
     if 'compiler' not in model_dict.keys(): #i.e. if you're not running a neural network
         model_dict['GridSearchCV'] = sklearn.model_selection.GridSearchCV(model_dict['model'],
                                                                           model_dict['param_grid'],
-                                                                          n_jobs=-1,
+                                                                          n_jobs=n_jobs,
                                                                           cv = cv,
                                                                           scoring=scoring,
                                                                           verbose = 1)
@@ -90,9 +97,22 @@ def GridSearchCV(models_dict,
                  metrics = {None:None},
                  retrain = True,
                  path_root_dir = '.',
+                 n_jobs = -1,
                  **kwargs):
     """
-    metrics: [[key(str), method(sklearn.metrics...)]'
+    Run GridSearchCV on all 'models' and their 'param_grid' in the models_dict argument.
+    
+    Arguments:
+        models_dict: dictionary containing all models and their param_grid (see JLutils.ML_models.model_selection.fetch_models_dict...)
+        X_train, y_train, X_test, y_test: train & test datasets
+        cv: cross-validation index.
+        scoring: Default: None.
+            - If scoring = None, use default score for given sklearn model, or use 'loss' for neural network. 
+            - For custom scoring functions, pass 'scoring = {'metric':INSERT FUNCTION, 'maximize':True/False}
+        metrics: dictionary with formating like {metric name (str), metric function (sklearn.metrics...)}. The metric will be evaluated after CV on the test set
+        retrain: Boolean. whether or not you want to retrain the model if it is already been saved in the path_root_dir folder
+        path_root_dir: root directory where the GridSearchCV outputs will be dumped.
+    metrics: '
     """
     
     for key in models_dict.keys():
@@ -112,6 +132,7 @@ def GridSearchCV(models_dict,
                                                          X_train, y_train, X_test, y_test, 
                                                          cv, scoring, 
                                                          path_model_dir,
+                                                         n_jobs = n_jobs,
                                                          **kwargs)
             
         else: #reload previously trained model

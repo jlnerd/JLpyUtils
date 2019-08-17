@@ -1,4 +1,6 @@
-from __init__ import *
+
+import numpy as np
+
 import skimage, skimage.transform, skimage.restoration, skimage.measure, skimage.feature
 import matplotlib.pyplot as plt
 import matplotlib as mpl
