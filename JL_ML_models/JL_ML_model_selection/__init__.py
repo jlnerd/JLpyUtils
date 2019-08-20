@@ -6,4 +6,3 @@ if os.path.dirname(os.path.abspath(__file__)) not in sys.path:
 import JL_ML_models_dict as models_dict
 import JL_ML_model_dict as model_dict
 import JL_ML_GridSearchCV as GridSearchCV
-import JL_ML_compare as compare
