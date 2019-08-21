@@ -28,7 +28,7 @@ def regression(n_features=None, n_labels=None, NeuralNets=False):
                                    'param_grid': {'criterion':     ['mse','friedman_mse','mae'],
                                                  'splitter':       ['best','random'],
                                                  'max_depth':      [None,5,10,100],
-                                                 'max_features':   [None,0.25,0.5,0.75,1.],
+                                                 'max_features':   [None,0.25,0.5,0.75],
                                                  'max_leaf_nodes': [None,10,100]}
                                   }
 
@@ -36,7 +36,7 @@ def regression(n_features=None, n_labels=None, NeuralNets=False):
                                    'param_grid': {'n_estimators':  [10,100,1000],
                                                  'criterion':      ['mse','mae'],
                                                  'max_depth':      [None,5,10,100],
-                                                 'max_features':   [None,0.25,0.5,0.75,1.],
+                                                 'max_features':   [None,0.25,0.5,0.75],
                                                  'max_leaf_nodes': [None,10,100]}}
 
     models_dict['GradBoost'] = {'model':sklearn.ensemble.GradientBoostingRegressor(),
@@ -77,7 +77,7 @@ def classification(n_features=None, n_labels=None, NeuralNets=False):
     models_dict['DecisionTree'] = {'model':sklearn.tree.DecisionTreeClassifier(),
                                    'param_grid': {'criterion':['gini','entropy'],
                                                   'max_depth':[None,1,10,100],
-                                                  'max_features':[None,0.25,0.5,0.75,1.],
+                                                  'max_features':[None,0.25,0.5,0.75],
                                                   'max_leaf_nodes':[None,10,100]}
                                   }
     
