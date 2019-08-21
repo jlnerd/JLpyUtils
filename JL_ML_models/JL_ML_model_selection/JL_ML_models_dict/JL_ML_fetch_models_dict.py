@@ -34,7 +34,7 @@ def regression(n_features=None, n_labels=None, NeuralNets=False):
 
     models_dict['RandomForest'] = {'model': sklearn.ensemble.RandomForestRegressor(),
                                    'param_grid': {'n_estimators':  [10,100,1000],
-                                                 'criterion':      ['mse','friedman_mse','mae'],
+                                                 'criterion':      ['mse','mae'],
                                                  'max_depth':      [None,5,10,100],
                                                  'max_features':   [None,0.25,0.5,0.75,1.],
                                                  'max_leaf_nodes': [None,10,100]}}
