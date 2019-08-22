@@ -1,0 +1,14 @@
+Metadata-Version: 2.1
+Name: JLpy-utils-package
+Version: 2.0.2
+Summary: Custom methodes for various data science, computer vision, and machine learning operations in python
+Home-page: https://github.com/jlnerd/JLpy_utils_package.git
+Author: John T. Leonard
+Author-email: jtleona01@gmail.com
+License: UNKNOWN
+Description: Custom methodes for various data science, computer vision, and machine learning operations in python
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown

@@ -5,8 +5,13 @@ methods:
     multi_model
 """
 
-def single_model(model_dict, X_train, y_train, X_test, y_test, cv, scoring, 
-                              path_model_dir, n_jobs=-1, **kwargs):
+def single_model(model_dict, 
+                 X_train, y_train, X_test, y_test, 
+                 cv, scoring, 
+                 path_model_dir, 
+                 n_jobs=-1, 
+                 verbose = 1,
+                 **kwargs):
     """
     Run Grid Search CV on a single model specified by the "key" argument
     """
@@ -24,7 +29,7 @@ def single_model(model_dict, X_train, y_train, X_test, y_test, cv, scoring,
                                                                           n_jobs=n_jobs,
                                                                           cv = cv,
                                                                           scoring=scoring,
-                                                                          verbose = 1)
+                                                                          verbose = verbose)
         model_dict['GridSearchCV'].fit(X_train,y_train)
 
     else: #run gridsearch using neural net function
@@ -67,6 +72,7 @@ def multi_model(models_dict,
                  retrain = True,
                  path_root_dir = './outputs/GridSearchCV',
                  n_jobs = -1,
+                 verbose = 1,
                  **kwargs):
     """
     Run GridSearchCV on all 'models' and their 'param_grid' in the models_dict argument.
@@ -105,11 +111,12 @@ def multi_model(models_dict,
             
         if retrain or os.path.isfile(path_file)==False:
             models_dict[key] = single_model(models_dict[key], 
-                                                         X_train, y_train, X_test, y_test, 
-                                                         cv, scoring, 
-                                                         path_model_dir,
-                                                         n_jobs = n_jobs,
-                                                         **kwargs)
+                                            X_train, y_train, X_test, y_test, 
+                                            cv, scoring, 
+                                            path_model_dir,
+                                            n_jobs = n_jobs,
+                                            verbose = verbose,
+                                            **kwargs)
             
         else: #reload previously trained model
             if 'Net' not in key:

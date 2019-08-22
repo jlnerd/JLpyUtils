@@ -9,7 +9,7 @@ if os.path.dirname(os.path.abspath(__file__)) not in sys.path:
     sys.path.insert(0,  os.path.join(os.path.dirname(os.path.abspath(__file__)),'..'))
 
 
-def regression(n_features=None, n_labels=None, NeuralNets=False):
+def regression(n_features=None, n_labels=None, NeuralNets=False, verbose = 0):
     """
     Fetch dictionary of standard regression models and their 'param_grid' dictionaries. Standard models are scit-kit learn based objects, while Neural Nets are keras+tensorflow based
     
@@ -32,14 +32,14 @@ def regression(n_features=None, n_labels=None, NeuralNets=False):
                                                  'max_leaf_nodes': [None,10,100]}
                                   }
 
-    models_dict['RandomForest'] = {'model': sklearn.ensemble.RandomForestRegressor(),
+    models_dict['RandomForest'] = {'model': sklearn.ensemble.RandomForestRegressor(verbose = verbose),
                                    'param_grid': {'n_estimators':  [10,100,1000],
                                                  'criterion':      ['mse','mae'],
                                                  'max_depth':      [None,5,10,100],
                                                  'max_features':   [None,0.25,0.5,0.75],
                                                  'max_leaf_nodes': [None,10,100]}}
 
-    models_dict['GradBoost'] = {'model':sklearn.ensemble.GradientBoostingRegressor(),
+    models_dict['GradBoost'] = {'model':sklearn.ensemble.GradientBoostingRegressor(verbose = verbose),
                                 'param_grid':{'loss':['ls', 'lad', 'huber', 'quantile'],
                                               'learning_rate':[0.01, 0.1, 1],
                                               'n_estimators':[10, 100, 1000],
@@ -48,7 +48,7 @@ def regression(n_features=None, n_labels=None, NeuralNets=False):
                                               'max_depth':[None, 5, 10]}
                                }
 
-    models_dict['SVM'] = {'model':sklearn.svm.SVR(),
+    models_dict['SVM'] = {'model':sklearn.svm.SVR(verbose = verbose),
                           'param_grid': {'kernel':['linear', 'poly', 'rbf', 'sigmoid'],
                                          'gamma':['auto','scale']}}
 
@@ -64,7 +64,7 @@ def regression(n_features=None, n_labels=None, NeuralNets=False):
     return models_dict
 
 
-def classification(n_features=None, n_labels=None, NeuralNets=False):
+def classification(n_features=None, n_labels=None, NeuralNets=False, verbose = 0):
     
     """
     Fetch dictionary of standard classification models and their 'param_grid' dictionaries. Standard models are scit-kit learn based objects, while Neural Nets are keras+tensorflow based
@@ -81,14 +81,14 @@ def classification(n_features=None, n_labels=None, NeuralNets=False):
                                                   'max_leaf_nodes':[None,10,100]}
                                   }
     
-    models_dict['RandomForest'] = {'model': sklearn.ensemble.RandomForestClassifier(),
+    models_dict['RandomForest'] = {'model': sklearn.ensemble.RandomForestClassifier(verbose = verbose),
                                    'param_grid':{'n_estimators':[10,100,1000],
                                                   'criterion':['gini','entropy'],
                                                   'max_depth':[None,1,10,100],
                                                    'max_leaf_nodes':[None,10,100]}
                                    }
     
-    models_dict['GradBoost'] = {'model': sklearn.ensemble.GradientBoostingClassifier(),
+    models_dict['GradBoost'] = {'model': sklearn.ensemble.GradientBoostingClassifier(verbose = verbose),
                                 'param_grid': {'loss':['deviance','exponential'],
                                               'learning_rate':[0.01, 0.1, 1],
                                               'n_estimators':[10, 100, 1000],
@@ -97,7 +97,7 @@ def classification(n_features=None, n_labels=None, NeuralNets=False):
                                               'max_depth':[None, 5, 10]}
                                }
     
-    models_dict['SVM'] = {'model':sklearn.svm.SVC(probability=True),
+    models_dict['SVM'] = {'model':sklearn.svm.SVC(probability=True, verbose = verbose),
                           'param_grid': {'kernel':['linear', 'poly', 'rbf', 'sigmoid'],
                                          'gamma':['auto','scale']}
                          }
