@@ -12,7 +12,7 @@ Custom modules/classes/methods for various data science, computer vision, and ma
 ## Installing & Importing
 In CLI:
 ```
-$ pip install -I JLpy_utils_package
+$ pip install -upgrade JLpy_utils_package
 ```
 After this, the package can be imported into jupyter notebook or python in general via the comman:
 ```import JLpy_utils_package as JLutils```
