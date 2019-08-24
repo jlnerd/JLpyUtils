@@ -45,6 +45,15 @@ def fetch_color_map_for_primary_color(primary_color, n_colors,
         color_map = plt.cm.jet(np.linspace(color_space_range[0],color_space_range[1],n_colors))    
     return color_map
 
+def corr_matrix(df_corr):
+    fig, ax = plt.subplots(1,1)
+    cax = ax.matshow(df_corr)
+    fig.colorbar(cax)
+    ax.grid(which='both',visible=False)
+    ax.set_xticklabels([0]+list(df_corr.columns), rotation='vertical')
+    ax.set_yticklabels([0]+list(df_corr.columns))
+    plt.show()
+
 def plot_corr_and_pareto(df,label,size=10):
     '''
     Description: 

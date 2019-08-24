@@ -39,5 +39,11 @@ The ```decompose_video_to_img()``` is fairly self explanatory and basically uses
 ### JLutils.video
 ...
 
+### JLutils.kaggle
+This module contains functions for interacting with kaggle. The simplest function is:
+```
+JLutils.kaggle.competition_download_files(competition)
+```
+where ```competition``` is the competition name, such as  "home-credit-default-risk"
 
 
