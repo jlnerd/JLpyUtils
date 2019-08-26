@@ -207,12 +207,12 @@ class feat_eng_pipe():
             X = LabelEncoder.transform(X)
             
             #label encode field data
-            if X_field != None: 
+            if type(X_field) != 'NoneType': 
                 X_field = LabelEncoder.transform(X_field)
 
             #save
             self.save(X, path_feat_eng_dir, 'X', format_)
-            if X_field != None: self.save(X_field, path_feat_eng_dir, 'X_field', format_)
+            if type(X_field) != 'NoneType': self.save(X_field, path_feat_eng_dir, 'X_field', format_)
             
             self.LabelEncoder = LabelEncoder
             
@@ -221,7 +221,7 @@ class feat_eng_pipe():
 
         else:
             X = self.load(path_feat_eng_dir, 'X', format_)
-            if X_field != None: X_field = self.load(path_feat_eng_dir, 'X_field', format_)
+            if type(X_field) != 'NoneType': X_field = self.load(path_feat_eng_dir, 'X_field', format_)
 
         return X, X_field, path_feat_eng_dir
                 
@@ -251,12 +251,12 @@ class feat_eng_pipe():
             X, Scaler = Scale.continuous_features(X, headers_dict['continuous features'], 
                                                   Scaler = self.Scalers_dict[Scaler_ID])
 
-            if X_field !=None: 
+            if type(X_field) != 'NoneType':
                 X_field[headers_dict['continuous features']] = Scaler.transform(X_field[headers_dict['continuous features']])
 
             #save
             self.save(X, path_feat_eng_dir, 'X', format_)
-            if X_field != None: self.save(X_field, path_feat_eng_dir, 'X_field', format_)
+            if type(X_field) != 'NoneType': self.save(X_field, path_feat_eng_dir, 'X_field', format_)
 
         else:
             #check if the step after this has been completed, if not load the data here
@@ -265,7 +265,7 @@ class feat_eng_pipe():
                                           'Imputer_iterator_classifier_ID['+str(Imputer_iter_class_ID)+']')
             if self.__feat_eng_files_saved__(path_next_step, format_, find_X_field)==False:
                 X = self.load(path_feat_eng_dir, 'X', format_)
-                if X_field != None: X_field = self.load(path_feat_eng_dir, 'X_field', format_)
+                if type(X_field) != 'NoneType': X_field = self.load(path_feat_eng_dir, 'X_field', format_)
 
         return X, X_field, path_feat_eng_dir
 
@@ -304,7 +304,7 @@ class feat_eng_pipe():
 
             #save
             self.save(X, path_feat_eng_dir, 'X', format_)
-            if X_field != None: self.save(X_field, path_feat_eng_dir, 'X_field', format_)
+            if type(X_field) != 'NoneType': self.save(X_field, path_feat_eng_dir, 'X_field', format_)
 
         else:
             #check if the step after this has been completed, if not load the data here
@@ -313,7 +313,7 @@ class feat_eng_pipe():
                                           'Imputer_iterator_regressor_ID['+str(Imputer_iter_reg_ID)+']')
             if self.__feat_eng_files_saved__(path_next_step, format_, find_X_field)==False:
                 X = self.load(path_feat_eng_dir, 'X', format_)
-                if X_field != None: X_field = self.load(path_feat_eng_dir, 'X_field', format_)
+                if type(X_field) != 'NoneType': X_field = self.load(path_feat_eng_dir, 'X_field', format_)
 
         return X, X_field, path_feat_eng_dir
         
@@ -351,14 +351,14 @@ class feat_eng_pipe():
 
             #save
             self.save(X, path_feat_eng_dir, 'X', format_)
-            if X_field != None: self.save(X_field, path_feat_eng_dir, 'X_field', format_)
+            if type(X_field) != 'NoneType': self.save(X_field, path_feat_eng_dir, 'X_field', format_)
 
         else:
             #check if the step after this has been completed, if not load the data here
             path_next_step = os.path.join(path_feat_eng_dir,'OneHot_case['+str(OneHot_case)+']')
             if self.__feat_eng_files_saved__(path_next_step, format_, find_X_field)==False or self.overwrite=='OneHot':
                 X = self.load(path_feat_eng_dir, 'X', format_)
-                if X_field != None: X_field = self.load(path_feat_eng_dir, 'X_field', format_)
+                if type(X_field) != 'NoneType': X_field = self.load(path_feat_eng_dir, 'X_field', format_)
 
         return X, X_field, path_feat_eng_dir
 
@@ -397,7 +397,7 @@ class feat_eng_pipe():
                 headers_dict['headers after OneHot'] = OneHotEncoder.headers_after_OneHot
 
                 #label encode field data
-                if X_field != None: 
+                if type(X_field) != 'NoneType': 
                     X_field = OneHotEncoder.transform(X_field)
                 
                 #save the encoder
@@ -406,18 +406,18 @@ class feat_eng_pipe():
             else: #if OneHot is False, just skip transform to numpy array
                 headers_dict['headers after OneHot'] = list(X.columns)
                 X = np.array(X)
-                if X_field != None: X_field = np.array(X_field) 
+                if type(X_field) != 'NoneType': X_field = np.array(X_field) 
                     
             #save
             self.save(X, path_feat_eng_dir, 'X', format_)
-            if X_field != None: self.save(X_field, path_feat_eng_dir, 'X_field', format_)
+            if type(X_field) != 'NoneType': self.save(X_field, path_feat_eng_dir, 'X_field', format_)
             
             self.save(headers_dict, path_feat_eng_dir, 'headers_dict', 'json')
             
         else:
             #load
             X = self.load(path_feat_eng_dir, 'X', format_)
-            if X_field != None: X_field = self.load(path_feat_eng_dir, 'X_field', format_)
+            if type(X_field) != 'NoneType': X_field = self.load(path_feat_eng_dir, 'X_field', format_)
                 
             headers_dict = self.load(path_feat_eng_dir, 'headers_dict', 'json')
 
@@ -490,7 +490,7 @@ class feat_eng_pipe():
         if all_data_previously_saved==False or self.overwrite == True: 
 
             X = X.copy()
-            if X_field != None: X_field = X_field.copy()
+            if type(X_field) != 'NoneType': X_field = X_field.copy()
             headers_dict = headers_dict.copy()
 
             ####### Scale #########
@@ -566,9 +566,10 @@ class feat_eng_pipe():
         gc.collect()
         
         X = X.copy()
-        if X_field != None: 
+        if type(X_field) != 'NoneType': 
             X_field = X_field.copy()
-        if X_field == None:
+            find_X_field = True
+        else:
             find_X_field = False
         headers_dict = headers_dict.copy()
         
@@ -577,13 +578,13 @@ class feat_eng_pipe():
         #ensure only the features identified in the headers dict are passed
         assert(X[headers_dict['categorical features']+headers_dict['continuous features']].shape[1] == X.shape[1]), 'The headers in X do not match the contiuous and categorical headers in the headers_dict'
         
-        if X_field != None: 
+        if type(X_field) != 'NoneType': 
             assert(X_field[headers_dict['categorical features']+headers_dict['continuous features']].shape[1] == X_field.shape[1]), 'The headers in X_field do not match the contiuous and categorical headers in the headers_dict'
         
         if self.verbose>=2: 
             print('X.info():')
             X.info()
-            if X_field != None:
+            if type(X_field) != 'NoneType':
                 print('\nX_field.info():')
                 X_field.info()
             
@@ -591,7 +592,7 @@ class feat_eng_pipe():
         path_feat_eng_dir = self.path_feat_eng_root_dir 
         if self.__feat_eng_files_saved__(path_feat_eng_dir, format_, find_X_field) == False or self.overwrite==True:
             self.save(X, path_feat_eng_dir, 'X', format_)
-            if X_field != None: 
+            if type(X_field) != 'NoneType': 
                 self.save(X_field, path_feat_eng_dir, 'X_field', format_)
             
         #LabelEncode
