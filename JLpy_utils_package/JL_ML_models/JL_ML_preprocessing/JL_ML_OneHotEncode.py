@@ -2,69 +2,119 @@ import numpy as np
 import pandas as pd
 import sklearn, sklearn.preprocessing
 
-def transform(df, headers_dict, OneHotEncoder, return_format):
-    warnings.filterwarnings('ignore')
     
-    df = df.copy()
-    headers_dict = headers_dict.copy()
+class categorical_features():
     
-    c =0
-    for header in headers_dict['categorical_features']:
-        #ensure integer data type
-        df[header] = df[header].astype(int)
-        
-        #if a value in the df does not exist in the encoder, update it with the most frequent value from the fit_value_counts
-        for unique in df[header].unique():
-            if unique not in OneHotEncoder.categories_[c]:
-                value = int(OneHotEncoder.fit_value_counts[c]['value'][OneHotEncoder.fit_value_counts[c]['count'] == np.max(OneHotEncoder.fit_value_counts[c]['count'])])
-                df[header][df[header]==unique] = value
-        c+=1
-    
-    OneHotEncodings = OneHotEncoder.transform(df[headers_dict['categorical_features']])
-    
-    df = df.drop(columns = headers_dict['categorical_features']).reset_index(drop=True)
-    
-    if return_format == 'DataFrame':
-        OneHotEncodings = pd.DataFrame(OneHotEncodings.toarray(),
-                            columns = list(OneHotEncoder.get_feature_names()))
-        df_or_npArray = pd.concat((df, OneHotEncodings),axis=1)
-    if return_format == 'npArray':
-        headers_dict['headers_after_OneHot'] = list(df.columns) + list(OneHotEncoder.get_feature_names())
-        df_or_npArray = np.concatenate((np.array(df), OneHotEncodings.toarray()), axis = 1)
-    
-    warnings.filterwarnings('default')
-    return df_or_npArray, headers_dict
-    
-def categorical_features(df, headers_dict, return_format = 'DataFrame'):
     """
     OneHot encode each categorical feature. This function assumes an impute transforma (fill na) has been performed prior to encoding such that the encoder does not need to be able to transform datasets containng NaN values
 
     Arugments:
-        df: Pandas df
-        headers_dict: dictionary containing the key "categorical_features" with a list of categorical feature columns/headers in the dataframe
+    ----------
+       categorical_headers: list of categorical feature columns/headers in the dataframe
         return_format: string, default = 'DataFrame'
-            - if 'DataFrame': the first element of the return statement will be a pandas dataframe with the one hot encodings integrated. This can consume a huge amount of memory for large arrays with many encodings
-            - if 'npArray': the first element of the return statement will be a numpy array. The headers_dict will be updated to included "headers_after_OneHot", which is a list of headers associated with the numpy array.
-
+            - if 'DataFrame': the transformed data will be returned as a pandas dataframe. This can consume a large amount of memory for large arrays with many encodings
+            - if 'npArray': the transformed data will be returned as a numpy array.
     """
-    df = df.copy()
-    headers_dict = headers_dict.copy()
+    
+    def __init__(self, return_format = 'DataFrame', LabelEncoder = None):
+        
+        import numpy as np
+        import pandas as pd
+        import sklearn, sklearn.preprocessing
+        import warnings
 
-    categories = []
-    for header in headers_dict['categorical_features']:
-        df[header] = df[header].astype(int)
-        categories.append([idx for idx in range(df[header].unique().min(), df[header].unique().max()+1)])
+        self.return_format = return_format
+        self.LabelEncoder = LabelEncoder
+        
+    def fit(self, X, categorical_headers):
+        """
+        Arugments:
+        ----------
+        X: pandas dataframe of interest
+        categorical_headers: list of categorical feature columns/headers in the X dataframe
+        """
+        import numpy as np
+        import pandas as pd
+        import sklearn, sklearn.preprocessing
+        import warnings
+    
+        X = X.copy()
+        
+        self.categorical_headers = categorical_headers
+        
+        # fetch categories
+        categories = []
+        for header in categorical_headers:
+            X[header] = X[header].astype(int)
+            categories.append([idx for idx in range(X[header].unique().min(), X[header].unique().max()+1)])
+        
+        #build encoder
+        self.Encoder = sklearn.preprocessing.OneHotEncoder(categories = categories)
+        
+        #run fit
+        self.Encoder.fit(X[categorical_headers])
+        
+        #add fit value counts to use if transforming unseen dataset with values not found in original data
+        self.fit_value_counts = []
+        for header in categorical_headers:
+            counts = X[header].value_counts().reset_index()
+            counts.columns = ['value', 'count']
+            self.fit_value_counts.append(counts)
+        
+        
+        #compile OneHot_headers
+        self.OneHot_headers = []
+        for i in range(len(self.categorical_headers)):
+            header = self.categorical_headers[i]
+            for val in self.Encoder.categories_[i]:
 
-    OneHotEncoder = sklearn.preprocessing.OneHotEncoder(categories = categories)
-    OneHotEncoder.fit(df[headers_dict['categorical_features']])
+                #if a LabelEncoder is passed, inverse transform the encoded value for labeling the header
+                if self.LabelEncoder!= None:
+                    if header in self.LabelEncoder.LabelEncoder_dict.keys():
+                        val = self.LabelEncoder.LabelEncoder_dict[header].inverse_transform([val])[0]
 
-    df_or_npArray, headers_dict = OneHotEncoder_transform(df, headers_dict, OneHotEncoder, return_format)
+                self.OneHot_headers.append(header+'['+str(val)+']')
+        
+        
+    def transform(self, X):
+        import numpy as np
+        import pandas as pd
+        import sklearn, sklearn.preprocessing
+        import warnings
+        
+        warnings.filterwarnings('ignore')
 
-    #add fit value counts to use if transforming unseen dataset with values not found in original data
-    OneHotEncoder.fit_value_counts = []
-    for header in headers_dict['categorical_features']:
-        counts = df[header].value_counts().reset_index()
-        counts.columns = ['value', 'count']
-        OneHotEncoder.fit_value_counts.append(counts)
+        X = X.copy()
 
-    return df_or_npArray, headers_dict, OneHotEncoder
+        c =0
+        for header in self.categorical_headers:
+            #ensure integer data type
+            X[header] = X[header].astype(int)
+
+            #if a value in the X does not exist in the encoder, update it with most frequent value from the fit_value_counts
+            for unique in X[header].unique():
+                if unique not in self.Encoder.categories_[c]:
+                    value = int(self.fit_value_counts[c]['value'][self.fit_value_counts[c]['count'] == np.max(self.fit_value_counts[c]['count'])])
+                    X[header][X[header]==unique] = value
+            c+=1
+
+        OneHotEncodings = self.Encoder.transform(X[self.categorical_headers])
+
+        X = X.drop(columns = self.categorical_headers).reset_index(drop=True)
+        
+        if self.return_format == 'DataFrame':
+            OneHotEncodings = pd.DataFrame(OneHotEncodings.toarray(),
+                                columns = self.OneHot_headers )
+            X = pd.concat((X, OneHotEncodings),axis=1)
+            
+            self.headers_after_OneHot = list(X.columns)
+            
+        if self.return_format == 'npArray':
+            
+            self.headers_after_OneHot = list(X.columns) + self.OneHot_headers
+            
+            X = np.concatenate((np.array(X), OneHotEncodings.toarray()), axis = 1)
+
+        warnings.filterwarnings('default')
+
+        return X

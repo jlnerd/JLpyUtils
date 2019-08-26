@@ -49,8 +49,9 @@ def regression(n_features=None, n_labels=None, NeuralNets=False, verbose = 0):
                                }
 
     models_dict['SVM'] = {'model':sklearn.svm.SVR(verbose = verbose),
-                          'param_grid': {'kernel':['linear', 'poly', 'rbf', 'sigmoid'],
-                                         'gamma':['auto','scale']}}
+                          'param_grid': {'kernel':['linear', 'poly', 'rbf', 'sigmoid']
+                                        }
+                         }
 
     models_dict['KNN'] = {'model': sklearn.neighbors.KNeighborsRegressor(),
                           'param_grid': {'n_neighbors':[5, 10, 100],
