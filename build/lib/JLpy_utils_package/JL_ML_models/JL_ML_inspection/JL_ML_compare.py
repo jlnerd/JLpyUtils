@@ -1,4 +1,3 @@
-from __init__ import *
 
 def model_metrics(models_dict, metrics, verbose = 1):
     """

@@ -1,4 +1,3 @@
-from __init__ import *
 
 def learning_curves(history):
     """

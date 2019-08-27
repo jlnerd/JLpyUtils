@@ -1,14 +1,4 @@
-import sys, os
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 
-
-if os.path.dirname(os.path.abspath(__file__)) not in sys.path:
-    sys.path.insert(0,  os.path.join(os.path.dirname(os.path.abspath(__file__)),'..'))
-
-from JL_NeuralNet.JL_NeuralNet_plot import *
 
 def False_pred_imgs(X, y, y_pred, label_encodings_dict = None):
     False_preds_mask = (y!=y_pred).any(axis=1)

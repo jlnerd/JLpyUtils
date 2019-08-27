@@ -1,60 +1,31 @@
-from __init__ import *
-
-import sklearn, sklearn.model_selection
-try:
-    import dill
-except ImportError:
-    sys.exit("""You need dill. run: '!pip install dill'""")
-
-import tensorflow.keras as keras
-import time
-
-def run_single_cv_fit(X_train, y_train,
-                       X_test, y_test,
-                       train_idx, val_idx,
-                       model,
-                       batch_size, 
-                       epochs,
-                       callbacks,
-                       scoring,
-                       verbose=0):
-    
-    X_train_val, X_val = X_train[train_idx], X_train[val_idx]
-    y_train_val, y_val = y_train[train_idx], y_train[val_idx]
-    
-    #fit the model
-    history = model.fit(x=X_train_val, 
-                        y=y_train_val, 
-                        validation_data=(X_val, y_val),
-                        batch_size=batch_size, 
-                        epochs = epochs, 
-                        verbose= verbose, 
-                        callbacks = callbacks)
-    metrics_dict = {}
-    for key in history.history.keys():
-        if key!='lr':
-            metrics_dict[key] = history.history[key][-1]
-
-    Score = metrics_dict['val_'+scoring['metric']]
-                      
-    return Score
-      
+import tensorflow as __tf__
+import os as __os__
 
 class GridSearchCV:
+    """
+    GridSearchCV on keras-based neural nets
+    
+    Arguments:
+    ---------
+        
+    
+    """
     
     def __init__(self, 
-                 compiler, 
+                 model, 
                    param_grid, 
-                   callbacks = [keras.callbacks.EarlyStopping(monitor='val_loss', patience =10)],
+                   callbacks = [__tf__.keras.callbacks.EarlyStopping(monitor='val_loss', patience =10)],
                    scoring = {'metric': 'loss', 'maximize':False},
                    batch_size = 32,
                    epochs = 100,
                    cv='warn', 
-                   path_report_folder = os.path.abspath('.'),
+                   path_report_folder = __os__.path.abspath('.'),
                    verbose=1):
         
+        import sys, os
+        
         self.param_grid = param_grid
-        self.compiler = compiler
+        self.model = model
         self.cv = cv
         self.verbose = verbose
         self.param_grid = param_grid
@@ -62,6 +33,14 @@ class GridSearchCV:
         self.batch_size = batch_size
         self.epochs = epochs
         self.scoring = scoring
+        
+        #import load and saving functions from JL_file_utils
+        if os.path.dirname(os.path.abspath(__file__)) not in sys.path:
+            sys.path.insert(0,  os.path.dirname(os.path.abspath(os.path.join(__file__,'..','..','..'))))
+        import JL_file_utils as file_utils
+        
+        self.load = file_utils.load
+        self.save = file_utils.save
         
         #check assertions
         assert(type(self.scoring)==dict), 'scoring must be a dictionary with a "metric" and "maximize" key'
@@ -86,28 +65,51 @@ class GridSearchCV:
             os.makedirs(self.path_report_folder)
         
         #save the settings to the report folder
-        file = open(os.path.join(self.path_report_folder,'compiler.dill'),'wb')
-        dill.dump(self.compiler, file)
-        file.close()
-        
-#         file = open(os.path.join(self.path_report_folder,'callbacks.dill'),'wb')
-#         dill.dump(self.callbacks, file)
-#         file.close()
+        self.save(self.model, 'model', 'dill', self.path_report_folder)
         
         batch_size_epochs_cv_params = {'batch_size':self.batch_size,
                                       'epochs':self.epochs,
                                       'cv':self.cv}
-        file = open(os.path.join(self.path_report_folder,'batch_size_epochs_cv_params.dill'),'wb')
-        dill.dump(batch_size_epochs_cv_params, file)
-        file.close()
         
+        self.save(batch_size_epochs_cv_params, 'batch_size_epochs_cv_params', 'dill', self.path_report_folder)
         
+    
+    def __run_single_cv_fit__(self,
+                              X_train, y_train,
+                               X_test, y_test,
+                               train_idx, val_idx,
+                               model,
+                               batch_size, 
+                               epochs,
+                               callbacks,
+                               scoring,
+                               verbose=0):
+
+        X_train_val, X_val = X_train[train_idx], X_train[val_idx]
+        y_train_val, y_val = y_train[train_idx], y_train[val_idx]
+
+        #fit the model
+        history = model.fit(x=X_train_val, 
+                            y=y_train_val, 
+                            validation_data=(X_val, y_val),
+                            batch_size=batch_size, 
+                            epochs = epochs, 
+                            verbose= verbose, 
+                            callbacks = callbacks)
+        metrics_dict = {}
+        for key in history.history.keys():
+            if key!='lr':
+                metrics_dict[key] = history.history[key][-1]
+
+        Score = metrics_dict['val_'+scoring['metric']]
+
+        return Score
+    
     def Kfold(self, X, y, n_splits = 5, stratified = False ):
         """
         Build train - validation index generator for K fold splits
         """
-        
-        
+        import sklearn.model_selection
         
         if len(y.shape)>1:
             if y.shape[1]>1: #if y is one hot encoded
@@ -129,9 +131,17 @@ class GridSearchCV:
         return kf_Xy_split_idx_gen 
     
     def ParameterGrid(self, param_grid):
+        import sklearn.model_selection
         return list(sklearn.model_selection.ParameterGrid(param_grid))
     
     def fit(self, X_train, y_train, X_test, y_test):
+        
+        import numpy as np
+        import warnings
+        import time
+        import sys, os
+        
+        warnings.filterwarnings('ignore')
         
         X_train = np.array(X_train)
         y_train = np.array(y_train)
@@ -152,9 +162,7 @@ class GridSearchCV:
         self.ParameterGrid_dict[self.scoring['metric']] = np.zeros((len(self.ParameterGrid_dict['params'])))
         
         #save to report folder
-        file = open(os.path.join(self.path_report_folder,'ParameterGrid_dict.dill'),'wb')
-        dill.dump(self.ParameterGrid_dict, file)
-        file.close()
+        self.save(self.ParameterGrid_dict, 'ParameterGrid_dict', 'dill', self.path_report_folder)
         
         #run grid search
         p=0
@@ -169,12 +177,12 @@ class GridSearchCV:
                       end='\r')
             
             #build the model
-            model = self.compiler(**params)
+            model_ = self.model(**params)
             if self.verbose >=4:
-                model.summary()
+                model_.summary()
             
             if self.verbose>=3:
-                print('\tn_params:',model.count_params())
+                print('\tn_params:',model_.count_params())
                 
             #get cv split generator
             kf_Xy_split_idx_gen  = self.Kfold(X_train, y_train, self.cv)
@@ -185,15 +193,15 @@ class GridSearchCV:
             for train_idx, val_idx in kf_Xy_split_idx_gen:
                 
                 time_train = time.time()
-                Score = run_single_cv_fit(X_train, y_train,
-                                          X_test, y_test,
-                                          train_idx, val_idx,
-                                          model,
-                                          self.batch_size, 
-                                          self.epochs,
-                                          self.callbacks,
-                                          self.scoring,
-                                          verbose=cv_verbosity)
+                Score = self.__run_single_cv_fit__(X_train, y_train,
+                                                  X_test, y_test,
+                                                  train_idx, val_idx,
+                                                  model_,
+                                                  self.batch_size, 
+                                                  self.epochs,
+                                                  self.callbacks,
+                                                  self.scoring,
+                                                  verbose=cv_verbosity)
                 if self.verbose>=3:
                     print('\t\tScore:',Score) 
                 cv_Scores.append(Score)
@@ -215,9 +223,7 @@ class GridSearchCV:
             self.ParameterGrid_dict[self.scoring['metric']][p] = Score
             
             #save to report folder
-            file = open(os.path.join(self.path_report_folder,'ParameterGrid_dict.dill'),'wb')
-            dill.dump(self.ParameterGrid_dict, file)
-            file.close()               
+            self.save(self.ParameterGrid_dict, 'ParameterGrid_dict', 'dill', self.path_report_folder)
                                                
             p+=1
         
@@ -232,9 +238,7 @@ class GridSearchCV:
         
         #fetch best parameters
         self.best_params_ = self.ParameterGrid_dict['params'][best_idx]
-        file = open(os.path.join(self.path_report_folder,'best_params_.dill'),'wb')
-        dill.dump(self.best_params_, file)
-        file.close() 
+        self.save(self.best_params_, 'best_params_', 'dill', self.path_report_folder)
         
         if self.verbose >=1:
             print('best_score_:',self.best_score_,'         ')
@@ -244,21 +248,24 @@ class GridSearchCV:
         #fetch best model
         if self.verbose >=2:
             print('Fitting best estimator...')
-        model = self.compiler(**self.best_params_)
-        model.fit(x=X_train, y=y_train,
+        model_ = self.model(**self.best_params_)
+        model_.fit(x=X_train, y=y_train,
                   validation_data=(X_test, y_test),
                 batch_size=self.batch_size, 
                 epochs = self.epochs, 
                 verbose= cv_verbosity, 
                 callbacks = self.callbacks)
-        self.best_estimator_ = model
+        self.best_estimator_ = model_
         
         try:
-            self.best_estimator_.save(os.path.join(self.path_report_folder,'best_estimator_.h5')) 
-        except:
-            print('An error was raised while saving best_estimator_, consider manual saving the model outside the GridSearchCV.fit method')
+            self.best_estimator_.save(os.path.join(self.path_report_folder, 'best_estimator_.h5')) 
+        except Exception as e:
+            print('Exception at save:',e)
         
         if self.verbose >=2:
             print('...Finished')
+            
+        warnings.filterwarnings('default')
+        
         
             
