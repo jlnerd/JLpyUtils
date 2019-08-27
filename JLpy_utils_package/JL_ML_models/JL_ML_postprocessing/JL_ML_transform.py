@@ -1,5 +1,3 @@
-import numpy as np
-import pandas as pd
 
 class one_hot():
     def prob_to_class_transform(y_probs, prob_threshold = 0.5 ):

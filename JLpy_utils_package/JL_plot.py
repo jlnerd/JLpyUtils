@@ -1,24 +1,23 @@
-import matplotlib as mpl
-import matplotlib.pyplot as plt
+import matplotlib as __mpl__
 
-mpl.rcParams['grid.color'] =  'lightgray'
-mpl.rcParams['grid.linestyle'] = '-'
-mpl.rcParams['grid.linewidth'] = 1
-mpl.rcParams['axes.grid.which'] = 'both'
-mpl.rcParams['axes.grid']=True 
-mpl.rcParams['xtick.minor.visible']=True
-mpl.rcParams['ytick.minor.visible']=True
-mpl.rcParams['xtick.top']=True
-mpl.rcParams['ytick.right']=True
-mpl.rcParams['xtick.direction']='inout'
-mpl.rcParams['ytick.direction']='inout'
-mpl.rcParams['font.size'] = 14
-mpl.rcParams['figure.facecolor'] = 'w'
-
-import numpy as np
-import pandas as pd
+__mpl__.rcParams['grid.color'] =  'lightgray'
+__mpl__.rcParams['grid.linestyle'] = '-'
+__mpl__.rcParams['grid.linewidth'] = 1
+__mpl__.rcParams['axes.grid.which'] = 'both'
+__mpl__.rcParams['axes.grid']=True 
+__mpl__.rcParams['xtick.minor.visible']=True
+__mpl__.rcParams['ytick.minor.visible']=True
+__mpl__.rcParams['xtick.top']=True
+__mpl__.rcParams['ytick.right']=True
+__mpl__.rcParams['xtick.direction']='inout'
+__mpl__.rcParams['ytick.direction']='inout'
+__mpl__.rcParams['font.size'] = 14
+__mpl__.rcParams['figure.facecolor'] = 'w'
 
 def make_independant_legend(legend_lines,legened_labels,legend_title):
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    
     plt.legend(legend_lines,legened_labels,title=legend_title)
     plt.grid(which='both')
     plt.axis('off')
@@ -31,6 +30,9 @@ def fetch_color_map_for_primary_color(primary_color, n_colors,
                                  'G': (0.4,0.6),
                                  'B': (0,0.3)}
     """
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    
     if color_space_range == None: # Apply default setting
         color_space_range = {'R': (0.1,0.7),
                              'G': (0.4,0.6),
@@ -45,43 +47,53 @@ def fetch_color_map_for_primary_color(primary_color, n_colors,
         color_map = plt.cm.jet(np.linspace(color_space_range[0],color_space_range[1],n_colors))    
     return color_map
 
-def corr_matrix(df_corr):
+def corr_matrix(df_corr, cbar_label = 'Correlation Coeff.', vmin = None, vmax = None):
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    
     fig, ax = plt.subplots(1,1)
-    cax = ax.matshow(df_corr)
-    fig.colorbar(cax)
+    cax = ax.matshow(df_corr, vmin = vmin, vmax = vmax)
+    cbar = fig.colorbar(cax)
+    cbar.set_label(cbar_label, labelpad=15, ha='center', va='center', rotation=90)
     ax.grid(which='both',visible=False)
     ax.set_xticklabels([0]+list(df_corr.columns), rotation='vertical')
     ax.set_yticklabels([0]+list(df_corr.columns))
     plt.show()
 
-def corr_and_pareto(df,label,size=10):
+def corr_pareto(df_corr,label, rect = (0, 0, 1, 1), ylim = None):
+    
     '''
-    Description: 
-        Plt correlation matrix for entire data frame, then plot pareto bar-chart for 1 label of interest
-    Inputs:
-        df: pandas DataFrame
+    Plot plot pareto bar-chart for 1 label of interest within a correlation dataframe
+    Arguments:
+    ---------
+        df_corr: pandas DataFrame correlation matrix
         label: column/header for which you want to plot the bar-chart pareto for
         size: vertical and horizontal size correlation chart
     Returns:
+    --------
         df_correlations, df_label_pareto, df_label_pareto_sorted
-        '''
-    
-    #plot correlation chart
-    df_correlations = plot_corr(df,size)
-    plt.show()
-    
-    #Fetch pareto for selected label
-    df_label_pareto = df_correlations[label]
-    df_label_pareto_sorted = df_correlations[label].sort_values(ascending=False)
+    '''
 
-    plt.bar(df_label_pareto_sorted.index,df_label_pareto_sorted)
-    plt.xticks(rotation = 'vertical')
-    plt.ylabel(label+" Correlation Factor",fontsize = 14)
-    plt.title(label+" Correlation Factor Pareto", fontsize = 14)
-    plt.tick_params(axis='both',labelsize = 14)
-    plt.show()
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+
+    #Fetch pareto for selected label
+    df_label_pareto = df_corr[label]
+    df_label_pareto_sorted = df_corr[label].sort_values(ascending=False)
+    df_label_pareto_sorted = df_label_pareto_sorted.drop(label)
+
+    fig, ax = plt.subplots(1,1)
+    ax.bar(df_label_pareto_sorted.index, df_label_pareto_sorted)
     
-    return df_correlations, df_label_pareto, df_label_pareto_sorted
+    ax.set_ylabel(label+" Correlation Factor")
+    ax.set_title(label+" Correlation Factor Pareto\n")
+    ax.grid(which='both', visible=False)
+    ax.set_ylim(ylim)
+    
+    ax.set_xticklabels(df_label_pareto_sorted.index, rotation = 'vertical')
+
+    fig.tight_layout(rect = rect )
+    plt.show()
 
 def by_color_group_and_line_group(df,
                                        color_group,
@@ -126,10 +138,14 @@ def hist_or_bar(df, n_plot_columns = 3,
     import matplotlib.pyplot as plt
     import datetime
     import sklearn.impute
+    import numpy as np
     
     df = df.copy()
     
+    
     fig, ax_list = plt.subplots(1, n_plot_columns)
+    if n_plot_columns == 1:
+        ax_list = [ax_list]
     p=0
     for header in df:
         
@@ -152,8 +168,8 @@ def hist_or_bar(df, n_plot_columns = 3,
                 bottom = df_counts.iloc[:int(max_labels/2), :]
                 top = df_counts.iloc[-int(max_labels/2):, :]
                 
-                ax_list[p].bar(top[header], top['counts'], label = 'top counts')
                 ax_list[p].bar(bottom[header], bottom['counts'], label = 'bottom counts')
+                ax_list[p].bar(top[header], top['counts'], label = 'top counts')
                 
                 ax_list[p].set_xticklabels(list(top[header])+list(bottom[header]), rotation=90)
                 ax_list[p].legend()

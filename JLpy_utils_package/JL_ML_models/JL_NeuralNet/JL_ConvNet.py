@@ -1,9 +1,5 @@
-from __init__ import *
 
-import tensorflow as tf
-import tensorflow.keras as keras
-import tensorflow.keras.preprocessing
-import tensorflow.keras.layers as layers
+import tensorflow as __tf__
 
 
 def Conv2D(img_shape = (256, 256, 3),
@@ -15,15 +11,15 @@ def Conv2D(img_shape = (256, 256, 3),
               filter_scaling_factor = 2,
               dense_scaling_factor = 20,
               kernel_size = (2,2),
-              activation = layers.LeakyReLU(),
-              pooling_layer = layers.MaxPool2D,
+              activation = __tf__.keras.layers.LeakyReLU(),
+              pooling_layer = __tf__.keras.layers.MaxPool2D,
               pool_size = (2,2),
               batch_norm_rate = None,
               dropout_layer_rate = None,
               dropout_rate = 0.5,
-              loss=keras.losses.categorical_crossentropy,
+              loss= __tf__.keras.losses.categorical_crossentropy,
               learning_rate = 0.001,
-              optimizer=keras.optimizers.Adam,
+              optimizer= __tf__.keras.optimizers.Adam,
               metrics=['accuracy'],
               debug=False,
               verbose = 0):

@@ -1,25 +1,21 @@
 
-import tensorflow as tf
-import tensorflow.keras as keras
-import tensorflow.keras.preprocessing
-import tensorflow.keras.layers as layers
+import tensorflow as __tf__
 
-import JL_NN_utils as utils
 
-def compiler(n_features,
+def model(n_features,
              n_labels,
              batch_size = None ,
              initial_dense_unit_size = 'auto',
              layers_per_group =  1,
              dense_scaling_factor = 2,
-             activation = layers.ELU(),
-             final_activation = layers.ELU(),
+             activation = __tf__.keras.layers.ELU(),
+             final_activation = __tf__.keras.layers.ELU(),
              batch_norm_rate = None,
              dropout_layer_rate = None,
              dropout_rate = 0.5,
-             loss=keras.losses.MSE,
+             loss= __tf__.keras.losses.MSE,
              learning_rate = 0.001,
-             optimizer=keras.optimizers.Adam,
+             optimizer= __tf__.keras.optimizers.Adam,
              metrics=['accuracy']):
     """
     Arguments:
@@ -36,9 +32,19 @@ def compiler(n_features,
     Returns:
         model, param_grid
     """
+    
+    import tensorflow as tf
+    import tensorflow.keras as keras
+    import tensorflow.keras.layers as layers
+    import numpy as np
+    
+    import JL_NN_utils as utils
 
     tf.reset_default_graph()
     keras.backend.clear_session()
+    
+    activation.__name__ = 'activation'
+    final_activation.__name__ = 'final_activation'
 
     model_dict = {}
     model_dict['inputs'] = layers.Input(shape= [n_features], 
@@ -67,15 +73,18 @@ def compiler(n_features,
             model_dict[name]= layers.Dense(units,  
                                            kernel_initializer='glorot_uniform', 
                                            bias_initializer='zeros',
-                                           name = name
+                                           name = name,
+                                           activation = activation
                                           )(model_dict[list(model_dict.keys())[-1]])
             gl+=1 
             
             #add activation (required to save models w/ advanced activations
-            name = 'G'+str(g)+'_L'+str(gl)+'_Dense_activation'
-            model_dict[name] = activation(model_dict[list(model_dict.keys())[-1]])
+#             name = 'G'+str(g)+'_L'+str(gl)+'_Dense_activation'
+#             activation = activation.__new__
+#             activation.__dict__['_name']=name
+#             model_dict[name] = activation(model_dict[list(model_dict.keys())[-1]])
             
-            gl+=1 
+#             gl+=1 
             
             #add batch norm and/or dropout layers
             model_dict, BatchNorm_Dropout_dict, idx_dict, g, gl = utils.Apply_BatchNorm_Dropouts(model_dict, BatchNorm_Dropout_dict, idx_dict, g, gl)
@@ -106,36 +115,26 @@ def model_dict(n_features,
                  initial_dense_unit_size = 'auto',
                  layers_per_group =  1,
                  dense_scaling_factor = 2,
-                 activation = layers.ELU(),
-                 final_activation = layers.ELU(),
+                 activation =  __tf__.keras.layers.ELU(),
+                 final_activation = __tf__.keras.layers.ELU(),
                  batch_norm_rate = None,
                  dropout_layer_rate = None,
                  dropout_rate = 0.5,
-                 loss=keras.losses.MSE,
+                 loss=  __tf__.keras.losses.MSE,
                  learning_rate = 0.001,
-                 optimizer=keras.optimizers.Adam,
-                 metrics=['accuracy']):
+                 optimizer= __tf__.keras.optimizers.Adam,
+                 metrics=['mse']):
+    
+    import tensorflow as tf
+    import tensorflow.keras as keras
+    import tensorflow.keras.layers as layers
+    import numpy as np
     
     assert(type(n_features)==int), 'n_features must be of type int'
     assert(type(n_labels)==int), 'n_labels must be of type int'
     
     model_dict = {}
-    model_dict['compiler'] = compiler
-    model_dict['model']= compiler(n_features,
-                                     n_labels,
-                                     batch_size = None ,
-                                     initial_dense_unit_size = 'auto',
-                                     layers_per_group =  1,
-                                     dense_scaling_factor = 2,
-                                     activation = layers.ELU(),
-                                     final_activation = layers.ELU(),
-                                     batch_norm_rate = None,
-                                     dropout_layer_rate = None,
-                                     dropout_rate = 0.5,
-                                     loss=keras.losses.MSE,
-                                     learning_rate = 0.001,
-                                     optimizer=keras.optimizers.Adam,
-                                     metrics=['accuracy'])
+    model_dict['model'] = model
     
     model_dict['param_grid'] = {'n_features': [n_features],
                                    'n_labels': [n_labels],

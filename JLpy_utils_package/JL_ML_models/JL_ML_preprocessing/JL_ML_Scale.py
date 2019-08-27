@@ -1,30 +1,41 @@
 
 import sklearn.preprocessing
 
-def continuous_features(df, continuous_headers, Scaler = sklearn.preprocessing.StandardScaler()):
+class continuous_features():
     """
-    Scale the "continuous_features" specified in headers_dict and contained in the df.
+    Scale the "continuous_features" specified in headers_dict and contained in the X.
     Arguments:
-        df: pandas dataframe
+        X: pandas dataframe
         continuous_headers: list containing the header for the continuous features of interest
         Scaler: sklearn.preprocessing....: defaults: sklearn.preprocessing.StandardScaler()
             - Object specifing the scaler operation the data will be fit and transformed to.
     Returns:
-        df, Scaler
+        X, Scaler
     """
-    import warnings
     
-    warnings.filterwarnings('ignore')
+    def __init__(self, Scaler = sklearn.preprocessing.RobustScaler()):
+        
+        self.Scaler = Scaler
 
-    df = df.copy()
+        
+    def fit(self, X, continuous_headers):
+        
+        X = X.copy()
 
-    Scaler.fit(df[continuous_headers])
+        self.Scaler.fit(X[continuous_headers])
+        self.continuous_headers = continuous_headers
+        
+    def transform(self, X):
+        
+        import warnings
 
-    df[continuous_headers] = Scaler.transform(df[continuous_headers])
+        warnings.filterwarnings('ignore')
+    
+        X[self.continuous_headers] = self.Scaler.transform(X[self.continuous_headers])
 
-    warnings.filterwarnings('default')
+        warnings.filterwarnings('default')
 
-    return df, Scaler
+        return X
 
 def default_Scalers_dict():
     """

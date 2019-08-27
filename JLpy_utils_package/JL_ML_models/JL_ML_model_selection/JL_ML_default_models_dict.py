@@ -1,13 +1,3 @@
-"""
-fetch dictionaries containing sklearn model objects and relevant hyperparameter grid dictionaries for regression or classification models.
-"""
-
-import sklearn, sklearn.linear_model, sklearn.tree, sklearn.neighbors
-import sys, os
-
-if os.path.dirname(os.path.abspath(__file__)) not in sys.path:
-    sys.path.insert(0,  os.path.join(os.path.dirname(os.path.abspath(__file__)),'..'))
-
 
 def regression(n_features=None, n_labels=None, NeuralNets=False, verbose = 0):
     """
@@ -17,6 +7,7 @@ def regression(n_features=None, n_labels=None, NeuralNets=False, verbose = 0):
         n_features, n_labels: The number of features and labels used for the model. These parameters are only required if NeuralNets == True
         NeuralNets: boolean. Whether or not to fetch the neural net models + param_grid
     """
+    import sklearn, sklearn.linear_model, sklearn.ensemble, sklearn.tree, sklearn.svm, sklearn.neighbors
         
     models_dict = {}
     
@@ -49,7 +40,7 @@ def regression(n_features=None, n_labels=None, NeuralNets=False, verbose = 0):
                                }
 
     models_dict['SVM'] = {'model':sklearn.svm.SVR(verbose = verbose),
-                          'param_grid': {'kernel':['linear', 'poly', 'rbf', 'sigmoid']
+                          'param_grid': {'kernel':['rbf', 'sigmoid'] #'linear', 'poly', 
                                         }
                          }
 
@@ -74,6 +65,8 @@ def classification(n_features=None, n_labels=None, NeuralNets=False, verbose = 0
         n_features, n_labels: The number of features and labels used for the model. These parameters are only required if NeuralNets == True
         NeuralNets: boolean. Whether or not to fetch the neural net models + param_grid
     """
+    import sklearn, sklearn.linear_model, sklearn.ensemble, sklearn.tree, sklearn.svm, sklearn.neighbors
+    
     models_dict = {}
     models_dict['DecisionTree'] = {'model':sklearn.tree.DecisionTreeClassifier(),
                                    'param_grid': {'criterion':['gini','entropy'],
@@ -99,8 +92,8 @@ def classification(n_features=None, n_labels=None, NeuralNets=False, verbose = 0
                                }
     
     models_dict['SVM'] = {'model':sklearn.svm.SVC(probability=True, verbose = verbose),
-                          'param_grid': {'kernel':['linear', 'poly', 'rbf', 'sigmoid'],
-                                         'gamma':['auto','scale']}
+                          'param_grid': {'kernel':['rbf', 'sigmoid'], #'linear', 'poly'
+                                         }
                          }
     
     models_dict['KNN'] = {'model': sklearn.neighbors.KNeighborsClassifier(),
@@ -113,3 +106,4 @@ def classification(n_features=None, n_labels=None, NeuralNets=False, verbose = 0
         models_dict['DenseNet'] = NeuralNet.DenseNet.model_dict(n_features=n_features,
                                                                  n_labels = n_labels)
     return models_dict
+
