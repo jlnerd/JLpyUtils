@@ -6,3 +6,6 @@ pandas>=0.25.1
 sklearn
 scipy
 matplotlib
+tensorflow
+tensorflow-gpu
+kaggle
