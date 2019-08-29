@@ -16,7 +16,7 @@ def model(n_features,
              loss= __tf__.keras.losses.MSE,
              learning_rate = 0.001,
              optimizer= __tf__.keras.optimizers.Adam,
-             metrics=['accuracy']):
+             metrics=['mae','accuracy']):
     """
     Arguments:
         n_features: number of features (columns) in the data
