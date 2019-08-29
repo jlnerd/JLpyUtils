@@ -1,5 +1,3 @@
-import pandas as pd
-import numpy as np
 
 #Fetch unique Device IDs
 def Count_subgroups_in_group(df,group_label='Device_ID',sub_group_label='Composite_ID',Additional_output_labels=None):
@@ -17,6 +15,10 @@ def Count_subgroups_in_group(df,group_label='Device_ID',sub_group_label='Composi
         display(Count_subgroups_in_group(df,group_label='Wafer_ID_Terse',sub_group_label='Composite_ID',Additional_output_labels=['DescriptionScribe_ID']))   
 
     """
+    import pandas as pd
+    import numpy as np
+
+
     df_group = df.groupby(group_label)
     group_ID_list = []
     subgroup_count_list = []
@@ -35,6 +37,10 @@ def Count_subgroups_in_group(df,group_label='Device_ID',sub_group_label='Composi
     return df_group_w_subgroup_count
 
 def count_unique_devices(df):
+    import pandas as pd
+    import numpy as np
+
+
     n_unique_devices = df['Composite_ID'].drop_duplicates().count()
     print('n_unique_devices:',n_unique_devices)
     return n_unique_devices

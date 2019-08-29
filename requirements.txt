@@ -1,11 +1,13 @@
 # Add your pinned requirements so that they can be easily installed with:
 # pip install -r requirements.txt
 
-numpy>=1.14.6
-pandas>=0.25.1
+numpy==1.17.1
+pandas
 sklearn
 scipy
 matplotlib
 tensorflow
-tensorflow-gpu
+tensorflow-gpu==1.12.2
 kaggle
+scikit-image
+opencv-python

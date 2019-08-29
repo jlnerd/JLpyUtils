@@ -1,6 +1,5 @@
-from __init__ import *
 
-import cv2
+import cv2 as __cv2__
 
 def build_artwork_video(path_artwork,
                         path_list_artwork,
@@ -12,7 +11,7 @@ def build_artwork_video(path_artwork,
             print('Progress:',round(i/len(path_list_artwork)*100,1),end='\r')
         filename=path_list_artwork[i]
         #reading each files
-        img = cv2.imread(filename)
+        img = __cv2__.imread(filename)
         height, width, layers = img.shape
         size = (width,height)
         #print(filename)
@@ -20,7 +19,7 @@ def build_artwork_video(path_artwork,
         frame_array.append(img)
      
     path_video = os.path.join(path_artwork,video_name)
-    out = cv2.VideoWriter(path_video,cv2.VideoWriter_fourcc(*'DIVX'), fps, size)
+    out = __cv2__.VideoWriter(path_video,__cv2__.VideoWriter_fourcc(*'DIVX'), fps, size)
  
     for i in range(len(frame_array)):
         # writing to a image array
@@ -35,7 +34,7 @@ def decompose_video_to_img(path_video,
         print(os.path.split(path_video)[1])
     
     #fetch video object
-    cap = cv2.VideoCapture(path_video)
+    cap = __cv2__.VideoCapture(path_video)
     
     propid_dict = {'frame_width':3,
                    'frame_height':4,
@@ -63,12 +62,12 @@ def decompose_video_to_img(path_video,
         
         #check if the video is encoded as RGB
         if bool(prop_dict['convert_to_RGB'])==False: 
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = __cv2__.cvtColor(img, __cv2__.COLOR_BGR2RGB)
             
         #save the img
         filename = 'frame_'+str(i)+'.png'
         path_file = os.path.join(path_frames_folder,filename)
-        cv2.imwrite(path_file,img)
+        __cv2__.imwrite(path_file,img)
         
         if verbose>=1:
             None
@@ -91,4 +90,4 @@ def decompose_video_to_img(path_video,
     plt.show()
     
     cap.release()
-    cv2.destroyAllWindows()
+    __cv2__.destroyAllWindows()

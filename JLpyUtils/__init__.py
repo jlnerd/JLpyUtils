@@ -2,14 +2,13 @@
 Custom modules/classes/methods for various data science, computer vision, and machine learning operations in python
 """
 
-__version__ = '0.0.3'
-__repo__ = "https://github.com/jlnerd/JLpyUtils.git",
+__version__ = '0.0.8'
+__repo__ = "https://github.com/jlnerd/.git",
 
-    
-import JLpyUtils.plot
-import JLpyUtils.summary_tables
-import JLpyUtils.img
-import JLpyUtils.video
-import JLpyUtils.ML_models
-import JLpyUtils.kaggle
-import JLpyUtils.file_utils
+from . import plot
+from . import summary_tables
+from . import img
+from . import video
+from . import ML
+from . import kaggle
+from . import file_utils

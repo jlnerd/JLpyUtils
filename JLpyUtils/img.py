@@ -1,16 +1,8 @@
 
-import numpy as np
 
-import skimage, skimage.transform, skimage.restoration, skimage.measure, skimage.feature
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-
-import sys
-
-try:
-    import cv2
-except ImportError:
-    sys.exit("""You need cv2. run: '!pip install opencv-python' """)
+import numpy as __np__
+import matplotlib.pyplot as __plt__
+import cv2 as __cv2__
 
 #    from transform import rescale, resize, downscale_local_mean
     
@@ -19,6 +11,7 @@ def resize_img(img, y_size, x_size):
     return skimage.transform.resize(img, (y_size,x_size),mode= 'reflect')
 
 def denoise_img(img):
+    import skimage.restoration
     return skimage.restoration.denoise_tv_chambolle(img)
 
 def build_crop_array(img,yx_min,yx_max,padding, use_square = False):
@@ -31,7 +24,7 @@ def build_crop_array(img,yx_min,yx_max,padding, use_square = False):
     crop_array = [y_min_index, y_max_index, x_min_index, x_max_index]
     
     if use_square:
-        mean_width = np.mean((crop_array[1]-crop_array[0],crop_array[3]-crop_array[2]))
+        mean_width = __np__.mean((crop_array[1]-crop_array[0],crop_array[3]-crop_array[2]))
         x_offset = mean_width - (crop_array[1]-crop_array[0])
         y_offset = mean_width - (crop_array[3]-crop_array[2])
         
@@ -45,6 +38,7 @@ def build_crop_array(img,yx_min,yx_max,padding, use_square = False):
 def find_img_contours_and_cropping_array(img, contour_level = 0.1, padding = 50, use_square = False):
     
     # Find contours
+    import skimage.measure
     contours = skimage.measure.find_contours(img, level = contour_level)
     
     if contours == []:
@@ -52,10 +46,10 @@ def find_img_contours_and_cropping_array(img, contour_level = 0.1, padding = 50,
         yx_min = [0,0]
     else:
         #get corner indices
-        yx_max = np.array([[contours[i][:, 0].max(), contours[i][:, 1].max()] for i in range(len(contours))])
+        yx_max = __np__.array([[contours[i][:, 0].max(), contours[i][:, 1].max()] for i in range(len(contours))])
         yx_max = [int(yx_max[:,0].max()),int(yx_max[:,1].max())]
 
-        yx_min = np.array([[contours[i][:, 0].min(), contours[i][:, 1].min()] for i in range(len(contours))])
+        yx_min = __np__.array([[contours[i][:, 0].min(), contours[i][:, 1].min()] for i in range(len(contours))])
         yx_min = [int(yx_min[:,0].min()), int(yx_min[:,1].min())]
     
     #Build Cropping array  
@@ -70,16 +64,16 @@ def preprocess_img(img,
                   ):
     
     if plot_steps == True:
-        plt.subplot(421)
-        plt.imshow(img)
-        plt.title('(1) original img')
+        __plt__.subplot(421)
+        __plt__.imshow(img)
+        __plt__.title('(1) original img')
     
     #fetch gray scale img
     img_gray = skimage.color.rgb2gray(img)
     if plot_steps == True:
-        plt.subplot(422)
-        plt.imshow(img_gray, cmap = 'binary')
-        plt.title('(2) gray img')
+        __plt__.subplot(422)
+        __plt__.imshow(img_gray, cmap = 'binary')
+        __plt__.title('(2) gray img')
 
     #perform 1st resize
     y_size = y_size_resize1
@@ -91,37 +85,37 @@ def preprocess_img(img,
                                   x_size = int(y_size*img.shape[1]/img.shape[0]))
     
     if plot_steps == True:
-        plt.subplot(423)
-        plt.imshow(img_gray_resized,cmap='binary')
-        plt.title('(3) scaled for y_size = '+str(y_size))
+        __plt__.subplot(423)
+        __plt__.imshow(img_gray_resized,cmap='binary')
+        __plt__.title('(3) scaled for y_size = '+str(y_size))
     
     #denoise img
     img_gray_resized_denoised = denoise_img(img_gray_resized)
     if plot_steps == True:
-        plt.subplot(424)
-        plt.imshow(img_gray_resized_denoised,cmap = 'binary')
-        plt.title('(4) denoised img')
+        __plt__.subplot(424)
+        __plt__.imshow(img_gray_resized_denoised,cmap = 'binary')
+        __plt__.title('(4) denoised img')
     
     contours, crop_array = find_img_contours_and_cropping_array(img_gray_resized_denoised,
                                                              contour_level = 0.1,
                                                              padding = 50)
 
     if plot_steps == True:
-        plt.subplot(425)
-        plt.imshow(img_gray_resized_denoised, interpolation='nearest', cmap='binary')
+        __plt__.subplot(425)
+        __plt__.imshow(img_gray_resized_denoised, interpolation='nearest', cmap='binary')
         for n, contour in enumerate(contours):
-             plt.plot(contour[:, 1], contour[:, 0], linewidth=1, color = 'r')
-        plt.plot(crop_array[2:4],crop_array[0:2],'bo')
-        plt.title('(5) Cropping pts: '+str(crop_array))
+             __plt__.plot(contour[:, 1], contour[:, 0], linewidth=1, color = 'r')
+        __plt__.plot(crop_array[2:4],crop_array[0:2],'bo')
+        __plt__.title('(5) Cropping pts: '+str(crop_array))
     
     #crop images
     img_gray_resized_cropped = img_gray_resized[crop_array[0]:crop_array[1],crop_array[2]:crop_array[3]]
     img_resized_cropped = img_resized[crop_array[0]:crop_array[1],crop_array[2]:crop_array[3]]
     
     if plot_steps == True:
-        plt.subplot(426)
-        plt.imshow(img_resized_cropped)
-        plt.title('(6) cropped img')
+        __plt__.subplot(426)
+        __plt__.imshow(img_resized_cropped)
+        __plt__.title('(6) cropped img')
     
     #resize the cropped image
     y_size = y_size_resize2
@@ -130,9 +124,9 @@ def preprocess_img(img,
                                              x_size = y_size)
     
     if plot_steps == True:
-        plt.subplot(427)
-        plt.imshow(img_resized_cropped_resized)
-        plt.title('(7 (final)) resized for xy_size = '+str(y_size))
+        __plt__.subplot(427)
+        __plt__.imshow(img_resized_cropped_resized)
+        __plt__.title('(7 (final)) resized for xy_size = '+str(y_size))
     
     return img_resized_cropped_resized
 
@@ -150,7 +144,8 @@ class auto_crop():
         """
         Wrapper to make img cropping simpler. The function converts the img to grayscale, runs the "find_img_countours_and_cropping_array" function, and applies the cropping to the original img (RGB) via img_cropped = img[crop_array[0]:crop_array[1],crop_array[2]:crop_array[3]]. img_cropped is then returned.
         """
-
+        import skimage
+        
         img = img/img.max()
         img_gray = skimage.color.rgb2gray(img)
         img_gray = img_gray/img_gray.max()
@@ -167,28 +162,28 @@ class auto_crop():
 
         if show_plots['processing steps']:
             #original image
-            plt.title(title+'\noriginal img')
-            plt.imshow(img)
-            plt.grid(which='both')
-            plt.axis('off')
-            plt.show()
+            __plt__.title(title+'\noriginal img')
+            __plt__.imshow(img)
+            __plt__.grid(which='both')
+            __plt__.axis('off')
+            __plt__.show()
 
             #gray with cropping points and contours
-            plt.imshow(img_gray, interpolation='nearest', cmap='binary')
+            __plt__.imshow(img_gray, interpolation='nearest', cmap='binary')
             for n, contour in enumerate(contours):
-                 plt.plot(contour[:, 1], contour[:, 0], linewidth=1, color = 'r')
-            plt.plot(crop_array[2:4],crop_array[0:2],'bo')
-            plt.title('Cropping pts: '+str(crop_array))
-            plt.grid(which='both')
-            plt.axis('off')
-            plt.show()
+                 __plt__.plot(contour[:, 1], contour[:, 0], linewidth=1, color = 'r')
+            __plt__.plot(crop_array[2:4],crop_array[0:2],'bo')
+            __plt__.title('Cropping pts: '+str(crop_array))
+            __plt__.grid(which='both')
+            __plt__.axis('off')
+            __plt__.show()
 
         if show_plots['processed']:
-            plt.title(img.shape)
-            plt.imshow(img_cropped)
-            plt.grid(which='both')
-            plt.axis('off')
-            plt.show()
+            __plt__.title(img.shape)
+            __plt__.imshow(img_cropped)
+            __plt__.grid(which='both')
+            __plt__.axis('off')
+            __plt__.show()
 
         return img_cropped
     
@@ -213,10 +208,11 @@ class auto_crop():
             img_cropped: RGB img with cropping applied
             img_cropped_gray: grayscale image with cropping applied.
         """
+        import skimage
         
         # instantiate img plot
         if show_plots:
-            fig, ax_list = plt.subplots(1,4)
+            fig, ax_list = __plt__.subplots(1,4)
             i=0
         
             ax_list[i].set_title('original img')
@@ -227,7 +223,7 @@ class auto_crop():
         
         #convert to grayscale
         img_gray = skimage.color.rgb2gray(img)
-        img_gray = img_gray/np.mean(img_gray.flatten()) # mean normalized
+        img_gray = img_gray/__np__.mean(img_gray.flatten()) # mean normalized
         if show_plots:
             ax_list[i].set_title('grayscale img')
             ax_list[i].imshow(img_gray)
@@ -250,10 +246,10 @@ class auto_crop():
             i+=1
         
         #fetch indices of coner edges
-        edge_indices = np.where(edges==True)
+        edge_indices = __np__.where(edges==True)
         if edge_indices[0].shape[0] != 0 and edge_indices[1].shape[0] != 0 :
-            ylim = (np.min(edge_indices[0])-padding[0],np.max(edge_indices[0])+padding[0])
-            xlim = (np.min(edge_indices[1])-padding[1],np.max(edge_indices[1])+padding[1])
+            ylim = (__np__.min(edge_indices[0])-padding[0],__np__.max(edge_indices[0])+padding[0])
+            xlim = (__np__.min(edge_indices[1])-padding[1],__np__.max(edge_indices[1])+padding[1])
 
             #plot cropped image
             img_cropped = img[ylim[0]:ylim[1], xlim[0]:xlim[1],:]
@@ -270,14 +266,14 @@ class auto_crop():
             
         if show_plots:
             fig.tight_layout(rect=(0,0,3,1))
-            plt.show()
+            __plt__.show()
         else:
-            plt.close()
+            __plt__.close()
            
         if verbose>=1:
             print('img.shape:',img.shape)
             print('img_cropped.shape',img_cropped.shape)
-            print('img reduction factor:', np.prod(img.shape)/np.prod(img_cropped.shape))
+            print('img reduction factor:', __np__.prod(img.shape)/__np__.prod(img_cropped.shape))
             
         return img_cropped, img_cropped_gray
     
@@ -291,6 +287,7 @@ def autocrop_and_downscale(img, target_min_dim = 256, verbose = 0):
     Returns:
         img_autocrop_downscale: RGB image
     """
+    import skimage.transform
     
     img_autocrop, _ = auto_crop.use_edges(img, show_plots = False, verbose=0)
     
@@ -299,9 +296,9 @@ def autocrop_and_downscale(img, target_min_dim = 256, verbose = 0):
     
     #calculate downscale factors
     if len(img.shape)==3: 
-        downscale_factors = (int(np.min(dims)/target_min_dim), int(np.min(dims)/target_min_dim), 1)
+        downscale_factors = (int(__np__.min(dims)/target_min_dim), int(__np__.min(dims)/target_min_dim), 1)
     else:
-        downscale_factors = (int(np.min(dims)/target_min_dim), int(np.min(dims)/target_min_dim))
+        downscale_factors = (int(__np__.min(dims)/target_min_dim), int(__np__.min(dims)/target_min_dim))
     
     if img_autocrop.max()>1:
         img_autocrop = img_autocrop/255
@@ -313,7 +310,7 @@ def autocrop_and_downscale(img, target_min_dim = 256, verbose = 0):
         print('img.shape:',img.shape)
         print('img_autocrop.shape:',img_autocrop.shape)
         print('img_autocrop_downscale.shape:',img_autocrop_downscale.shape)
-        print('img size reduction factor:', round(np.prod(img.shape)/np.prod(img_autocrop_downscale.shape),0))
+        print('img size reduction factor:', round(__np__.prod(img.shape)/__np__.prod(img_autocrop_downscale.shape),0))
     
     return img_autocrop_downscale 
 
@@ -325,7 +322,7 @@ def decompose_video_to_img(path_video,
         print(os.path.split(path_video)[1])
     
     #fetch video object
-    cap = cv2.VideoCapture(path_video)
+    cap = __cv2__.VideoCapture(path_video)
     
     propid_dict = {'frame_width':3,
                    'frame_height':4,
@@ -343,22 +340,22 @@ def decompose_video_to_img(path_video,
         os.makedirs(path_frames_folder)
     
     if show_plots: #instantiate plots
-        fig, ax_list = plt.subplots(1,5)
+        fig, ax_list = __plt__.subplots(1,5)
         p=0
         #build dummy img
-        img_dummy = np.zeros((int(prop_dict['frame_height']),int(prop_dict['frame_width']),3)).astype(int)+255
+        img_dummy = __np__.zeros((int(prop_dict['frame_height']),int(prop_dict['frame_width']),3)).astype(int)+255
         
     for i in range(int(prop_dict['frame_count'])):
         retval, img = cap.read()
         
         #check if the video is encoded as RGB
         if bool(prop_dict['convert_to_RGB'])==False: 
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = __cv2__.cvtColor(img, __cv2__.COLOR_BGR2RGB)
             
         #save the img
         filename = 'frame_'+str(i)+'.png'
         path_file = os.path.join(path_frames_folder,filename)
-        cv2.imwrite(path_file,img)
+        __cv2__.imwrite(path_file,img)
         
         if verbose>=1:
             None
@@ -370,15 +367,15 @@ def decompose_video_to_img(path_video,
                 if p+1>len(ax_list)-1: 
                     p=0
                     fig.tight_layout(rect=(0,0,2.5,1))
-                    plt.show()
-                    fig, ax_list = plt.subplots(1,5)
+                    __plt__.show()
+                    fig, ax_list = __plt__.subplots(1,5)
                     for ax in ax_list: #fill in dummy imgs to prevent irregular formatting at end of frame list
                         ax.imshow(img_dummy)
                         ax.grid(which='both',visible=False)
                         ax.axis('off')
                 else: p+=1
     fig.tight_layout(rect=(0,0,2.5,1))
-    plt.show()
+    __plt__.show()
     
     cap.release()
-    cv2.destroyAllWindows()
+    __cv2__.destroyAllWindows()
