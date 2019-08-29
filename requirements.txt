@@ -7,7 +7,7 @@ sklearn
 scipy
 matplotlib
 tensorflow-gpu==1.12.2
-tensorflow
+tensorflow==1.12.2
 kaggle
 scikit-image
 opencv-python
