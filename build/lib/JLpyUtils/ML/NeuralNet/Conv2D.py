@@ -1,5 +1,14 @@
 
-import tensorflow as __tf__
+try:
+    import tensorflow as __tf__
+    __pooling_layer__ = __tf__.keras.layers.MaxPool2D
+    __loss__= __tf__.keras.losses.categorical_crossentropy
+    __optimizer__ = __tf__.keras.optimizers.Adam
+except:
+    print('tensorflow is not installed, run "pip install tensorflow==1.12.2" and "pip install tensorflow-gpu==1.12.2"')
+    __pooling_layer__ = None
+    __loss__= None
+    __optimizer__ = None 
 
 
 def model(img_shape = (256, 256, 3),
@@ -12,14 +21,14 @@ def model(img_shape = (256, 256, 3),
               dense_scaling_factor = 20,
               kernel_size = (2,2),
               activation = 'relu',
-              pooling_layer = __tf__.keras.layers.MaxPool2D,
+              pooling_layer = __pooling_layer__,
               pool_size = (2,2),
               batch_norm_rate = None,
               dropout_layer_rate = None,
               dropout_rate = 0.5,
-              loss= __tf__.keras.losses.categorical_crossentropy,
+              loss= __loss__,
               learning_rate = 0.001,
-              optimizer= __tf__.keras.optimizers.Adam,
+              optimizer= __optimizer__,
               metrics=['accuracy'],
               debug=False,
               verbose = 0):

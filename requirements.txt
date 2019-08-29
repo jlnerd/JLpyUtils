@@ -6,8 +6,8 @@ pandas
 sklearn
 scipy
 matplotlib
-tensorflow-gpu==1.12.2
-tensorflow==1.12.2
+#tensorflow-gpu==1.12.2
+#tensorflow==1.12.2
 kaggle
 scikit-image
 opencv-python

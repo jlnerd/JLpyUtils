@@ -1,5 +1,13 @@
 
-import tensorflow as __tf__
+try:
+    import tensorflow as __tf__
+    __pooling_layer__ = __tf__.keras.layers.MaxPool2D
+    __loss__= __tf__.keras.losses.MSE
+    __optimizer__ = __tf__.keras.optimizers.Adam
+except:
+    print('tensorflow is not installed, run "pip install tensorflow==1.12.2" and "pip install tensorflow-gpu==1.12.2"')
+    __loss__= None
+    __optimizer__ = None 
 
 
 def model(n_features,
@@ -13,9 +21,9 @@ def model(n_features,
              batch_norm_rate = None,
              dropout_layer_rate = None,
              dropout_rate = 0.5,
-             loss= __tf__.keras.losses.MSE,
+             loss= __loss__,
              learning_rate = 0.001,
-             optimizer= __tf__.keras.optimizers.Adam,
+             optimizer= __optimizer__,
              metrics=['mae','accuracy']):
     """
     Arguments:
@@ -108,9 +116,9 @@ def model_dict(n_features,
                  batch_norm_rate = None,
                  dropout_layer_rate = None,
                  dropout_rate = 0.5,
-                 loss=  __tf__.keras.losses.MSE,
+                 loss=  __loss__,
                  learning_rate = 0.001,
-                 optimizer= __tf__.keras.optimizers.Adam,
+                 optimizer= __optimizer__,
                  metrics=['mse']):
     
     import tensorflow as tf
