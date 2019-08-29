@@ -127,7 +127,9 @@ def by_color_group_and_line_group(df,
     
     
 def hist_or_bar(df, n_plot_columns = 3, 
-                 categorical_headers = [None]):
+                 categorical_headers = [None],
+                xscale = 'linear',
+                yscale = 'linear'):
     """
     Iterate through each column in a pandas dataframe and plot the histogram or bar chart for the data.
     
@@ -203,10 +205,12 @@ def hist_or_bar(df, n_plot_columns = 3,
             xlabel = '\n'.join(header.split(' '))
         else:
             xlabel = header
-        
-        ax_list[p].set_xlabel(xlabel)
-        ax_list[p].set_ylabel('counts')
+            
         ax_list[p].ticklabel_format(axis='y', style='sci', scilimits=(-2,2))
+        ax_list[p].set_xlabel(xlabel)
+        ax_list[p].set_xscale(xscale)
+        ax_list[p].set_ylabel('counts')
+        ax_list[p].set_yscale(yscale)
         
         p+=1
         

@@ -78,7 +78,7 @@ class feat_eng_pipe():
         
         if os.path.dirname(os.path.abspath(__file__)) not in sys.path:
             sys.path.insert(0,  os.path.dirname(os.path.abspath(os.path.join(__file__,'..','..'))))
-        import JL_file_utils as file_utils
+        from ... import file_utils
         
         self.save = file_utils.save
         self.load = file_utils.load
