@@ -12,7 +12,7 @@ class continuous_features():
         X, Scaler
     """
     
-    import sklearn.preprocessing
+    import sklearn, sklearn.preprocessing
     
     def __init__(self, Scaler = sklearn.preprocessing.RobustScaler()):
         

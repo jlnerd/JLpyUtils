@@ -6,6 +6,27 @@ import cv2 as __cv2__
 
 #    from transform import rescale, resize, downscale_local_mean
     
+def base64_str_to_img(base64_str):
+    """
+    Convert base64 string to an image array. The function can handle raw string or bytes encoded sting.
+    Arguments:
+    ----------
+        base64_str: bytes or raw string of image in base64 format
+    Returns:
+    --------
+        img: standard image array
+    """
+    import base64
+    import io
+    import cv2
+    import imageio
+    
+    if type(base64_str)==type(b''):
+        base64_str = base64_str.decode()
+
+    img = imageio.imread(io.BytesIO(base64.b64decode(base64_str)))
+    
+    return img
 
 def resize_img(img, y_size, x_size):
     return skimage.transform.resize(img, (y_size,x_size),mode= 'reflect')
