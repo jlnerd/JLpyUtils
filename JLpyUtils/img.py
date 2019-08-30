@@ -208,7 +208,7 @@ class auto_crop():
             img_cropped: RGB img with cropping applied
             img_cropped_gray: grayscale image with cropping applied.
         """
-        import skimage
+        import skimage, skimage.feature
         
         # instantiate img plot
         if show_plots:
@@ -257,6 +257,7 @@ class auto_crop():
         else:
             img_cropped = img
             img_cropped_gray = img_gray
+            
         if show_plots:
             ax_list[i].set_title('cropped img')
             ax_list[i].imshow(img_cropped)
@@ -267,8 +268,6 @@ class auto_crop():
         if show_plots:
             fig.tight_layout(rect=(0,0,3,1))
             __plt__.show()
-        else:
-            __plt__.close()
            
         if verbose>=1:
             print('img.shape:',img.shape)
