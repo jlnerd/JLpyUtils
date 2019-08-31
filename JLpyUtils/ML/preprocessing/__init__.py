@@ -139,7 +139,7 @@ class feat_eng_pipe():
             self.LabelEncoder = LabelEncoder
             
             #save the encoder
-            self.save(LabelEncoder, path_feat_eng_dir, 'LabelEncoder', 'dill')
+            self.save(LabelEncoder, 'LabelEncoder', 'dill', path_feat_eng_dir)
 
         else: 
             X = self.load('X', format_, path_feat_eng_dir)
