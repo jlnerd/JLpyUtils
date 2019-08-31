@@ -2,10 +2,39 @@
 
 import numpy as __np__
 import matplotlib.pyplot as __plt__
-import cv2 as __cv2__
 
+try:
+    import cv2 as __cv2__
+except:
+    import os as __os__
+    __os__.system("apt-get install -y libsm6 libxext6 libxrender-dev")
+    import cv2 as __cv2__
+    
+    
+    
 #    from transform import rescale, resize, downscale_local_mean
     
+def base64_str_to_img(base64_str):
+    """
+    Convert base64 string to an image array. The function can handle raw string or bytes encoded sting.
+    Arguments:
+    ----------
+        base64_str: bytes or raw string of image in base64 format
+    Returns:
+    --------
+        img: standard image array
+    """
+    import base64
+    import io
+    import cv2
+    import imageio
+    
+    if type(base64_str)==type(b''):
+        base64_str = base64_str.decode()
+
+    img = imageio.imread(io.BytesIO(base64.b64decode(base64_str)))
+    
+    return img
 
 def resize_img(img, y_size, x_size):
     return skimage.transform.resize(img, (y_size,x_size),mode= 'reflect')
@@ -208,7 +237,7 @@ class auto_crop():
             img_cropped: RGB img with cropping applied
             img_cropped_gray: grayscale image with cropping applied.
         """
-        import skimage
+        import skimage, skimage.feature
         
         # instantiate img plot
         if show_plots:
@@ -257,6 +286,7 @@ class auto_crop():
         else:
             img_cropped = img
             img_cropped_gray = img_gray
+            
         if show_plots:
             ax_list[i].set_title('cropped img')
             ax_list[i].imshow(img_cropped)
@@ -267,8 +297,6 @@ class auto_crop():
         if show_plots:
             fig.tight_layout(rect=(0,0,3,1))
             __plt__.show()
-        else:
-            __plt__.close()
            
         if verbose>=1:
             print('img.shape:',img.shape)

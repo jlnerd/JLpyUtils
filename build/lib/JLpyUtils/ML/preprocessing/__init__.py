@@ -78,7 +78,7 @@ class feat_eng_pipe():
         
         if os.path.dirname(os.path.abspath(__file__)) not in sys.path:
             sys.path.insert(0,  os.path.dirname(os.path.abspath(os.path.join(__file__,'..','..'))))
-        import JL_file_utils as file_utils
+        from ... import file_utils
         
         self.save = file_utils.save
         self.load = file_utils.load
@@ -219,7 +219,7 @@ class feat_eng_pipe():
                                                     verbose= 0)
 
             if type(X_field) != type(None):
-                X_field[headers_dict['categorical_features']] = Imputer.transform_categorical(X_field[headers_dict['categorical_features']])
+                X_field[headers_dict['categorical features']] = Imputer.transform(X_field[headers_dict['categorical features']])
 
             #save
             self.save(X, 'X', format_, path_feat_eng_dir)
@@ -262,8 +262,8 @@ class feat_eng_pipe():
                                         estimator = self.Imputer_continuous_dict[Imputer_cont_ID][Imputer_iter_reg_ID],
                                         verbose= 0)
 
-            if X_field !=None:
-                X_field[headers_dict['continuous_features']] = Imputer.transform_categorical(X_field[headers_dict['continuous_features']])
+            if type(X_field) != type(None):
+                X_field[headers_dict['continuous features']] = Imputer.transform(X_field[headers_dict['continuous features']])
 
             #save
             self.save(X, 'X', format_, path_feat_eng_dir)
@@ -475,7 +475,9 @@ class feat_eng_pipe():
         import gc
         gc.collect()
         
-        
+        for key_header in ['categorical features', 'continuous features']:
+            assert(key_header in headers_dict.keys()), 'headers_dict is missing the "'+key_header+'" key'
+            
         X = X.copy()
         if type(X_field) != type(None): 
             X_field = X_field.copy()
