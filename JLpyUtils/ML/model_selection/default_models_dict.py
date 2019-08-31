@@ -22,7 +22,7 @@ def regression(n_features=None, n_labels=None,
                                 }
     if 'SVM' in models:
         import sklearn.svm
-        models_dict['SVM'] = {'model':sklearn.svm.SVR(verbose = verbose),
+        models_dict['SVM'] = {'model':sklearn.svm.SVR(),
                               'param_grid': {'kernel':['rbf', 'sigmoid']} #'linear', 'poly', 
                              }
         
@@ -76,7 +76,7 @@ def regression(n_features=None, n_labels=None,
                              }
         
     if 'DenseNet' in models:
-        from ..ML import NeuralNet
+        from .. import NeuralNet
         models_dict['DenseNet'] = NeuralNet.DenseNet.model_dict(n_features=n_features,
                                                                  n_labels = n_labels)
     return models_dict
@@ -106,13 +106,13 @@ def classification(n_features=None, n_labels=None,
                                     }
     if 'SVM' in models:
         import sklearn.svm
-        models_dict['SVM'] = {'model':sklearn.svm.SVC(probability=True, verbose = verbose),
+        models_dict['SVM'] = {'model':sklearn.svm.SVC(probability=True),
                               'param_grid': {'kernel':['rbf', 'sigmoid'], #'linear', 'poly'
                                          }
                              }
     if 'KNN' in models:
         import sklearn.neighbors
-        models_dict['SVM'] = {'model':sklearn.svm.SVC(probability=True, verbose = verbose),
+        models_dict['SVM'] = {'model':sklearn.svm.SVC(probability=True),
                               'param_grid': {'kernel':['rbf', 'sigmoid'], #'linear', 'poly'
                                          }
                              }
@@ -158,7 +158,7 @@ def classification(n_features=None, n_labels=None,
                              }
         
     if 'DenseNet' in models:
-        from ..ML import NeuralNet
+        from .. import NeuralNet
         models_dict['DenseNet'] = NeuralNet.DenseNet.model_dict(n_features=n_features,
                                                                  n_labels = n_labels)
     return models_dict
