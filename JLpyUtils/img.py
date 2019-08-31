@@ -6,9 +6,12 @@ import matplotlib.pyplot as __plt__
 try:
     import cv2 as __cv2__
 except:
-    None
-    #import os as __os__
-    #__os__.system("apt-get install -y libsm6 libxext6 libxrender-dev")
+    import os as __os__
+    __os__.system("apt-get install -y libsm6 libxext6 libxrender-dev")
+    import cv2 as __cv2__
+    
+    
+    
 #    from transform import rescale, resize, downscale_local_mean
     
 def base64_str_to_img(base64_str):

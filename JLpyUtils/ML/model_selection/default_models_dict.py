@@ -76,7 +76,7 @@ def regression(n_features=None, n_labels=None,
                              }
         
     if 'DenseNet' in models:
-        import ..ML.NeuralNet as NeuralNet
+        from ..ML import NeuralNet
         models_dict['DenseNet'] = NeuralNet.DenseNet.model_dict(n_features=n_features,
                                                                  n_labels = n_labels)
     return models_dict
@@ -84,7 +84,7 @@ def regression(n_features=None, n_labels=None,
 
 def classification(n_features=None, n_labels=None, 
                models = ['Logistic', 'SVM', 'KNN', 'DecisionTree', 'XGBRandomForest', 'XGBoost', 'DenseNet'],
-               )::
+               ):
     
     """
     Fetch dictionary of standard classification models and their 'param_grid' dictionaries.     
@@ -158,7 +158,7 @@ def classification(n_features=None, n_labels=None,
                              }
         
     if 'DenseNet' in models:
-        import ..ML.NeuralNet as NeuralNet
+        from ..ML import NeuralNet
         models_dict['DenseNet'] = NeuralNet.DenseNet.model_dict(n_features=n_features,
                                                                  n_labels = n_labels)
     return models_dict
