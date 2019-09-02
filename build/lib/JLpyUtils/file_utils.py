@@ -15,7 +15,7 @@ def save(obj, filename, format_, path_dir) :
         path_save_file = os.path.join(path_dir, filename+'.h5' )
 
         file = h5py.File(path_save_file, 'w')
-        file.create_dataset(filename, data=obj_field)
+        file.create_dataset(filename, data=obj)
         file.close()
 
     elif format_ == 'csv':
@@ -43,6 +43,29 @@ def save(obj, filename, format_, path_dir) :
         file = open(path_save_file, 'wb')
         dill.dump(obj, file)
         file.close()
+        
+    elif format_ =='h5_csv': #try saving as h5, otherwise save as csv
+        try:
+            import h5py
+
+            path_save_file = os.path.join(path_dir, filename+'.h5' )
+
+            file = h5py.File(path_save_file, 'w')
+            file.create_dataset(filename, data=obj)
+            file.close()
+        except:
+            file.close()
+            os.remove(path_save_file)
+            
+            import numpy as np
+
+            path_save_file = os.path.join(path_dir,filename+'.csv')
+
+            if type(obj)==np.ndarray:
+                np.savetxt(path_save_file, obj, delimiter=',')
+            else:
+                obj.to_csv(path_save_file, index=False)
+            
 
 
 def load(filename, format_, path_dir, header='infer'):
@@ -82,5 +105,21 @@ def load(filename, format_, path_dir, header='infer'):
         file = open(path_save_file, 'rb')
         obj = dill.load(file)
         file.close()
+        
+    elif format_ =='h5_csv': #try loading as h5, otherwise save as csv
+        try:
+            import h5py
+
+            path_save_file = os.path.join(path_dir, filename+'.h5')
+            file = h5py.File(path_save_file, 'r')
+            obj = file[filename][:]
+            file.close()
+        except:
+            import pandas as pd
+
+            path_save_file = os.path.join(path_dir, filename+'.csv')
+            obj = pd.read_csv(path_save_file, low_memory = False, header = header)
+
+
 
     return obj

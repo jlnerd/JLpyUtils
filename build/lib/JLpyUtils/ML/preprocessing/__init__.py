@@ -91,14 +91,14 @@ class feat_eng_pipe():
         Check if feat eng files are save for the specific case directory passed. Returns False if the X
         """
         import os, sys
+        import gc
+        
+        gc.collect()
 
-        feat_eng_files_saved=True
+        feat_eng_files_saved=False
 
         #build list of files to look for
-        if format_=='h5':
-            files = ['X.h5', 'X_field.h5']
-        elif format_=='csv':
-            files = ['X.csv', 'X_field.csv']
+        files = ['X.'+format_, 'X_field.'+format_]
 
         #drop the X_field file from the list if find_X_filed==False
         if find_X_field==False:
@@ -106,9 +106,17 @@ class feat_eng_pipe():
 
         #check if all files exist
         for file in files:
-            path_save_file = os.path.join(path_feat_eng_dir,file)
-            if os.path.isfile(path_save_file)==False:
-                feat_eng_files_saved = False
+            if format_ == 'h5_csv':
+                for format_ in ['csv','h5']:
+                    path_save_file = os.path.join(path_feat_eng_dir,file.replace('h5_csv',format_)) #replace csv or h5
+                    if os.path.isfile(path_save_file)==True:
+                        feat_eng_files_saved = True
+            else:
+                path_save_file = os.path.join(path_feat_eng_dir,file)
+                if os.path.isfile(path_save_file)==True:
+                    feat_eng_files_saved = True
+        
+        gc.collect()
 
         return feat_eng_files_saved      
             
@@ -119,6 +127,9 @@ class feat_eng_pipe():
                             format_,
                             find_X_field):
         import os, sys
+        import gc
+        
+        gc.collect()
 
         #label encode X
         path_feat_eng_dir = os.path.join(path_feat_eng_dir, 'LabelEncode')
@@ -144,7 +155,8 @@ class feat_eng_pipe():
         else: 
             X = self.load('X', format_, path_feat_eng_dir)
             if type(X_field) != type(None): X_field = self.load('X_field', format_, path_feat_eng_dir)
-
+        
+        gc.collect()
         return X, X_field, path_feat_eng_dir
                 
         
@@ -161,6 +173,9 @@ class feat_eng_pipe():
         Scale, transform, and save the continuous data
         """
         import os, sys
+        import gc
+        
+        gc.collect()
 
         path_feat_eng_dir = os.path.join(path_feat_eng_dir, 'Scaler_ID['+Scaler_ID+']')
 
@@ -188,6 +203,8 @@ class feat_eng_pipe():
             if self.__feat_eng_files_saved__(path_next_step, format_, find_X_field)==False:
                 X = self.load('X', format_, path_feat_eng_dir)
                 if type(X_field) != type(None): X_field = self.load('X_field', format_, path_feat_eng_dir)
+        
+        gc.collect()
 
         return X, X_field, path_feat_eng_dir
 
@@ -206,6 +223,9 @@ class feat_eng_pipe():
         Impute, transform, and save the categorical data
         """
         import os, sys
+        import gc
+        
+        gc.collect()
 
         path_feat_eng_dir = os.path.join(path_feat_eng_dir, 
                                           'Imputer_categorical_ID['+Imputer_cat_ID+']',
@@ -233,6 +253,8 @@ class feat_eng_pipe():
             if self.__feat_eng_files_saved__(path_next_step, format_, find_X_field)==False:
                 X = self.load('X', format_, path_feat_eng_dir)
                 if type(X_field) != type(None): X_field = self.load('X_field', format_, path_feat_eng_dir)
+        
+        gc.collect()
 
         return X, X_field, path_feat_eng_dir
         
@@ -250,6 +272,9 @@ class feat_eng_pipe():
         Impute, transform, and save the continuous data
         """
         import os, sys
+        import gc
+        
+        gc.collect()
 
         path_feat_eng_dir = os.path.join(path_feat_eng_dir, 
                                           'Imputer_continuous_ID['+Imputer_cont_ID+']',
@@ -275,7 +300,15 @@ class feat_eng_pipe():
             if self.__feat_eng_files_saved__(path_next_step, format_, find_X_field)==False or self.overwrite=='OneHot':
                 X = self.load('X', format_, path_feat_eng_dir)
                 if type(X_field) != type(None): X_field = self.load('X_field', format_, path_feat_eng_dir)
-
+                    
+                if format_ != 'csv':
+                    import pandas as pd
+                    headers_dict = self.load('headers_dict', 'json', self.path_feat_eng_root_dir)
+                    X = pd.DataFrame(X, columns = headers_dict['features'])
+                    if type(X_field) != type(None): X_field = pd.DataFrame(X_field, columns = headers_dict['features'])
+        
+        gc.collect()
+        
         return X, X_field, path_feat_eng_dir
 
     def __run_OneHot_Encode__(self,
@@ -290,6 +323,9 @@ class feat_eng_pipe():
         """
         import os, sys
         import numpy as np
+        import gc
+        
+        gc.collect()
 
         path_feat_eng_dir = os.path.join(path_feat_eng_dir, 'OneHot_case['+str(OneHot_case)+']')
 
@@ -333,6 +369,8 @@ class feat_eng_pipe():
             if type(X_field) != type(None): X_field = self.load('X_field', format_, path_feat_eng_dir)
                 
             headers_dict = self.load('headers_dict', 'json', path_feat_eng_dir)
+            
+        gc.collect()
 
         return X, X_field, path_feat_eng_dir, headers_dict
     
@@ -507,6 +545,11 @@ class feat_eng_pipe():
             self.save(X, 'X', format_, path_feat_eng_dir)
             if type(X_field) != type(None): 
                 self.save(X_field, 'X_field', format_, path_feat_eng_dir)
+                
+        #save the original headers dict
+        headers_dict['features'] = list(X.columns)
+        self.save(headers_dict,  'headers_dict', 'json', self.path_feat_eng_root_dir)
+            
             
         #LabelEncode
         print('-------------------------------- fit feat_eng_pipe --------------------------------')
@@ -560,6 +603,8 @@ class feat_eng_pipe():
                                                                                               Imputer_iter_class_ID,
                                                                                               Imputer_cont_ID,
                                                                                               Imputer_iter_reg_ID))
+                                
+                                gc.collect()
 
 
         print('------------------------------------ !Finished! ------------------------------------')
