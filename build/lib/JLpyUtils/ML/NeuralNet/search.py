@@ -3,7 +3,6 @@ try:
     import tensorflow as __tf__
     __callbacks__ = [__tf__.keras.callbacks.EarlyStopping(monitor='val_loss', patience =10)]
 except:
-    print('tensorflow is not installed, run "pip install tensorflow==1.12.2" and "pip install tensorflow-gpu==1.12.2"')
     __callbacks__ = [None]
 
 class GridSearchCV:

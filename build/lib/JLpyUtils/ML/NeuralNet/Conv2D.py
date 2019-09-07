@@ -5,7 +5,6 @@ try:
     __loss__= __tf__.keras.losses.categorical_crossentropy
     __optimizer__ = __tf__.keras.optimizers.Adam
 except:
-    print('tensorflow is not installed, run "pip install tensorflow==1.12.2" and "pip install tensorflow-gpu==1.12.2"')
     __pooling_layer__ = None
     __loss__= None
     __optimizer__ = None 
