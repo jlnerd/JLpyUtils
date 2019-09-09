@@ -187,8 +187,11 @@ class GridSearchCV():
 
             for metric_key in self.metrics.keys():
                 if self.metrics[metric_key] !=None:
-                    self.models_dict[key][metric_key] = self.metrics[metric_key](y_test, self.models_dict[key]['y_pred'])
-                    print('\t',metric_key,':',self.models_dict[key][metric_key])
+                    try:
+                        self.models_dict[key][metric_key] = self.metrics[metric_key](y_test, self.models_dict[key]['y_pred'])
+                        print('\t',metric_key,':',self.models_dict[key][metric_key])
+                    except Exception as e:
+                        print('Exception occured for',metric_key,':',str(e))
 
             if 'sklearn' in str(type(self.models_dict[key]['model'])):
                 self.save(self.models_dict[key], 'model_dict', 'dill', path_model_dir)

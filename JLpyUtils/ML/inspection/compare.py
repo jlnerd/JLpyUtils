@@ -1,14 +1,19 @@
 
 def model_metrics(models_dict, metrics, verbose = 1):
     """
+    Iterate throught the models in the models_dict & analyize the metrics for each model, compiling all the metrics into a df_metrics pandas dataframe object.
+    
     Arguments:
+    ----------
         models_dict: dictionary containing trained models from ML_models.hyperparams.search... methods
         metrics: [[key(str), method(sklearn.metrics...)]'
     Returns:
-        models_dict with metrics added as new key, or with metrics updating some pre-exisiting metrics key        
+        models_dict: passed models_dict with metrics added as new key
+        df_metrics: pandas dataframe summarizing the metrics
     Notes:
         The function assumes the first metric in the list of metrics is the most important metric and will sort the results according to this metric
     """
+    import pandas as pd
     
     metrics_dict = {}
     metrics_dict['model'] =[]

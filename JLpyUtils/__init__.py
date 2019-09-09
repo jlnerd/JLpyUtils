@@ -2,7 +2,7 @@
 Custom modules/classes/methods for various data science, computer vision, and machine learning operations in python
 """
 
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 __repo__ = "https://github.com/jlnerd/.git",
 
 from . import plot

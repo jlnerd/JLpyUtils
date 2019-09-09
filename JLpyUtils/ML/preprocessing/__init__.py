@@ -4,6 +4,78 @@ from . import Impute
 from . import Scale
 from . import OneHotEncode
 
+class CorrelationCoeffThreshold():
+    def __init__(self, 
+                 AbsCorrCoeff_threshold = 0.99,
+                 method='pearson'):
+        """
+        Method for filtering features with correlation coefficients >= the AbsCorrCoeff_threshold (absolute value of corerlation coeff. threshold) value passed
+        
+        Arguments:
+        ----------
+            AbsCorrCoeff_threshold: float. default = 0.99
+            method: string. default: 'pearson'. The correlation coeffient method to be used 
+                - pearson : standard correlation coefficient
+                - kendall : Kendall Tau correlation coefficient
+                - spearman : Spearman rank correlation
+                - see pandas.DataFrame.corr for more details
+        """
+        assert(AbsCorrCoeff_threshold>=0)
+        self.AbsCorrCoeff_threshold = AbsCorrCoeff_threshold
+        self.method = method
+        
+    def fit(self, 
+            df, CorrCoeff_features = 'auto'):
+        """
+        Fit the CorrelationCoeffThreshold object to the data
+        
+        Arguments:
+        ----------
+            df: the pandas dataframe of interest
+            conv_features: list. the subset of features to analyze the covariance on. If 'auto' then all columns in the df will be used
+        """
+        import numpy as np
+        
+        #assigne self.CorrCoeff_features
+        if CorrCoeff_features == 'auto':
+            self.CorrCoeff_features = list(df.columns)
+        else:
+            assert(type(CorrCoeff_features)==type(list())), 'CorrCoeff_features must be "auto" or a list'
+            self.CorrCoeff_features = CorrCoeff_features
+        
+        df = df.copy()
+        df = df[self.CorrCoeff_features]
+        
+        df_cov = df.corr(method=self.method)
+        
+        self.dropped_features_dict = {'dropped feature':[],
+                                 'correlated feature':[],
+                                 'corr coeff':[]}
+        for header in df_cov:
+            slice_ = df_cov[header].drop([header]).reset_index()
+            slice_.columns= ['header','corr coeff']
+            for i in range(slice_.shape[0]):
+                if str(slice_.iloc[i,:]['header']) not in self.dropped_features_dict['correlated feature']:
+                    if np.abs(slice_.iloc[i,:]['corr coeff'])>= self.AbsCorrCoeff_threshold:
+                        self.dropped_features_dict['dropped feature'].append(str(slice_.iloc[i,:]['header']))
+                        self.dropped_features_dict['correlated feature'].append(header)
+                        self.dropped_features_dict['corr coeff'].append(slice_.iloc[i,:]['corr coeff'])
+                        
+    def transform(self, df):
+        """
+        Transform the pandas df based on the previously run fit
+        
+        Arguments:
+        ----------
+            df: pandas dataframe which will be transformed
+        """
+        df = df.copy()
+        for feature in self.dropped_features_dict['dropped feature']:
+            if feature in df:
+                df = df.drop(columns=[feature])
+        return df
+        
+
 class feat_eng_pipe():
     
     """
