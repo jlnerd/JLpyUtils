@@ -65,7 +65,7 @@ def regression(n_features=None, n_labels=None,
                                                       'learning_rate':[0.01, 0.1, 1],
                                                       'n_estimators':[10, 100],
                                                       'subsample':[1.0,0.8,0.5],
-                                                      'max_depth':[None, 5, 10]}
+                                                      'max_depth':[3, 10]}
                                        }
 
         if 'XGBoost' in model or 'xgboost' in model:                
@@ -154,9 +154,9 @@ def classification(n_features=None, n_labels=None,
                                     'param_grid': {'loss':['deviance','exponential'],
                                                   'criterion':["friedman_mse",'mse','mae'],
                                                    'learning_rate':[0.01, 0.1, 1],
-                                                   'n_estimators':[10, 100],
+                                                   'n_estimators':[10, 100, 1000],
                                                    'subsample':[1.0,0.8,0.5],
-                                                   'max_depth':[None, 5, 10]}
+                                                   'max_depth':[3, 10]}
                                    }
 
         if 'XGBoost' in model or 'xgboost' in model:                
