@@ -68,10 +68,20 @@ def save(obj, filename, format_, path_dir) :
             
 
 
-def load(filename, format_, path_dir, header='infer'):
+def load(filename, format_, path_dir, headers='infer'):
     
     """
     Load an arbitrary object with the specified filename and format_ in the path_dir
+    Arguments:
+    ----------
+        filename: the name of the file of interest (without the extension)
+        format_: the format of the file ('h5','csv','json','dill','h5_csv')
+        path_dir: the directory where the file is stored
+        headers: the headers that will be assigned to the file.
+            - If 'infer' the headers will be infered from the file
+            - If None, the file will be loaded without headers
+            - If a list is passed, the headers will be assigned to the values in the list
+        
     """
     
     import os, sys
@@ -90,7 +100,10 @@ def load(filename, format_, path_dir, header='infer'):
         import pandas as pd
 
         path_save_file = os.path.join(path_dir, filename+'.csv')
-        obj = pd.read_csv(path_save_file, low_memory = False, header = header)
+        if type(headers) == type(list()):
+            obj = pd.read_csv(path_save_file, low_memory = False, header = None, names = headers)
+        else:
+            obj = pd.read_csv(path_save_file, low_memory = False, header = headers)
 
     elif format_ == 'json':
         import json

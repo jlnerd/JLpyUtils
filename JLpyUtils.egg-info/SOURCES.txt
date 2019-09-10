@@ -22,11 +22,13 @@ JLpyUtils/ML/NeuralNet/search.py
 JLpyUtils/ML/NeuralNet/utils.py
 JLpyUtils/ML/inspection/__init__.py
 JLpyUtils/ML/inspection/compare.py
+JLpyUtils/ML/inspection/maximize_success.py
 JLpyUtils/ML/inspection/plot.py
 JLpyUtils/ML/model_selection/__init__.py
 JLpyUtils/ML/model_selection/default_models_dict.py
 JLpyUtils/ML/postprocessing/__init__.py
 JLpyUtils/ML/postprocessing/transform.py
+JLpyUtils/ML/preprocessing/CovarianceFilter.py
 JLpyUtils/ML/preprocessing/Impute.py
 JLpyUtils/ML/preprocessing/LabelEncode.py
 JLpyUtils/ML/preprocessing/OneHotEncode.py

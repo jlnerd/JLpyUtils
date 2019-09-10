@@ -86,7 +86,11 @@ def corr_pareto(df_corr,label, rect = (0, 0, 1, 1), ylim = None):
     fig, ax = plt.subplots(1,1)
     ax.bar(df_label_pareto_sorted.index, df_label_pareto_sorted)
     
-    ax.set_ylabel(label+" Correlation Factor")
+    ylabel = label+" Correlation Factor"
+    if len(ylabel)>20:
+        ylabel = '\n'.join(ylabel.split(' '))
+    
+    ax.set_ylabel(ylabel)
     ax.set_title(label+" Correlation Factor Pareto\n")
     ax.grid(which='both', visible=False)
     ax.set_ylim(ylim)
@@ -94,6 +98,28 @@ def corr_pareto(df_corr,label, rect = (0, 0, 1, 1), ylim = None):
     ax.set_xticklabels(df_label_pareto_sorted.index, rotation = 'vertical')
 
     fig.tight_layout(rect = rect )
+    plt.show()
+    
+def covariance_matrix(df_cov, 
+                      cbar_label = 'Covariance Coeff.', vmin = None, vmax = None):
+    """
+    Plot the covariance matrix for the pandas df covariance matrix passed
+    Arguments:
+    ----------
+        df_cov: the pandas df covariance matrix (call df.cov on your original df)
+        cbar_label: the color bar axis label
+        vmin, vmax: min and max values for the color bar. If None, autoscaling will be applied
+    """
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    
+    fig, ax = plt.subplots(1,1)
+    cax = ax.matshow(df_cov, vmin = vmin, vmax = vmax)
+    cbar = fig.colorbar(cax)
+    cbar.set_label(cbar_label, labelpad=15, ha='center', va='center', rotation=90)
+    ax.grid(which='both',visible=False)
+    ax.set_xticklabels([0]+list(df_cov.columns), rotation='vertical')
+    ax.set_yticklabels([0]+list(df_cov.columns))
     plt.show()
 
 def by_color_group_and_line_group(df,
@@ -127,7 +153,9 @@ def by_color_group_and_line_group(df,
     
     
 def hist_or_bar(df, n_plot_columns = 3, 
-                 categorical_headers = [None]):
+                 categorical_headers = [None],
+                xscale = 'linear',
+                yscale = 'linear'):
     """
     Iterate through each column in a pandas dataframe and plot the histogram or bar chart for the data.
     
@@ -143,10 +171,11 @@ def hist_or_bar(df, n_plot_columns = 3,
     
     df = df.copy()
     
-    
-    fig, ax_list = plt.subplots(1, n_plot_columns)
     if n_plot_columns == 1:
-        ax_list = [ax_list]
+        fig, ax = plt.subplots(1, n_plot_columns)
+        ax_list = [ax]
+    else:
+        fig, ax_list = plt.subplots(1, n_plot_columns)
     p=0
     for header in df:
         
@@ -190,6 +219,8 @@ def hist_or_bar(df, n_plot_columns = 3,
             
             ax_list[p].plot(df_counts[header], df_counts['counts'])
             
+            ax_list[p].set_xscale(xscale)
+            
             
         else: #plot as histogram
             slice_ = df[[header]]
@@ -197,16 +228,19 @@ def hist_or_bar(df, n_plot_columns = 3,
             
             ax_list[p].hist(slice_[header], bins = __np__.min((100, df[header].nunique())))
             
+            ax_list[p].set_xscale(xscale)
+            
         ax_list[p].grid(which='both',visible=False)
         
         if len(header)>20:
             xlabel = '\n'.join(header.split(' '))
         else:
             xlabel = header
-        
+            
+        ax_list[p].ticklabel_format(axis='y', style='sci', scilimits=(-2,2))
         ax_list[p].set_xlabel(xlabel)
         ax_list[p].set_ylabel('counts')
-        ax_list[p].ticklabel_format(axis='y', style='sci', scilimits=(-2,2))
+        ax_list[p].set_yscale(yscale)
         
         p+=1
         
