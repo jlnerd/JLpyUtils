@@ -14,3 +14,4 @@ opencv-python
 nose
 xgboost
 dill
+h5py

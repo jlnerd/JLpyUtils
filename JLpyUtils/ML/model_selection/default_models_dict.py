@@ -151,10 +151,10 @@ def classification(n_features=None, n_labels=None,
         if 'GradBoost' in model:
             import sklearn.ensemble
             models_dict['GradBoost'] = {'model': sklearn.ensemble.GradientBoostingClassifier(),
-                                    'param_grid': {'loss':['deviance','exponential'],
+                                    'param_grid': {'loss':['deviance'],#,'exponential'],
                                                   'criterion':["friedman_mse",'mse','mae'],
                                                    'learning_rate':[0.01, 0.1, 1],
-                                                   'n_estimators':[10, 100, 1000],
+                                                   'n_estimators':[10, 100],# 1000], OK
                                                    'subsample':[1.0,0.8,0.5],
                                                    'max_depth':[3, 10]}
                                    }

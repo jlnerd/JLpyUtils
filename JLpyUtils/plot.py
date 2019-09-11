@@ -61,18 +61,23 @@ def corr_matrix(df_corr, cbar_label = 'Correlation Coeff.', vmin = None, vmax = 
     ax.set_yticklabels([0]+list(df_corr.columns))
     plt.show()
 
-def corr_pareto(df_corr,label, rect = (0, 0, 1, 1), ylim = None):
+def corr_pareto(df_corr, label, max_bars = 30, rect = (0, 0, 1, 1), ylim = None, return_df = False):
     
     '''
     Plot plot pareto bar-chart for 1 label of interest within a correlation dataframe
+    
     Arguments:
     ---------
         df_corr: pandas DataFrame correlation matrix
         label: column/header for which you want to plot the bar-chart pareto for
-        size: vertical and horizontal size correlation chart
+        max_bars: max number of bars to plot. If n_bars > max_bars, then the top and bottom half of the sorted bars will be plotted
+        rect: tight_layout rectangular coordinates (see matplotlib docs for more details)
+        ylim: limits on y axis
+        return_df: boolean. Wether or not to return the correlation pareto dataframe
+        
     Returns:
     --------
-        df_correlations, df_label_pareto, df_label_pareto_sorted
+        df_corr_pareto: Pandas DataFrame of the correlation pareto (sorted)
     '''
 
     import matplotlib as mpl
@@ -84,9 +89,22 @@ def corr_pareto(df_corr,label, rect = (0, 0, 1, 1), ylim = None):
     df_label_pareto_sorted = df_label_pareto_sorted.drop(label)
 
     fig, ax = plt.subplots(1,1)
-    ax.bar(df_label_pareto_sorted.index, df_label_pareto_sorted)
+    if len(df_label_pareto_sorted.index)>max_bars:
+        bottom = df_label_pareto_sorted.iloc[:int(max_bars/2)]
+        top = df_label_pareto_sorted.iloc[-int(max_bars/2):]
+        
+        ax.bar(bottom.index, bottom, label = 'top '+str(int(max_bars/2)))
+        ax.bar(top.index, top, label = 'bottom '+str(int(max_bars/2)))
+
+        ax.set_xticklabels(list(bottom.index)+list(top.index), rotation=90)
+        ax.legend()
+    else:
+        ax.bar(df_label_pareto_sorted.index, df_label_pareto_sorted)
+        ax.set_xticklabels(df_label_pareto_sorted.index, rotation = 'vertical')
     
     ylabel = label+" Correlation Factor"
+    
+    #make sure the y axis label isn't too long, otherwise added next lines to the label
     if len(ylabel)>20:
         ylabel = '\n'.join(ylabel.split(' '))
     
@@ -95,10 +113,18 @@ def corr_pareto(df_corr,label, rect = (0, 0, 1, 1), ylim = None):
     ax.grid(which='both', visible=False)
     ax.set_ylim(ylim)
     
-    ax.set_xticklabels(df_label_pareto_sorted.index, rotation = 'vertical')
-
-    fig.tight_layout(rect = rect )
+    try:
+        fig.tight_layout(rect = rect )
+    except:
+        None
     plt.show()
+    
+    if return_df:
+        df_corr_pareto = df_label_pareto_sorted.reset_index()
+        df_corr_pareto.columns = ['feature','Corr Coeff']
+    else:
+        df_corr_pareto = None
+    return df_corr_pareto
     
 def covariance_matrix(df_cov, 
                       cbar_label = 'Covariance Coeff.', vmin = None, vmax = None):
@@ -201,7 +227,7 @@ def hist_or_bar(df, n_plot_columns = 3,
                 ax_list[p].bar(bottom[header], bottom['counts'], label = 'bottom counts')
                 ax_list[p].bar(top[header], top['counts'], label = 'top counts')
                 
-                ax_list[p].set_xticklabels(list(top[header])+list(bottom[header]), rotation=90)
+                ax_list[p].set_xticklabels(list(bottom[header])+list(top[header]), rotation=90)
                 ax_list[p].legend()
             else:
                 ax_list[p].bar(df_counts[header],df_counts['counts'])
