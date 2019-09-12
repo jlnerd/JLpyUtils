@@ -75,3 +75,5 @@ def dropping_label_categories(model, X, y, drop_label_categories, show_plot = Tr
         plt.show()
 
     return df_lift, y_drop, y_pred_drop, y_value_counts, y_drop_value_counts
+
+#def varying_features
