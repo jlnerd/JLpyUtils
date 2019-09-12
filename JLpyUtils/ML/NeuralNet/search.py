@@ -115,6 +115,7 @@ class GridSearchCV:
         Build train - validation index generator for K fold splits
         """
         import sklearn.model_selection
+        import numpy as np
         
         if len(y.shape)>1:
             if y.shape[1]>1: #if y is one hot encoded
@@ -265,7 +266,7 @@ class GridSearchCV:
         except Exception as e:
             print('Exception at save:',e)
         
-        if self.verbose >=2:
+        if self.verbose >=1:
             print('...Finished')
             
         warnings.filterwarnings('default')
