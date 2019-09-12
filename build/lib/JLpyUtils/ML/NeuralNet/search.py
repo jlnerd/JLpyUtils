@@ -158,7 +158,7 @@ class GridSearchCV:
         self.ParameterGrid_dict['params'] = self.ParameterGrid(self.param_grid)
         
         if self.verbose >=1:
-            print('running', self.cv, 'fold cross validation on',len(self.ParameterGrid_dict['params']),'hyperparemter combinations, for a total of',self.cv*len(self.ParameterGrid_dict['params']),'models')
+            print('running', self.cv, 'fold cross validation on',len(self.ParameterGrid_dict['params']),'candidates, totalling',self.cv*len(self.ParameterGrid_dict['params']),'fits')
             print('Scoring using',self.scoring)
         
         cv_verbosity = self.verbose
@@ -174,12 +174,11 @@ class GridSearchCV:
         time_cv_list = []
         for params in self.ParameterGrid_dict['params']:
             if self.verbose >=1:
-                print('\tParameter sweep progress:',
-                      round((p+1)/len(self.ParameterGrid_dict['params'])*100,6), 
-                      '(total time (mins):', 
-                      round(np.sum(time_cv_list),2),'of ~',
-                      round(np.median(time_cv_list)*len(self.ParameterGrid_dict['params']),2),')',
-                      end='\r')
+                param_sweep_print = '\tParameter sweep progress: '+\
+                      str(round((p+1)/len(self.ParameterGrid_dict['params'])*100,3))+\
+                      '(total time (mins):'+\
+                      str(round(np.sum(time_cv_list),2))+' of ~'+\
+                      str(round(np.median(time_cv_list)*len(self.ParameterGrid_dict['params']),2))+')'
             
             #build the model
             model_ = self.model(**params)
@@ -213,8 +212,8 @@ class GridSearchCV:
                 time_train = (time.time() - time_train)/60
                 
                 if self.verbose>=1:
-                    print('\t\tcv Progress:',round((c+1)/self.cv*100,3),
-                          '(train time (mins):',round(time_train,2),')\t\t\t',end='\r')
+                    print(param_sweep_print,'[cv Progress:',round((c+1)/self.cv*100,3),
+                          '(train time (mins):',round(time_train,2),')]',end='\r')
                 c+=1
                 
             

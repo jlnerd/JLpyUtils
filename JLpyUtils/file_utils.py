@@ -77,11 +77,13 @@ def load(filename, format_, path_dir, headers='infer'):
         filename: the name of the file of interest (without the extension)
         format_: the format of the file ('h5','csv','json','dill','h5_csv')
         path_dir: the directory where the file is stored
-        headers: the headers that will be assigned to the file.
+        headers: the headers that will be assigned to the file for 'csv' or 'h5_csv' formats.
             - If 'infer' the headers will be infered from the file
             - If None, the file will be loaded without headers
             - If a list is passed, the headers will be assigned to the values in the list
-        
+    Returns:
+    --------
+        obj: the object loaded from the file. if 'h5_csv' or 'csv', a pandas DataFrame will be returned
     """
     
     import os, sys
@@ -94,6 +96,10 @@ def load(filename, format_, path_dir, headers='infer'):
         file = h5py.File(path_save_file, 'r')
         obj = file[filename][:]
         file.close()
+        
+        if type(headers) == type(list()):
+                obj = pd.DataFrame(obj, columns = headers)
+            
 
     elif format_ == 'csv':
 
@@ -122,16 +128,24 @@ def load(filename, format_, path_dir, headers='infer'):
     elif format_ =='h5_csv': #try loading as h5, otherwise save as csv
         try:
             import h5py
+            import pandas as pd
 
             path_save_file = os.path.join(path_dir, filename+'.h5')
             file = h5py.File(path_save_file, 'r')
             obj = file[filename][:]
             file.close()
+            
+            if type(headers) == type(list()):
+                obj = pd.DataFrame(obj, columns = headers)
+            
         except:
             import pandas as pd
 
             path_save_file = os.path.join(path_dir, filename+'.csv')
-            obj = pd.read_csv(path_save_file, low_memory = False, header = header)
+            if type(headers) == type(list()):
+                obj = pd.read_csv(path_save_file, low_memory = False, header = None, names = headers)
+            else:
+                obj = pd.read_csv(path_save_file, low_memory = False, header = headers)
 
 
 
