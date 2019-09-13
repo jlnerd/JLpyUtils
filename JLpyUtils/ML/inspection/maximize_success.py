@@ -76,4 +76,142 @@ def dropping_label_categories(model, X, y, drop_label_categories, show_plot = Tr
 
     return df_lift, y_drop, y_pred_drop, y_value_counts, y_drop_value_counts
 
-#def varying_features
+def varying_features_for_max_prob(model, X, y, 
+                                    free_categorical_features= None, 
+                                    free_continuous_features = None, 
+                                    success_label = 1,
+                                  verbose = 1):
+    """
+    Vary features in X to maximize the probability of success.
+    
+    Arguments:
+    ----------
+        model: the model object of interest from which predictions will be made on the X dataset passed
+        X, y: The features and labels the evaluation will be performed on. We assume the categorical features in the X data should be One-Hot encoded, such that their values are only either 0 or 1.
+        LabelEncoder: The LabelEncoder object that defines the possible categorical features which 
+        free_categorical_features: the categorical features in X which can be freely varied for success
+        free_continuous_features: the continuous features in X which can be freely varied for success
+        success_label: the label category in y which you want to be maxime success/probability for.
+        verbose: print-out verbosity
+        
+    Returns:
+    --------
+        X_opt: Pandas DataFrame with the optimal parameters inserted for each case in X
+        y_opt_probas: the probabilities for each optimal condition
+        lift_dict: dictionary containing various lift metrics ('mean(opt/orig proba)', 'median(opt/orig proba)', 'stddev(opt/orig probe)':np.std(y_opt_probas/y_proba))
+    """
+    import itertools
+    import joblib
+    import scipy, scipy.optimize
+    import sklearn, sklearn.metrics
+    import numpy as np
+    import warnings
+    
+    def cont_feat_optimizer(X_slice,
+                       free_cat_feature_headers,
+                       free_cont_feature_headers, 
+                       model,
+                       success_label,
+                       cat_feat_combo
+                      ):
+        """
+        Optimizer to find the best free continuous feature values for a given example (slice) of features and labels
+        """
+        import scipy, scipy.optimize
+        
+        #update X_slice free categorical features with categorical feature combo case
+        X_slice[free_cat_feature_headers] = cat_feat_combo
+        
+        def loss(free_cont_feat_vals,
+                 free_cont_feature_headers, 
+                 X_slice, model):
+            X_slice[free_cont_feature_headers] = free_cont_feat_vals
+            y_pred_proba = model.predict_proba(X_slice)
+            loss_ = 1-y_pred_proba[0][success_label]
+            return loss_
+        
+        #define initial guess for optimial free continuous feature values
+        free_cont_feat_vals = np.array(X_slice[free_cont_feature_headers]).reshape(-1,1)
+        
+        #run optimizer for free continuous features
+        results = scipy.optimize.minimize(loss, free_cont_feat_vals, 
+                                          args = (free_cont_feature_headers, 
+                                                  X_slice, model)
+                                         )
+        
+        #fetch optimal results and updated X_slice
+        optimal_cont_feat_vals = results['x']
+        X_slice[free_cont_feature_headers] = optimal_cont_feat_vals
+        
+        y_pred_proba = model.predict_proba(X_slice)
+        y_pred_proba = y_pred_proba[0][success_label]
+        
+        return optimal_cont_feat_vals, y_pred_proba
+    
+    def cat_cont_feat_optimizer(X_slice,
+                               free_categorical_features,
+                               free_continuous_features, 
+                               model,
+                               success_label,
+                               cat_feat_combos):
+        
+        results_dict={'cat features':[],
+                      'optimal_cont_feat_vals':[],
+                      'y_pred_proba':[]}
+        for cat_feat_combo in cat_feat_combos:
+            optimal_cont_feat_vals, y_pred_proba = cont_feat_optimizer(X_slice,
+                                                           free_categorical_features,
+                                                           free_continuous_features, 
+                                                           model,
+                                                           success_label,
+                                                           cat_feat_combo
+                                                          )
+            results_dict['cat features'].append(cat_feat_combo)
+            results_dict['optimal_cont_feat_vals'].append(optimal_cont_feat_vals)
+            results_dict['y_pred_proba'].append(y_pred_proba)
+        idx_max_proba = np.argmax(results_dict['y_pred_proba'])
+        
+        opt_cat_feat_vals = results_dict['cat features'][idx_max_proba]
+        opt_cont_feat_vals = results_dict['optimal_cont_feat_vals'][idx_max_proba]
+        opt_proba = results_dict['y_pred_proba'][idx_max_proba]
+        
+        return opt_cat_feat_vals, opt_cont_feat_vals, opt_proba
+    
+    warnings.filterwarnings('ignore')
+    
+    #fetch baseline probs
+    y_proba = model.predict_proba(X)
+    
+    #fetch locked features list
+    locked_features = [feature for feature in X.columns if feature not in free_categorical_features and feature not in free_continuous_features]
+    
+    #build all possible combinations of categorical features
+    cat_feat_combos = list(itertools.product([0, 1], repeat=len(free_categorical_features)))
+    
+    X_opt = X
+    y_opt_probas = []
+    for i in range(X.shape[0]):
+        if verbose>=1:
+            print('Progress:',round(i/X.shape[0]*100,2),'%',end='\r')
+        
+        X_slice = X.iloc[i,:].to_frame().T
+        
+        opt_cat_feat_vals, opt_cont_feat_vals, opt_proba = cat_cont_feat_optimizer(
+                                                                X_slice,
+                                                                free_categorical_features,
+                                                                free_continuous_features, 
+                                                                model,
+                                                                success_label,
+                                                                cat_feat_combos)
+        y_opt_probas.append(opt_proba)
+        X_opt[free_categorical_features] = list(opt_cat_feat_vals)
+        X_opt[free_continuous_features] = list(opt_cont_feat_vals)
+    
+    lift_dict = {'mean(opt/orig proba)':np.mean(y_opt_probas/y_proba),
+                 'median(opt/orig proba)':np.median(y_opt_probas/y_proba),
+                 'stddev(opt/orig probe)':np.std(y_opt_probas/y_proba)
+                 }
+    
+    warnings.filterwarnings('default')
+    
+    return X_opt, y_opt_probas, lift_dict
