@@ -44,20 +44,18 @@ Functions related to preprocessing/feature engineering for machine learning
 
 The main class of interest is the ```JLpyUtils.ML.preprocessing.feat_eng_pipe``` class, which iterates through a standard feature engineering sequence and saves the resulting engineered data. The standard sequence is:
 
-* LabelEncode.categorical_features -> 
-* Scale.continuous_features ->
-
-
-            - for Scaler_ID in Scalers_dict.keys()<br>
-        * Impute.categorical_features -><br>
-            - for Imputer_cat_ID in Imputer_categorical_dict[Imputer_cat_ID].keys():<br>
-                - for Imputer_iter_class_ID in Imputer_categorical_dict[Imputer_cat_ID].keys():<br>
-        * Imputer.continuous_features -><br>
-            - for Imputer_cont_ID in Imputer_continuous_dict.keys():
-                - for Imputer_iter_reg_ID in Imputer_continuous_dict[Imputer_cont_ID].keys():<br>
-        * OneHotEncode -><br>
-        * CorrCoeffThreshold -><br>
-        * Finished!<br>
+1. LabelEncode.categorical_features
+2. Scale.continuous_features
+    * for Scaler_ID in Scalers_dict.keys()
+3. Impute.categorical_features
+    * for Imputer_cat_ID in Imputer_categorical_dict[Imputer_cat_ID].keys():<br>
+        *for Imputer_iter_class_ID in Imputer_categorical_dict[Imputer_cat_ID].keys():
+4. Imputer.continuous_features
+    * for Imputer_cont_ID in Imputer_continuous_dict.keys():
+        * for Imputer_iter_reg_ID in Imputer_continuous_dict[Imputer_cont_ID].keys():
+5. OneHotEncode
+6. CorrCoeffThreshold
+7. Finished!
         
 #### JLpyUtils.ML.model_selection
 Functions/classes for running hyperparameter searches across multiple types of models & comparing those models
