@@ -28,6 +28,15 @@ Below, we highlight several of the most interesting modules in more detail.
 ### JLpyUtils.ML
 Machine learning module for python focusing on streamlining and wrapping sklearn, xgboost, dask_ml, & tensorflow/keras functions
 
+__JLpyUtils.ML Sub-Modules:__
+```
+JLpyUtils.ML.preprocessing 
+JLpyUtils.ML.model_selection
+JLpyUtils.ML.NeuralNet
+JLpyUtils.ML.inspection
+JLpyUtils.ML.postprocessing
+````
+
 The sub-modules within JLpyUtils.ML are summarized below:
 
 #### JLpyUtils.ML.preprocessing 
