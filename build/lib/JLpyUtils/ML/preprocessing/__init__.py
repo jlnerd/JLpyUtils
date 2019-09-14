@@ -1,4 +1,6 @@
-
+"""
+Functions related to preprocessing/feature engineering for machine learning.
+"""
 from . import LabelEncode
 from . import Impute
 from . import Scale
@@ -6,13 +8,15 @@ from . import OneHotEncode
 
 class CorrCoeffThreshold():
     def __init__(self, 
-                 AbsCorrCoeff_threshold = 0.99):
+                 AbsCorrCoeff_threshold = 0.99,
+                 iterative_sample_size = None):
         """
         Method for filtering features with correlation coefficients >= the AbsCorrCoeff_threshold (absolute value of corerlation coeff. threshold) value passed, where the correlation coefficient is the pearson coerrelation coefficient
         
         Arguments:
         ----------
             AbsCorrCoeff_threshold: float. default = 0.99
+            iterative_sample_size: float
         """
         assert(AbsCorrCoeff_threshold>=0)
         assert(AbsCorrCoeff_threshold<=1)
@@ -59,8 +63,11 @@ class CorrCoeffThreshold():
         import numpy as np
         import joblib   
         import gc
+        import dask
         
         df = df.copy()
+        
+        type_X = type(X)
 
         #assigne self.CorrCoeff_features
         if CorrCoeff_features == 'auto':
@@ -119,6 +126,7 @@ class feat_eng_pipe():
     
     """
     Iterate through a standard feature engineering sequence and save the resulting engineered data.
+    
     Arguments:
     ---------
         path_report_dir: directory. Default: None. the path to the directory where the feature engineering cases will be saved. It is recommended that you save outside the repo. directory where the notebook is stored, as the saved files may be > 50mb.
@@ -130,17 +138,14 @@ class feat_eng_pipe():
         Scale.continuous_features -> 
             -for Scaler_ID in Scalers_dict.keys()
         Impute.categorical_features ->
-            - for Imputer_categorical_ID,  categorical_iterative_estimators in INSERT
-                - for categorical_estimatorID in categorical_iterative_estimators:
+            - for Imputer_cat_ID in Imputer_categorical_dict[Imputer_cat_ID].keys():
+                - for Imputer_iter_class_ID in Imputer_categorical_dict[Imputer_cat_ID].keys():
         Imputer.continuous_features ->
-            - for Imputer_continuous_ID,  continuous_iterative_estimators in INSERT
-                - for continuous_estimatorID in continuous_iterative_estimators:
+            - for Imputer_cont_ID in Imputer_continuous_dict.keys():
+                - for Imputer_iter_reg_ID in Imputer_continuous_dict[Imputer_cont_ID].keys():
         OneHotEncode ->
-        Train_test_split ->
+        CorrCoeffThreshold ->
         Finished!
-    Future Version Updates
-    -----------------------
-    - add functionality for Impute_iterative_classifier_dict() to iteratively imput categorical data
     
     """
     def __init__(self, 
@@ -210,24 +215,28 @@ class feat_eng_pipe():
         gc.collect()
 
         file_saved_list = []
-
+        
         #build list of files to look for
-        files = [file+'.'+format_ for file in files]
+        #files = [file+'.'+format_ for file in files]
 
         #check if all files exist
         for file in files:
             if format_ == 'h5_csv':
                 h5_csv_file_saved_list = []
                 for format_ in ['csv','h5']:
-                    path_save_file = os.path.join(path_feat_eng_dir,file.replace('h5_csv',format_)) 
+                    path_save_file = os.path.join(path_feat_eng_dir, file+'.'+format_)
                     h5_csv_file_saved_list.append(os.path.isfile(path_save_file))
+                    
                 #if either h5 or csv saved, append True
                 file_saved_list.append(any(h5_csv_file_saved_list)) 
-            else:
-                path_save_file = os.path.join(path_feat_eng_dir,file)
                 
-                file_saved_list.append(os.path.isfile(path_save_file))
-        
+            else: #iterate through files in the dir & assert that each file is a file if it contains the format and filname. This loop ensures that if files are saved in chunks via dask, the function will recognize the "file" as saved
+                
+                for dir_file in os.path.listdir(path_feat_eng_dir):
+                    if '.'+format_ in dir_file and file in dir_file:
+                        path_save_file = os.path.join(path_feat_eng_dir, dir_file)
+                        file_saved_list.append(os.path.isfile(path_save_file))
+                
         gc.collect()
         
         #if all files saved, return True
@@ -321,6 +330,7 @@ class feat_eng_pipe():
             X = Scaler.transform(X)
 
             #save
+            
             self.save(X, 'X', format_, path_feat_eng_dir)
                 
             #save the Scaler
@@ -334,7 +344,6 @@ class feat_eng_pipe():
             if self.__feat_eng_files_saved__(files, path_next_step, format_)==False:
                 del X
                 gc.collect()
-                
                 X = self.load('X', format_, path_feat_eng_dir)
                 
         gc.collect()
@@ -385,7 +394,6 @@ class feat_eng_pipe():
             if self.__feat_eng_files_saved__(files, path_next_step, format_)==False:
                 del X
                 gc.collect()
-                
                 X = self.load('X', format_, path_feat_eng_dir)
                 
         gc.collect()
@@ -437,7 +445,7 @@ class feat_eng_pipe():
                 
                 X = self.load('X', format_, path_feat_eng_dir)
                  
-                if format_ != 'csv':
+                if format_ != 'csv' and format_!='hdf':
                     import pandas as pd
                     headers_dict = self.load('headers_dict', 'json', self.path_feat_eng_root_dir)
                     X = pd.DataFrame(X, columns = headers_dict['features'])
@@ -471,7 +479,8 @@ class feat_eng_pipe():
             if OneHot_case:
                 #fetch the label encoder
                 self.LabelEncoder = self.load('LabelEncoder', 'dill', os.path.join(self.path_feat_eng_root_dir, 'LabelEncode') )
-                return_format='npArray'
+                #return_format='npArray'
+                return_format='DataFrame'
                 
                 OneHotEncoder = OneHotEncode.categorical_features(return_format = return_format,
                                                                   LabelEncoder = self.LabelEncoder)
@@ -487,7 +496,7 @@ class feat_eng_pipe():
 
             else: #if OneHot is False, just skip transform to numpy array
                 headers_dict['headers after OneHot'] = list(X.columns)
-                X = np.array(X)
+                #X = np.array(X)
                    
             #save
             self.save(X, 'X', format_, path_feat_eng_dir)
@@ -495,7 +504,7 @@ class feat_eng_pipe():
             self.save(headers_dict, 'headers_dict', 'json', path_feat_eng_dir)
             
             #transform back to pandas df
-            X = pd.DataFrame(X, columns = headers_dict['headers after OneHot'])
+            #X = pd.DataFrame(X, columns = headers_dict['headers after OneHot'])
             
         else:
             #check if the step after this has been completed, if not load the data here
@@ -510,7 +519,7 @@ class feat_eng_pipe():
                 headers_dict = self.load('headers_dict', 'json', path_feat_eng_dir)
                  
                 #transform back to pandas df
-                X = pd.DataFrame(X, columns = headers_dict['headers after OneHot'])
+                #X = pd.DataFrame(X, columns = headers_dict['headers after OneHot'])
 
         gc.collect()
 

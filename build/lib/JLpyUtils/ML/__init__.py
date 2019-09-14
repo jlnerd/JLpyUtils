@@ -1,6 +1,5 @@
 """
-Custom machine learning module for python focusing on streamlining and wrapping sklearn & tensorflow/keras functions
-====================================================================================================================
+Machine learning module for python focusing on streamlining and wrapping sklearn, xgboost, dask_ml, & tensorflow/keras functions
 """
     
 from . import model_selection

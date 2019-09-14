@@ -1,4 +1,6 @@
-
+"""
+functions related to a keras implementation of a generic dense neural network
+"""
 try:
     import tensorflow as __tf__
     __pooling_layer__ = __tf__.keras.layers.MaxPool2D
