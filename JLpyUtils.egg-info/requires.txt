@@ -1,4 +1,4 @@
-numpy~=1.17.1
+numpy
 pandas
 sklearn
 scipy
@@ -7,15 +7,16 @@ kaggle
 scikit-image
 opencv-python
 nose
-xgboost
 dill
 h5py
+dask_ml
+dask_xgboost
+xgboost
+dask
 bokeh
 click
 cloudpickle
 cytoolz
-dask
-dask-core
 distributed
 fsspec
 heapdict
@@ -23,7 +24,6 @@ locket
 mkl_fft
 mkl_random
 msgpack-python
-numpy-base
 packaging
 partd
 psutil
@@ -32,6 +32,4 @@ tblib
 toolz
 zict
 zstd
-dask_ml
-dask_xgboost
 tables
