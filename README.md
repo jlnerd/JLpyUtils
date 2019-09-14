@@ -28,9 +28,12 @@ Below, we highlight several of the most interesting modules in more detail.
 ### JLpyUtils.ML
 Machine learning module for python focusing on streamlining and wrapping sklearn, xgboost, dask_ml, & tensorflow/keras functions
 
-The sub0modules within JLpyUtils.ML are:
-```JLpyUtils.ML.preprocessing```: Functions related to preprocessing/feature engineering for machine learning
-    * The main class of interest is the ```JLpyUtils.ML.preprocessing.feat_eng_pipe``` class, which iterates through a standard feature engineering sequence and saves the resulting engineered data. The standard sequence is:
+The sub-modules within JLpyUtils.ML are summarized below:
+
+#### JLpyUtils.ML.preprocessing 
+Functions related to preprocessing/feature engineering for machine learning
+
+The main class of interest is the ```JLpyUtils.ML.preprocessing.feat_eng_pipe``` class, which iterates through a standard feature engineering sequence and saves the resulting engineered data. The standard sequence is:
         * LabelEncode.categorical_features ->  <br>
         * Scale.continuous_features -> <br> s
             - for Scaler_ID in Scalers_dict.keys()<br>
@@ -43,12 +46,22 @@ The sub0modules within JLpyUtils.ML are:
         * OneHotEncode -><br>
         * CorrCoeffThreshold -><br>
         * Finished!<br>
-```JLpyUtils.ML.model_selection```: functions/classes for running hyperparameter searches across multiple types of models & comparing those models
-    * The main class of interest is the ```JLpyUtils.ML.model_selection.GridSearchCV``` class, which runs hyperparameter GridSearchCV across different types of models & compares the results to allow one to find the best-of-best (BoB) model. The functions is compatible with evaluating sklearn models, tensorflow/keras models, and xgboost models.
-```JLpyUtils.ML.NeuralNet```: sub-modules/functions/classes for streamlining common neural-net architectures implemented in tensorflow/keras.
-    * The most notetable sub-modules are the ```DenseNet``` and ```Conv2D``` modules, which provide a keras implementation of a general dense neural network & 2D convolutional neural network, where the depth & general architecture of the network s are defined by generic hyperparameters, such that one can easily perform a grid search across multiple neural network architectures.
-```JLpyUtils.ML.inspection```: Functions to inspect features and/or models after training
-```JLpyUtils.ML.postprocessing```: ML model outputs postprocessing helper functions
+        
+#### JLpyUtils.ML.model_selection
+Functions/classes for running hyperparameter searches across multiple types of models & comparing those models
+
+The main class of interest is the ```JLpyUtils.ML.model_selection.GridSearchCV``` class, which runs hyperparameter GridSearchCV across different types of models & compares the results to allow one to find the best-of-best (BoB) model. The functions is compatible with evaluating sklearn models, tensorflow/keras models, and xgboost models.
+
+#### JLpyUtils.ML.NeuralNet
+sub-modules/functions/classes for streamlining common neural-net architectures implemented in tensorflow/keras.
+
+The most notetable sub-modules are the ```DenseNet``` and ```Conv2D``` modules, which provide a keras implementation of a general dense neural network & 2D convolutional neural network, where the depth & general architecture of the network s are defined by generic hyperparameters, such that one can easily perform a grid search across multiple neural network architectures.
+
+#### JLpyUtils.ML.inspection
+Functions to inspect features and/or models after training
+
+#### JLpyUtils.ML.postprocessing
+ML model outputs postprocessing helper functions
 
 
 ### JLpyUtils.plot
