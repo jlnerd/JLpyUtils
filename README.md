@@ -31,18 +31,18 @@ Machine learning module for python focusing on streamlining and wrapping sklearn
 The sub0modules within JLpyUtils.ML are:
 ```JLpyUtils.ML.preprocessing```: Functions related to preprocessing/feature engineering for machine learning
     * The main class of interest is the ```JLpyUtils.ML.preprocessing.feat_eng_pipe``` class, which iterates through a standard feature engineering sequence and saves the resulting engineered data. The standard sequence is:
-        * LabelEncode.categorical_features ->  
-        * Scale.continuous_features -> 
-            - for Scaler_ID in Scalers_dict.keys()
-        * Impute.categorical_features ->
-            - for Imputer_cat_ID in Imputer_categorical_dict[Imputer_cat_ID].keys():
-                - for Imputer_iter_class_ID in Imputer_categorical_dict[Imputer_cat_ID].keys():
-        * Imputer.continuous_features ->
+        * LabelEncode.categorical_features ->  <br>
+        * Scale.continuous_features -> <br>
+            - for Scaler_ID in Scalers_dict.keys()<br>
+        * Impute.categorical_features -><br>
+            - for Imputer_cat_ID in Imputer_categorical_dict[Imputer_cat_ID].keys():<br>
+                - for Imputer_iter_class_ID in Imputer_categorical_dict[Imputer_cat_ID].keys():<br>
+        * Imputer.continuous_features -><br>
             - for Imputer_cont_ID in Imputer_continuous_dict.keys():
-                - for Imputer_iter_reg_ID in Imputer_continuous_dict[Imputer_cont_ID].keys():
-        * OneHotEncode ->
-        * CorrCoeffThreshold ->
-        * Finished!
+                - for Imputer_iter_reg_ID in Imputer_continuous_dict[Imputer_cont_ID].keys():<br>
+        * OneHotEncode -><br>
+        * CorrCoeffThreshold -><br>
+        * Finished!<br>
 ```JLpyUtils.ML.model_selection```: functions/classes for running hyperparameter searches across multiple types of models & comparing those models
     * The main class of interest is the ```JLpyUtils.ML.model_selection.GridSearchCV``` class, which runs hyperparameter GridSearchCV across different types of models & compares the results to allow one to find the best-of-best (BoB) model. The functions is compatible with evaluating sklearn models, tensorflow/keras models, and xgboost models.
 ```JLpyUtils.ML.NeuralNet```: sub-modules/functions/classes for streamlining common neural-net architectures implemented in tensorflow/keras.
