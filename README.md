@@ -55,7 +55,7 @@ The main class of interest is the ```JLpyUtils.ML.preprocessing.feat_eng_pipe```
         * for Imputer_iter_reg_ID in Imputer_continuous_dict[Imputer_cont_ID].keys():
 5. OneHotEncode
 6. CorrCoeffThreshold
-7. Finished!
+Finished!
         
 #### JLpyUtils.ML.model_selection
 Functions/classes for running hyperparameter searches across multiple types of models & comparing those models
@@ -78,15 +78,20 @@ ML model outputs postprocessing helper functions
 This module contains helper functions related to common plotting operations via matplotlib.
 
 The most noteable functions are:
+
 ```JLpyUtils.plot.corr_matrix()```: Plot a correlation matrix chart
+
 ```JLpyUtils.plot.ccorr_pareto()```: Plot a pareto bar-chart for 1 label of interest within a correlation dataframe
+
 ```JLpyUtils.plot.hist_or_bar()```: Iterate through each column in a dataframe and plot the histogram or bar chart for the data.
 
 ### JLpyUtils.img
 This module contains functions/classes related to image analysis, most of which wrap SciKit image functions in some way.
 
 The most noteable functions are: 
+
 ```JLpyUtils.img.auto_crop.use_edges()```: Use skimage.feature.canny method to find edges in the image passed and autocrop on the outermost edges
+
 ```JLpyUtils.img.decompose_video_to_img()```: Use cv2 to pull out image frames from a video and save them as png files
 
 
