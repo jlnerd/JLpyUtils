@@ -22,11 +22,14 @@ def categorical_features(X,
         from sklearn.experimental import enable_iterative_imputer
         import warnings
         import pandas as pd
+        import dask
         import numpy as np
+        import dask
         
         warnings.filterwarnings('ignore')
 
         X = X.copy()
+        
         if strategy != 'iterative':
             Imputer = sklearn.impute.SimpleImputer(strategy=strategy,
                                                    verbose = verbose)
@@ -39,17 +42,22 @@ def categorical_features(X,
                                                       n_nearest_features = n_nearest_features)
             
         #create a dummy nan row to ensure any dataset containing nan for any of the features can be transformed
-        X_nans = pd.DataFrame(np.array([[np.nan for header in categorical_headers]]), 
-                               columns =  categorical_headers)
+        
+        type_X = type(X)
+        if type_X==dask.dataframe.core.DataFrame:
+            npartitions = X.npartitions
+            X = X.compute()
+            
+        X_nans = pd.DataFrame(np.array([[np.nan for header in categorical_headers]]), columns =  categorical_headers)
         X_fit = pd.concat((X[categorical_headers],X_nans))
+        
         Imputer.fit(X_fit)
 
         X[categorical_headers] = Imputer.transform(X[categorical_headers])
 
-        #ensure imputation worked correctly
-        for header in categorical_headers:
-            assert(len(X[X[header].isna()])==0), 'Found nan value for '+ header +' after imputing'
-
+        if type_X==dask.dataframe.core.DataFrame:
+            X = dask.dataframe.from_pandas(X, npartitions=npartitions)
+          
         warnings.filterwarnings('default')
         return X, Imputer
 
@@ -78,6 +86,7 @@ def continuous_features(X,
     import warnings
     import pandas as pd
     import numpy as np
+    import dask
 
     warnings.filterwarnings('ignore')
     X = X.copy()
@@ -91,19 +100,22 @@ def continuous_features(X,
                                                   initial_strategy = 'most_frequent',
                                                   verbose = verbose,
                                                   n_nearest_features = n_nearest_features)
+    type_X = type(X)
+    if type_X==dask.dataframe.core.DataFrame:
+        npartitions = X.npartitions
+        X = X.compute()
+        
     #create a dummy nan row to ensure any dataset containing nan for any of the features can be transformed
-    X_nans = pd.DataFrame(np.array([[np.nan for header in continuous_headers]]), 
-                           columns =  continuous_headers)
+    X_nans = pd.DataFrame(np.array([[np.nan for header in continuous_headers]]), columns =  continuous_headers)
     X_fit = pd.concat((X[continuous_headers],X_nans))
 
     Imputer.fit(X_fit)
 
     X[continuous_headers] = Imputer.transform(X[continuous_headers])
 
-    #ensure imputation worked correctly
-    for header in continuous_headers:
-        assert(len(X[X[header].isna()])==0), 'Found nan value for '+ header +' after imputing'
-
+    if type_X==dask.dataframe.core.DataFrame:
+        X = dask.dataframe.from_pandas(X, npartitions=npartitions)
+            
     warnings.filterwarnings('default')
     return X, Imputer
 

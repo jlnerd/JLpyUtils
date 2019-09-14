@@ -29,11 +29,21 @@ class continuous_features():
     def transform(self, X):
         
         import warnings
-
+        import dask
+        
         warnings.filterwarnings('ignore')
     
-        X[self.continuous_headers] = self.Scaler.transform(X[self.continuous_headers])
+        
+        type_X = type(X)
+        if type_X==dask.dataframe.core.DataFrame:
+            npartitions = X.npartitions
+            X = X.compute()
 
+        X[self.continuous_headers] = self.Scaler.transform(X[self.continuous_headers])
+        
+        if type_X==dask.dataframe.core.DataFrame:
+            X = dask.dataframe.from_pandas(X, npartitions=npartitions)
+            
         warnings.filterwarnings('default')
 
         return X
@@ -44,7 +54,7 @@ def default_Scalers_dict():
     """
     import sklearn.preprocessing
     
-    Scalers_dict = {'StandardScaler':sklearn.preprocessing.StandardScaler(),
-                    'MinMaxScaler':sklearn.preprocessing.MinMaxScaler(),
+    Scalers_dict = {'MinMaxScaler':sklearn.preprocessing.MinMaxScaler(),
+                    'StandardScaler':sklearn.preprocessing.StandardScaler(),
                     'RobustScaler':sklearn.preprocessing.RobustScaler()}
     return Scalers_dict

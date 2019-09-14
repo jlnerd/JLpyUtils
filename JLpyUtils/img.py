@@ -1,4 +1,6 @@
-
+"""
+This sub-module contains functions/classes related to image analysis, most of which wrap SciKit image functions in some way.
+"""
 
 import numpy as __np__
 import matplotlib.pyplot as __plt__
@@ -225,7 +227,7 @@ class auto_crop():
                   verbose = 0):
         
         """
-        Use skimage.feature.canny method to find edges in the img passed. prior to edge finding, the img is converted to grayscale.
+        Use skimage.feature.canny method to find edges in the image passed and autocrop on the outermost edges
         
         Arguments:
             img: RGB img
@@ -307,12 +309,16 @@ class auto_crop():
     
 def autocrop_and_downscale(img, target_min_dim = 256, verbose = 0):
     """
-    Apply edges-based autocropping and downscale using local mean to reduce the min dimension of an image to be equal to the 'target_min_dimension' argument
+    Apply edges-based autocropping and downscale using local mean to reduce the min dimension of an image to be equal to the 'target_min_dimension' argument.
+    
     Arguments:
+    ----------
         img: RGB or gray-scale
         target_min_dim: integer. default: 256. min dimension for the output image. If the image is rectangular, the longer axis will be scaled by the same amoutn as the shorter axis such that the output image is not distorted.
         verbose: integer. default: 0. verbosity of print statements
+        
     Returns:
+    --------
         img_autocrop_downscale: RGB image
     """
     import skimage.transform
@@ -345,7 +351,9 @@ def autocrop_and_downscale(img, target_min_dim = 256, verbose = 0):
 def decompose_video_to_img(path_video,
                            show_plots = True,
                            verbose = 1):
+    """
     
+    """
     if verbose>=1:
         print(os.path.split(path_video)[1])
     

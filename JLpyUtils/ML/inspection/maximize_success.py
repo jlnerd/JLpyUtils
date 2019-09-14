@@ -180,7 +180,7 @@ def varying_features_for_max_prob(model, X, y,
     warnings.filterwarnings('ignore')
     
     #fetch baseline probs
-    y_proba = model.predict_proba(X)
+    y_proba = model.predict_proba(X)[:,success_label]
     
     #fetch locked features list
     locked_features = [feature for feature in X.columns if feature not in free_categorical_features and feature not in free_continuous_features]

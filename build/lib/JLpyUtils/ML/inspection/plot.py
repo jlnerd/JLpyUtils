@@ -50,16 +50,9 @@ def feature_importance(model, model_ID, feature_headers,
     import pandas as pd
     import numpy as np
     
-    df_feat_import= pd.DataFrame(np.array(feature_headers).reshape(-1,1), columns = ['feature'])
-    df_feat_import['importance'] = model.feature_importances_.reshape(-1,1)
+    from . import feature_importance #import the function the build the df_feat_import
     
-    if model_ID in ['RandomForest']: #add standard dev of feat importances
-        df_feat_import['stddev'] = np.std([tree.feature_importances_ for tree in model.estimators_],axis=0)
-    else:
-        df_feat_import['stddev']=0
-        
-    df_feat_import = df_feat_import.sort_values('importance')
-    df_feat_import
+    df_feat_import = feature_importance.df(model, model_ID, feature_headers)
     
     fig, ax = plt.subplots(1,1)
     
@@ -67,13 +60,13 @@ def feature_importance(model, model_ID, feature_headers,
 
         bottom = df_feat_import.iloc[:int(max_labels/2), :]
         top = df_feat_import.iloc[-int(max_labels/2):, :]
-
+        
         ax.bar(bottom['feature'], bottom['importance'], label = 'least important',
                yerr = bottom['stddev'], align="center", capsize=2)
         ax.bar(top['feature'], top['importance'], label = 'most important',
                yerr = top['stddev'], align="center", capsize=2)
 
-        ax.set_xticklabels(list(top['feature'])+list(bottom['feature']), rotation=90)
+        ax.set_xticklabels(list(bottom['feature'])+list(top['feature']), rotation=90)
         ax.legend()
     else:
         ax.bar(df_feat_import['feature'], df_feat_import['importance'],
@@ -86,7 +79,10 @@ def feature_importance(model, model_ID, feature_headers,
     ax.set_ylabel('importance')
     ax.grid(which='both',visible=False)
     
-    fig.tight_layout(rect=tight_layout_rect)
+    try:
+        fig.tight_layout(rect=tight_layout_rect)
+    except:
+        None
     
     plt.show()
     

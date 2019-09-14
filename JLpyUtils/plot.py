@@ -1,3 +1,7 @@
+"""
+Helper functions related to common plotting operations via matplotlib
+"""
+
 import matplotlib as __mpl__
 import numpy as __np__
 
@@ -49,6 +53,9 @@ def fetch_color_map_for_primary_color(primary_color, n_colors,
     return color_map
 
 def corr_matrix(df_corr, cbar_label = 'Correlation Coeff.', vmin = None, vmax = None):
+    """
+    Plot a correlation matrix chart
+    """
     import matplotlib as mpl
     import matplotlib.pyplot as plt
     
@@ -64,7 +71,7 @@ def corr_matrix(df_corr, cbar_label = 'Correlation Coeff.', vmin = None, vmax = 
 def corr_pareto(df_corr, label, max_bars = 30, rect = (0, 0, 1, 1), ylim = None, return_df = False):
     
     '''
-    Plot plot pareto bar-chart for 1 label of interest within a correlation dataframe
+    Plot a pareto bar-chart for 1 label of interest within a correlation dataframe
     
     Arguments:
     ---------
@@ -183,7 +190,7 @@ def hist_or_bar(df, n_plot_columns = 3,
                 xscale = 'linear',
                 yscale = 'linear'):
     """
-    Iterate through each column in a pandas dataframe and plot the histogram or bar chart for the data.
+    Iterate through each column in a dataframe and plot the histogram or bar chart for the data.
     
     Arguments:
         df: pandas dataframe
@@ -203,7 +210,7 @@ def hist_or_bar(df, n_plot_columns = 3,
     else:
         fig, ax_list = plt.subplots(1, n_plot_columns)
     p=0
-    for header in df:
+    for header in df.columns:
         
         type_ = df[header].dtype
         
@@ -235,7 +242,7 @@ def hist_or_bar(df, n_plot_columns = 3,
                 ax_list[p].set_xticklabels(df_counts[header], rotation=90)
         
         #plot counts vs time if time pts
-        elif isinstance(df[header].iloc[0], datetime.time):
+        elif isinstance(df[header].head()[0], datetime.time):
             slice_ = df[[header]]
             slice_ = slice_.dropna()
             

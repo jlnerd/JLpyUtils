@@ -14,6 +14,11 @@ class categorical_features():
     """
     
     def __init__(self, return_format = 'DataFrame', LabelEncoder = None):
+        """
+         Arugments:
+        ----------
+            ...
+        """
         
         import numpy as np
         import pandas as pd
@@ -27,38 +32,49 @@ class categorical_features():
         """
         Arugments:
         ----------
-        X: pandas dataframe of interest
-        categorical_headers: list of categorical feature columns/headers in the X dataframe
+            X: pandas dataframe of interest
+            categorical_headers: list of categorical feature columns/headers in the X dataframe
+
         """
         import numpy as np
         import pandas as pd
-        import sklearn, sklearn.preprocessing
         import warnings
+        import dask
+        
+        warnings.filterwarnings('ignore')
     
         X = X.copy()
         
-        self.categorical_headers = categorical_headers
+        type_X = type(X)
         
+        self.categorical_headers = categorical_headers
+
+          
+        if type_X==dask.dataframe.core.DataFrame:
+            X_cat = X[categorical_headers].compute()
+        else:
+            X_cat = X[categorical_headers]
+
         # fetch categories
         categories = []
         for header in categorical_headers:
-            X[header] = X[header].astype(int)
-            categories.append([idx for idx in range(X[header].unique().min(), X[header].unique().max()+1)])
-        
-        #build encoder
+            X_cat[header] = X_cat[header].astype(int)
+            categories.append([idx for idx in range(X_cat[header].unique().min(), X_cat[header].unique().max()+1)])
+
+        import sklearn, sklearn.preprocessing
         self.Encoder = sklearn.preprocessing.OneHotEncoder(categories = categories)
-        
+
         #run fit
-        self.Encoder.fit(X[categorical_headers])
-        
+        self.Encoder.fit(X_cat)
+
         #add fit value counts to use if transforming unseen dataset with values not found in original data
         self.fit_value_counts = []
         for header in categorical_headers:
-            counts = X[header].value_counts().reset_index()
+            counts = X_cat[header].value_counts().reset_index()
             counts.columns = ['value', 'count']
             self.fit_value_counts.append(counts)
-        
-        
+
+         
         #compile OneHot_headers
         self.OneHot_headers = []
         for i in range(len(self.categorical_headers)):
@@ -71,6 +87,8 @@ class categorical_features():
                         val = self.LabelEncoder.LabelEncoder_dict[header].inverse_transform([val])[0]
 
                 self.OneHot_headers.append(header+'['+str(val)+']')
+                
+        warnings.filterwarnings('default')
         
         
     def transform(self, X):
@@ -78,11 +96,17 @@ class categorical_features():
         import pandas as pd
         import sklearn, sklearn.preprocessing
         import warnings
+        import dask
         
         warnings.filterwarnings('ignore')
 
         X = X.copy()
-
+        
+        type_X = type(X)
+        if type_X==dask.dataframe.core.DataFrame:
+            npartitions = X.npartitions
+            X = X.compute()
+            
         c =0
         for header in self.categorical_headers:
             #ensure integer data type
@@ -105,6 +129,9 @@ class categorical_features():
             X = pd.concat((X, OneHotEncodings),axis=1)
             
             self.headers_after_OneHot = list(X.columns)
+            
+            if type_X==dask.dataframe.core.DataFrame:
+                X = dask.dataframe.from_pandas(X, npartitions=npartitions)
             
         if self.return_format == 'npArray':
             

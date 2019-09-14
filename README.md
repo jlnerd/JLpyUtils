@@ -12,25 +12,35 @@ Custom modules/classes/methods for various data science, computer vision, and ma
 ## Installing & Importing
 In CLI:
 ```
-$ pip install -upgrade JLpyUtils
+$ pip install --upgrade JLpyUtils
 ```
 After this, the package can be imported into jupyter notebook or python in general via the comman:
 ```import JLpyUtils```
 
 ## Modules Overview
-There are several modules in this package:
+There are several main sub-modules in this package:
 ```
-JLpyUtils.summary_tables
 JLpyUtils.plot
 JLpyUtils.img
 JLpyUtils.video
-JLpyUtils.ML_models
+JLpyUtils.ML
+JLpyUtils.summary_tables
 ```
 
-```JLpyUtils.summary_tables``` and ```JLpyUtils.plot``` probably aren't that useful for most people, so we won't go into detail on them here, but feel free to check them out if you're curious.
+### JLpyUtils.plot
+This sub-module contains helper functions related to common plotting operations via matplotlib.
+
+The most noteable functions are:
+```JLpyUtils.plot.corr_matrix()```: Plot a correlation matrix chart
+```JLpyUtils.plot.ccorr_pareto()```: Plot a pareto bar-chart for 1 label of interest within a correlation dataframe
+```JLpyUtils.plot.hist_or_bar()```: Iterate through each column in a dataframe and plot the histogram or bar chart for the data.
 
 ### JLpyUtils.img
-The ```JLpyUtils.img``` module contains a number of functions related to image analysis, most of which wrap SciKit image functions in some way. The most interesting functions/classes are the ```JLpyUtils.img.auto_crop....``` and ```JLpyUtils.img.decompose_video_to_img()```. 
+This sub-module contains functions/classes related to image analysis, most of which wrap SciKit image functions in some way.
+
+The most noteable functions are: 
+```JLpyUtils.img.auto_crop.use_edges()```: Use skimage.feature.canny method to find edges in the image passed and autocrop on the outermost edges
+```JLpyUtils.img.decompose_video_to_img()```
 
 The ```auto_crop``` class allows you to automatically crop an image using countours via the ```use_countours``` method, which essentially wraps the function ```skimage.measure.find_contours``` function. Alternatively, the ```use_edges``` method provides cropping based on the ```skimage.feature.canny``` function. Generally, I find the ```use_edges``` runs faster and gives more intuitive autocropping results.
 

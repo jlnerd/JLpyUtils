@@ -61,7 +61,7 @@ def regression(n_features=None, n_labels=None,
             import sklearn.ensemble
             models_dict['GradBoost'] = {'model':sklearn.ensemble.GradientBoostingRegressor(),
                                         'param_grid':{'loss':['ls', 'lad', 'huber', 'quantile'],
-                                                      'criterion':["friedman_mse",'mse','mae'],
+                                                      'criterion':["friedman_mse",'mse'], #,'mae']
                                                       'learning_rate':[0.01, 0.1, 1],
                                                       'n_estimators':[10, 100],
                                                       'subsample':[1.0,0.8,0.5],
@@ -151,10 +151,17 @@ def classification(n_features=None, n_labels=None,
         if 'GradBoost' in model:
             import sklearn.ensemble
             models_dict['GradBoost'] = {'model': sklearn.ensemble.GradientBoostingClassifier(),
+<<<<<<< HEAD
                                     'param_grid': {'loss':['deviance','exponential'],
+                                                  'criterion':["friedman_mse",'mse'],#'mae' is BAD. WON"T FINISH
+                                                   'learning_rate':[0.001, 0.01, 0.1],
+                                                   'n_estimators':[10, 100, 1000],
+=======
+                                    'param_grid': {'loss':['deviance'],#,'exponential'],
                                                   'criterion':["friedman_mse",'mse','mae'],
                                                    'learning_rate':[0.01, 0.1, 1],
-                                                   'n_estimators':[10, 100, 1000],
+                                                   'n_estimators':[10, 100],# 1000], OK
+>>>>>>> 307bff8ce53d8edac76d4485df1cfa9a3acf86bd
                                                    'subsample':[1.0,0.8,0.5],
                                                    'max_depth':[3, 10]}
                                    }
@@ -164,7 +171,7 @@ def classification(n_features=None, n_labels=None,
             models_dict['XGBoost'] = {'model':xgb.XGBClassifier(booster='gbtree',
                                                                 objective = "reg:logistic"),
                                       'param_grid':{'max_depth': [3,10],
-                                                    'learning_rate':[0.01, 0.1, 1],
+                                                    'learning_rate':[0.001, 0.01, 0.1],
                                                     'n_estimators':[10, 100, 1000],
                                                     'subsample':[1,0.9,0.5],
                                                     'colsample_bytree':[1.0,0.8,0.5],
@@ -186,4 +193,5 @@ def classification(n_features=None, n_labels=None,
                                                                     loss = loss,
                                                                     metrics=['accuracy'])
     return models_dict
+
 
