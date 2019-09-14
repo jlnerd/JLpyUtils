@@ -11,17 +11,15 @@ except:
     import os as __os__
     __os__.system("apt-get install -y libsm6 libxext6 libxrender-dev")
     import cv2 as __cv2__
-    
-    
-    
-#    from transform import rescale, resize, downscale_local_mean
-    
+
 def base64_str_to_img(base64_str):
     """
     Convert base64 string to an image array. The function can handle raw string or bytes encoded sting.
+    
     Arguments:
     ----------
         base64_str: bytes or raw string of image in base64 format
+        
     Returns:
     --------
         img: standard image array
@@ -38,14 +36,23 @@ def base64_str_to_img(base64_str):
     
     return img
 
-def resize_img(img, y_size, x_size):
+def resize(img, y_size, x_size):
+    """
+    resize and image using skimage.transform.resize(..., mode= 'reflect')
+    """
     return skimage.transform.resize(img, (y_size,x_size),mode= 'reflect')
 
-def denoise_img(img):
+def denoise(img):
+    """
+    denoise an image using skimage.restoration.denoise_tv_chambolle()
+    """
     import skimage.restoration
     return skimage.restoration.denoise_tv_chambolle(img)
 
-def build_crop_array(img,yx_min,yx_max,padding, use_square = False):
+def __build_crop_array__(img,yx_min,yx_max,padding, use_square = False):
+    """
+    Helper function to assemble the crop array for the __find_img_contours_and_cropping_array__() function
+    """
     y_min_index = max(yx_min[0]-padding,0)
     x_min_index = max(yx_min[1]-padding,0)
     
@@ -66,7 +73,27 @@ def build_crop_array(img,yx_min,yx_max,padding, use_square = False):
     
     return crop_array
 
-def find_img_contours_and_cropping_array(img, contour_level = 0.1, padding = 50, use_square = False):
+def __find_img_contours_and_cropping_array__(img, contour_level = 0.1, padding = 50, use_square = False):
+    """
+    sub-function for auto_crop.use_counts() which runs the skimage.measure.find_countours operation & pulls out the cropping bounds for the analyzed image.
+    
+    Arguments:
+    ----------
+        img: The gray-scale image of interest
+        countour_level: Value along which to find contours in the array
+        padding: int. number of pixels to pad the autocrop boundaries by
+        use_square: boolean. Whether or not the force the crop to be a square.
+        
+    Returns:
+    --------
+        countours: The countours found via skimage.measure.find_contours
+        crop_array: Array of values defining the crop limits. 
+            - To crop and image using the crop_array execute: img[crop_array[0]:crop_array[1],crop_array[2]:crop_array[3]]
+        
+    Notes:
+    ------
+        See https://scikit-image.org/docs/0.8.0/api/skimage.measure.find_contours.html for more details
+    """
     
     # Find contours
     import skimage.measure
@@ -84,86 +111,13 @@ def find_img_contours_and_cropping_array(img, contour_level = 0.1, padding = 50,
         yx_min = [int(yx_min[:,0].min()), int(yx_min[:,1].min())]
     
     #Build Cropping array  
-    crop_array = build_crop_array(img, yx_min, yx_max, padding, use_square = use_square)
+    crop_array = __build_crop_array__(img, yx_min, yx_max, padding, use_square = use_square)
     
     return contours, crop_array
 
-def preprocess_img(img,
-                  y_size_resize1 = 512,
-                  y_size_resize2 = 256,
-                   plot_steps = False
-                  ):
-    
-    if plot_steps == True:
-        __plt__.subplot(421)
-        __plt__.imshow(img)
-        __plt__.title('(1) original img')
-    
-    #fetch gray scale img
-    img_gray = skimage.color.rgb2gray(img)
-    if plot_steps == True:
-        __plt__.subplot(422)
-        __plt__.imshow(img_gray, cmap = 'binary')
-        __plt__.title('(2) gray img')
-
-    #perform 1st resize
-    y_size = y_size_resize1
-    img_resized = resize_img(img,
-                             y_size=y_size,
-                             x_size = int(y_size*img.shape[1]/img.shape[0]))
-    img_gray_resized = resize_img(img_gray,
-                                  y_size=y_size,
-                                  x_size = int(y_size*img.shape[1]/img.shape[0]))
-    
-    if plot_steps == True:
-        __plt__.subplot(423)
-        __plt__.imshow(img_gray_resized,cmap='binary')
-        __plt__.title('(3) scaled for y_size = '+str(y_size))
-    
-    #denoise img
-    img_gray_resized_denoised = denoise_img(img_gray_resized)
-    if plot_steps == True:
-        __plt__.subplot(424)
-        __plt__.imshow(img_gray_resized_denoised,cmap = 'binary')
-        __plt__.title('(4) denoised img')
-    
-    contours, crop_array = find_img_contours_and_cropping_array(img_gray_resized_denoised,
-                                                             contour_level = 0.1,
-                                                             padding = 50)
-
-    if plot_steps == True:
-        __plt__.subplot(425)
-        __plt__.imshow(img_gray_resized_denoised, interpolation='nearest', cmap='binary')
-        for n, contour in enumerate(contours):
-             __plt__.plot(contour[:, 1], contour[:, 0], linewidth=1, color = 'r')
-        __plt__.plot(crop_array[2:4],crop_array[0:2],'bo')
-        __plt__.title('(5) Cropping pts: '+str(crop_array))
-    
-    #crop images
-    img_gray_resized_cropped = img_gray_resized[crop_array[0]:crop_array[1],crop_array[2]:crop_array[3]]
-    img_resized_cropped = img_resized[crop_array[0]:crop_array[1],crop_array[2]:crop_array[3]]
-    
-    if plot_steps == True:
-        __plt__.subplot(426)
-        __plt__.imshow(img_resized_cropped)
-        __plt__.title('(6) cropped img')
-    
-    #resize the cropped image
-    y_size = y_size_resize2
-    img_resized_cropped_resized = resize_img(img_resized_cropped,
-                                             y_size=y_size,
-                                             x_size = y_size)
-    
-    if plot_steps == True:
-        __plt__.subplot(427)
-        __plt__.imshow(img_resized_cropped_resized)
-        __plt__.title('(7 (final)) resized for xy_size = '+str(y_size))
-    
-    return img_resized_cropped_resized
-
 class auto_crop():
     """
-    This class contains helper functions for autocropping and image
+    This class contains helper functions for autocropping an image
     """
 
     def use_countours(img, 
@@ -174,6 +128,18 @@ class auto_crop():
                       contour_level_max_offset_scalar = 2):
         """
         Wrapper to make img cropping simpler. The function converts the img to grayscale, runs the "find_img_countours_and_cropping_array" function, and applies the cropping to the original img (RGB) via img_cropped = img[crop_array[0]:crop_array[1],crop_array[2]:crop_array[3]]. img_cropped is then returned.
+        
+        Arguments:
+        ----------
+            img: RGB image of interest
+            padding: int. number of pixels to pad the autocrop boundaries by
+            show_plots: dictionary defining which of the autocropping operations to show plots for.
+            use_square: boolean. Whether or not the force the crop to be a square.
+            contour_level_max_offset_scalar:
+            
+        Returns:
+        --------
+            img_cropped: The image after autocropping
         """
         import skimage
         
@@ -183,7 +149,7 @@ class auto_crop():
 
         contour_level = img_gray.max()/contour_level_max_offset_scalar
 
-        contours, crop_array = find_img_contours_and_cropping_array(img_gray,
+        contours, crop_array = __find_img_contours_and_cropping_array__(img_gray,
                                                              contour_level = contour_level,
                                                              padding = padding,
                                                                    use_square = use_square)
@@ -352,7 +318,17 @@ def decompose_video_to_img(path_video,
                            show_plots = True,
                            verbose = 1):
     """
+    Use cv2 to pull out image frames from a video and save them as png files
     
+    Arguments:
+    ----------
+        path_video: file path to the video of interest
+        show_plots: whether or not to show the image slices decomposed from the video
+        verbose: print-out verbosity
+    
+    Returns:
+    --------
+        None. The decomposed images will be saved in a subfolder having the videos name. The subfolder is in the path_video directory. The images are saved as .png.
     """
     if verbose>=1:
         print(os.path.split(path_video)[1])

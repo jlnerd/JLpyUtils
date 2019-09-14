@@ -2,22 +2,17 @@
     
 class categorical_features():
     
-    """
-    OneHot encode each categorical feature. This function assumes an impute transforma (fill na) has been performed prior to encoding such that the encoder does not need to be able to transform datasets containng NaN values
-
-    Arugments:
-    ----------
-       categorical_headers: list of categorical feature columns/headers in the dataframe
-        return_format: string, default = 'DataFrame'
-            - if 'DataFrame': the transformed data will be returned as a pandas dataframe. This can consume a large amount of memory for large arrays with many encodings
-            - if 'npArray': the transformed data will be returned as a numpy array.
-    """
-    
     def __init__(self, return_format = 'DataFrame', LabelEncoder = None):
+            
         """
-         Arugments:
+        OneHot encode each categorical feature. This function assumes an impute transformation (fill na) has been performed prior to encoding such that the encoder does not need to be able to transform datasets containng NaN values
+
+        Arugments:
         ----------
-            ...
+           return_format: string, default = 'DataFrame'
+                - if 'DataFrame': the transformed data will be returned as a pandas or dask dataframe. 
+                - if 'npArray': the transformed data will be returned as a numpy array.
+           LabelEncoder: The LabelEncoder object used previously in the feature engineering operations. If this is passed, the headers for the encoded dataframe will be updated using the LabelEncoder.LabelEncoder_dict.keys() value.
         """
         
         import numpy as np
@@ -30,11 +25,12 @@ class categorical_features():
         
     def fit(self, X, categorical_headers):
         """
+        Fit the encoder to the categorical_headers in X dataframe passed. 
         Arugments:
         ----------
-            X: pandas dataframe of interest
+            X: dask or pandas dataframe of interest
             categorical_headers: list of categorical feature columns/headers in the X dataframe
-
+        
         """
         import numpy as np
         import pandas as pd
@@ -92,6 +88,9 @@ class categorical_features():
         
         
     def transform(self, X):
+        """
+        transform the X dataframe passed
+        """
         import numpy as np
         import pandas as pd
         import sklearn, sklearn.preprocessing

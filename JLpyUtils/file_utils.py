@@ -1,3 +1,7 @@
+"""
+save and load helper functions to streamline saving common file types including 'hdf', 'csv', 'json', 'dill'
+"""
+
 def save(obj, filename, format_, path_dir) :
     """
     Save an arbitrary object with the specified filename and format_ in the path_dir

@@ -137,7 +137,7 @@ def default_iterative_regressors_dict():
 
     return iterative_regressors_dict
 
-def unit_test(X, headers_dict, verbose =1 ):
+def __unit_test__(X, headers_dict, verbose =1 ):
     """
     Iterate over impute_categorical_feature and impute_continuous_features options & ensure everything works for this particular dataset
     """

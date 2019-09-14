@@ -1,25 +1,10 @@
+"""
+functions/classes for running hyperparameter searches across multiple types of models & comparing those models
+"""
+
 from . import default_models_dict
 
 class GridSearchCV():
-    """
-    Wrapper to sklearn GridSearchCV that allows running GridSearchCV on different types of models contained in the models_dict argument
-
-    Arguments:
-    ----------
-        models_dict: dictionary containing all models and their param_grid. 
-            - Dictionary Format: {'model name':{'model':model object,
-                                                'param_grid': {parameter name, parameter list}]
-        cv: cross-validation index.
-        scoring: Default: None.
-            - If scoring = None, use default score for given sklearn model, or use 'loss' for neural network. 
-            - For custom scoring functions, pass 'scoring = {'metric':INSERT FUNCTION, 'maximize':True/False}
-        metrics: dictionary with formating like {metric name (str), metric function (sklearn.metrics...)}. The metric will be evaluated after CV on the test set
-        retrain: Boolean. whether or not you want to retrain the model if it is already been saved in the path_root_dir folder
-        path_root_dir: root directory where the GridSearchCV outputs will be dumped.
-        n_jobs: int. Defualt: -1. number of parallel jobs to run. If -1, all available threads will be used
-            - Note: parallel computing is not supported for Neural Net models
-        verbose: verbosity of prints.
-    """
     
     def __init__(self,
                  models_dict, 
@@ -31,6 +16,25 @@ class GridSearchCV():
                  n_jobs = -1,
                  verbose = 2,
                  **kwargs):
+        """
+        hyperparameter GridSearchCV across different types of models
+
+        Arguments:
+        ----------
+            models_dict: dictionary containing all models and their param_grid. 
+                - Dictionary Format: {'model name':{'model':model object,
+                                                    'param_grid': {parameter name, parameter list}]
+            cv: cross-validation index.
+            scoring: Default: None.
+                - If scoring = None, use default score for given sklearn model, or use 'loss' for neural network. 
+                - For custom scoring functions, pass 'scoring = {'metric':INSERT FUNCTION, 'maximize':True/False}
+            metrics: dictionary with formating like {metric name (str), metric function (sklearn.metrics...)}. The metric will be evaluated after CV on the test set
+            retrain: Boolean. whether or not you want to retrain the model if it is already been saved in the path_root_dir folder
+            path_root_dir: root directory where the GridSearchCV outputs will be dumped.
+            n_jobs: int. Defualt: -1. number of parallel jobs to run. If -1, all available threads will be used
+                - Note: parallel computing is not supported for Neural Net models
+            verbose: verbosity of prints.
+        """
         
         self.models_dict = models_dict
         self.cv = cv

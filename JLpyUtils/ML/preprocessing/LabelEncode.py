@@ -1,11 +1,13 @@
 class categorical_features():
-    """
-    LabelEncode non-numeric categorical features. Unlike in sklearns default encoder, this class ensures missing values can be handled when transforming an arbitrary dataset.
-    Arguments:
-    ---------
-        verbose: int. Default: 0. higher implies more prints
-    """
     def __init__(self, verbose = 0):
+        
+        """
+        LabelEncode non-numeric categorical features. Unlike in sklearns default encoder, this class ensures missing values can be handled when transforming an arbitrary dataset.
+        
+        Arguments:
+        ---------
+            verbose: int. Default: 0. higher implies more prints
+        """
         self.verbose = verbose
         
     def __LabelEncode_uniques_list__(self,
@@ -27,6 +29,7 @@ class categorical_features():
             X, categorical_headers ):
         """
         Fit the LabelEncoder to the categorical_features
+        
         Arguments:
         ----------
             X: pandas X with the features of interest

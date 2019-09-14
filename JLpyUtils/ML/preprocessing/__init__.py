@@ -1,4 +1,6 @@
-
+"""
+Functions related to preprocessing/feature engineering for machine learning.
+"""
 from . import LabelEncode
 from . import Impute
 from . import Scale
@@ -124,6 +126,7 @@ class feat_eng_pipe():
     
     """
     Iterate through a standard feature engineering sequence and save the resulting engineered data.
+    
     Arguments:
     ---------
         path_report_dir: directory. Default: None. the path to the directory where the feature engineering cases will be saved. It is recommended that you save outside the repo. directory where the notebook is stored, as the saved files may be > 50mb.
@@ -135,17 +138,14 @@ class feat_eng_pipe():
         Scale.continuous_features -> 
             -for Scaler_ID in Scalers_dict.keys()
         Impute.categorical_features ->
-            - for Imputer_categorical_ID,  categorical_iterative_estimators in INSERT
-                - for categorical_estimatorID in categorical_iterative_estimators:
+            - for Imputer_cat_ID in Imputer_categorical_dict[Imputer_cat_ID].keys():
+                - for Imputer_iter_class_ID in Imputer_categorical_dict[Imputer_cat_ID].keys():
         Imputer.continuous_features ->
-            - for Imputer_continuous_ID,  continuous_iterative_estimators in INSERT
-                - for continuous_estimatorID in continuous_iterative_estimators:
+            - for Imputer_cont_ID in Imputer_continuous_dict.keys():
+                - for Imputer_iter_reg_ID in Imputer_continuous_dict[Imputer_cont_ID].keys():
         OneHotEncode ->
-        Train_test_split ->
+        CorrCoeffThreshold ->
         Finished!
-    Future Version Updates
-    -----------------------
-    - add functionality for Impute_iterative_classifier_dict() to iteratively imput categorical data
     
     """
     def __init__(self, 
