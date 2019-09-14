@@ -42,7 +42,7 @@ The sub-modules within JLpyUtils.ML are summarized below:
 #### JLpyUtils.ML.preprocessing 
 Functions related to preprocessing/feature engineering for machine learning
 
-The main class of interest is the ```JLpyUtils.ML.preprocessing.feat_eng_pipe``` class, which iterates through a standard feature engineering sequence and saves the resulting engineered data. The standard sequence is:
+The main class of interest is the ```JLpyUtils.ML.preprocessing.feat_eng_pipe``` class, which iterates through a standard feature engineering sequence and saves the resulting engineered data. The standard sequence is: <br>
         * LabelEncode.categorical_features ->  <br>
         * Scale.continuous_features -> <br> s
             - for Scaler_ID in Scalers_dict.keys()<br>
