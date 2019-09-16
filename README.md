@@ -1,4 +1,6 @@
 # JLpyUtils
+__Author: (John T. Leonard)[https://www.linkedin.com/in/johntleonard/]__
+
 Custom modules/classes/methods for various data science, computer vision, and machine learning operations in python
     
 ## Installing & Importing
