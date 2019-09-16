@@ -81,8 +81,9 @@ class categorical_features():
                 if self.LabelEncoder!= None:
                     if header in self.LabelEncoder.LabelEncoder_dict.keys():
                         val = self.LabelEncoder.LabelEncoder_dict[header].inverse_transform([val])[0]
-
-                self.OneHot_headers.append(header+'['+str(val)+']')
+                
+                #compile one heade encoded headers, ensuring illegal characters do not appear in the header.
+                self.OneHot_headers.append(header+'('+str(val)+')'.replace('<','less'))
                 
         warnings.filterwarnings('default')
         

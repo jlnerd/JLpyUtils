@@ -15,7 +15,7 @@ class CorrCoeffThreshold():
         
         Arguments:
         ----------
-            AbsCorrCoeff_threshold: float. default = 0.99
+            AbsCorrCoeff_threshold: float. default = 0.99. valid range: 0 to 1
             iterative_sample_size: float
         """
         assert(AbsCorrCoeff_threshold>=0)
@@ -67,7 +67,7 @@ class CorrCoeffThreshold():
         
         df = df.copy()
         
-        type_X = type(X)
+        type_df = type(df)
 
         #assigne self.CorrCoeff_features
         if CorrCoeff_features == 'auto':
@@ -78,7 +78,13 @@ class CorrCoeffThreshold():
         
             df = df[self.CorrCoeff_features]
             
-        np_corr = np.corrcoef(df, rowvar=False)
+        if type_df==dask.dataframe.core.DataFrame:
+            np_corr = np.array(df.corr())
+            
+        else:
+            np_corr = np.corrcoef(df, rowvar=False)
+        
+        
         del df
         gc.collect()
         
@@ -232,7 +238,7 @@ class feat_eng_pipe():
                 
             else: #iterate through files in the dir & assert that each file is a file if it contains the format and filname. This loop ensures that if files are saved in chunks via dask, the function will recognize the "file" as saved
                 
-                for dir_file in os.path.listdir(path_feat_eng_dir):
+                for dir_file in os.listdir(path_feat_eng_dir):
                     if '.'+format_ in dir_file and file in dir_file:
                         path_save_file = os.path.join(path_feat_eng_dir, dir_file)
                         file_saved_list.append(os.path.isfile(path_save_file))
@@ -240,6 +246,8 @@ class feat_eng_pipe():
         gc.collect()
         
         #if all files saved, return True
+        if len(file_saved_list)==0:
+            file_saved_list=[False]
         feat_eng_files_saved = all(file_saved_list) 
         
         return feat_eng_files_saved      
@@ -274,11 +282,17 @@ class feat_eng_pipe():
         import os, sys
         import gc
         
+        if self.verbose>=1: print('LabelEncode')
+            
         gc.collect()
 
         #label encode X
         files=['X']
         path_feat_eng_dir = os.path.join(path_feat_eng_dir, 'LabelEncode')
+        
+        if os.path.isdir(path_feat_eng_dir) == False:
+            os.makedirs(path_feat_eng_dir)
+        
         if self.__feat_eng_files_saved__(files, path_feat_eng_dir, format_)==False or self.overwrite==True or self.overwrite=='LabelEncode':
             LabelEncoder = LabelEncode.categorical_features()
             LabelEncoder.fit(X, categorical_headers=headers_dict['categorical features'])
@@ -317,6 +331,8 @@ class feat_eng_pipe():
         """
         import os, sys
         import gc
+        
+        if self.verbose>=1: print('\tScale:',Scaler_ID)
         
         gc.collect()
 
@@ -367,6 +383,10 @@ class feat_eng_pipe():
         
         gc.collect()
         
+        if self.verbose>=1: print('\t\tImpute Categorical Features:',
+                                              Imputer_cat_ID,'[',Imputer_iter_class_ID,']')
+
+        
         path_feat_eng_dir = os.path.join(path_feat_eng_dir, 
                                    'Imputer_categorical_ID['+Imputer_cat_ID+']',
                                    'Imputer_iterator_classifier_ID['+str(Imputer_iter_class_ID)+']')
@@ -414,6 +434,10 @@ class feat_eng_pipe():
         """
         import os, sys
         import gc
+        
+        if self.verbose>=1: print('\t\t\tImpute Continuous Features:',
+                                                      Imputer_cont_ID,'[',Imputer_iter_reg_ID,']')
+
         
         gc.collect()
 
@@ -469,6 +493,8 @@ class feat_eng_pipe():
         import pandas as pd
         import gc
         
+        if self.verbose>=1: print('\t\t\t\tOne Hot Encode:','[',OneHot_case,']')
+                                
         gc.collect()
 
         path_feat_eng_dir = os.path.join(path_feat_eng_dir, 'OneHot_case['+str(OneHot_case)+']')
@@ -498,10 +524,12 @@ class feat_eng_pipe():
                 headers_dict['headers after OneHot'] = list(X.columns)
                 #X = np.array(X)
                    
+            #save headers dict
+            self.save(headers_dict, 'headers_dict', 'json', path_feat_eng_dir)
+            
             #save
             self.save(X, 'X', format_, path_feat_eng_dir)
             
-            self.save(headers_dict, 'headers_dict', 'json', path_feat_eng_dir)
             
             #transform back to pandas df
             #X = pd.DataFrame(X, columns = headers_dict['headers after OneHot'])
@@ -532,12 +560,14 @@ class feat_eng_pipe():
                                           format_,
                                           AbsCorrCoeff_threshold):
         """
-        OneHotEncode, transform, and save the categorical data
+        fit a Correlation Coefficient Threshold object, transform, and save
         """
         import os, sys
         import numpy as np
         import pandas as pd
         import gc
+        
+        if self.verbose>=1: print('\t\t\t\t\tCorrCoeffThreshold:','[',AbsCorrCoeff_threshold,']')
         
         gc.collect()
 
@@ -550,7 +580,7 @@ class feat_eng_pipe():
                 
                 CorrCoeffThresholder = CorrCoeffThreshold(AbsCorrCoeff_threshold)
                 
-                CorrCoeffThresholder.fit(X)
+                CorrCoeffThresholder.fit(X, verbose = 8)
 
                 X = CorrCoeffThresholder.transform(X)
                 
@@ -616,7 +646,6 @@ class feat_eng_pipe():
                                                                   Imputer_cont_ID,
                                                                   Imputer_iter_reg_ID,
                                                                   AbsCorrCoeff_threshold)
-        
         if os.path.isdir(path_feat_eng_base_dir)==False:
             os.makedirs(path_feat_eng_base_dir)
 
@@ -699,6 +728,8 @@ class feat_eng_pipe():
         import os, sys
         import gc
         
+        if self.verbose>=1: print('LabelEncode')
+        
         gc.collect()
 
         #label encode X
@@ -735,6 +766,8 @@ class feat_eng_pipe():
         """
         import os, sys
         import gc
+        
+        if self.verbose>=1: print('\tScale:',Scaler_ID)
         
         gc.collect()
 
@@ -775,6 +808,9 @@ class feat_eng_pipe():
         import os, sys
         import gc
         
+        if self.verbose>=1: print('\t\tImpute Categorical Features:',
+                                              Imputer_cat_ID,'[',Imputer_iter_class_ID,']')
+
         gc.collect()
 
         path_feat_eng_dir = os.path.join(path_feat_eng_dir, 
@@ -784,8 +820,18 @@ class feat_eng_pipe():
         if self.__feat_eng_files_saved__(files, path_feat_eng_dir, self.format_)==False or self.overwrite==True:
 
             Imputer = self.load('Imputer', 'dill', path_feat_eng_dir)
-
+            
+            type_X_field = type(X_field)
+            import dask
+            if type_X_field==dask.dataframe.core.DataFrame:
+                npartitions = X_field.npartitions
+                X_field = X_field.compute()
+            
             X_field[self.headers_dict['categorical features']] = Imputer.transform(X_field[self.headers_dict['categorical features']])
+            
+            if type_X_field==dask.dataframe.core.DataFrame:
+                X_field = dask.dataframe.from_pandas(X_field, npartitions=npartitions)
+         
 
             #save
             self.save(X_field, 'X_field', self.format_, path_feat_eng_dir)
@@ -815,6 +861,10 @@ class feat_eng_pipe():
         import os, sys
         import gc
         
+        if self.verbose>=1: print('\t\t\tImpute Continuous Features:',
+                                  Imputer_cont_ID,'[',Imputer_iter_reg_ID,']')
+
+        
         gc.collect()
 
         path_feat_eng_dir = os.path.join(path_feat_eng_dir, 
@@ -825,8 +875,17 @@ class feat_eng_pipe():
 
             Imputer = self.load('Imputer', 'dill', path_feat_eng_dir)
             
+            type_X_field = type(X_field)
+            import dask
+            if type_X_field==dask.dataframe.core.DataFrame:
+                npartitions = X_field.npartitions
+                X_field = X_field.compute()
+            
             X_field[self.headers_dict['continuous features']] = Imputer.transform(X_field[self.headers_dict['continuous features']])
-
+            
+            if type_X_field==dask.dataframe.core.DataFrame:
+                X_field = dask.dataframe.from_pandas(X_field, npartitions=npartitions)
+         
             #save
             self.save(X_field, 'X_field', self.format_, path_feat_eng_dir)
 
@@ -852,9 +911,12 @@ class feat_eng_pipe():
         """
         OneHotEncode, transform, and save the categorical data
         """
+        
         import os, sys
         import numpy as np
         import gc
+        
+        if self.verbose>=1: print('\t\t\t\tOne Hot Encode:','[',OneHot_case,']')
         
         gc.collect()
 
@@ -868,7 +930,6 @@ class feat_eng_pipe():
                 self.LabelEncoder = self.load('LabelEncoder', 'dill',
                                       os.path.join(self.path_feat_eng_root_dir, 'LabelEncode') )
                 
-                return_format='npArray'
                 
                 OneHotEncoder = self.load('OneHotEncoder', 'dill', path_feat_eng_dir)
                 
@@ -911,6 +972,8 @@ class feat_eng_pipe():
         import numpy as np
         import pandas as pd
         import gc
+        
+        if self.verbose>=1: print('\t\t\t\t\tCorrCoeffThreshold:','[',AbsCorrCoeff_threshold,']')
         
         gc.collect()
 
@@ -1080,43 +1143,30 @@ class feat_eng_pipe():
             self.save(headers_dict,  'headers_dict', 'json', self.path_feat_eng_root_dir)
 
         #LabelEncode
-        print('-------------------------------- fit feat_eng_pipe --------------------------------')
+        print('-------------------------------- feat_eng_pipe fit --------------------------------')
         
-        if self.verbose>=1: print('LabelEncode')
-        
+        #build feat_eng_case_base_dir
         X, path_feat_eng_dir = self.__fit_transform_LabelEncode__(X, 
-                                                                    path_feat_eng_dir,
-                                                                    headers_dict,
-                                                                    format_)
+                                                                path_feat_eng_dir,
+                                                                headers_dict,
+                                                                format_)
         
         self.path_feat_eng_dirs = []
         
         for Scaler_ID in self.Scalers_dict.keys():
-            if self.verbose>=1: print('\tScale:',Scaler_ID)
 
-            #Impute categorical features
             for Imputer_cat_ID in self.Imputer_categorical_dict.keys():
                 
                 for Imputer_iter_class_ID in self.Imputer_categorical_dict[Imputer_cat_ID].keys():
-                    if self.verbose>=1: print('\t\tImpute Categorical Features:',
-                                              Imputer_cat_ID,'[',Imputer_iter_class_ID,']')
-
-                    #impute continuous features
+                    
                     for Imputer_cont_ID in self.Imputer_continuous_dict.keys():
 
                         for Imputer_iter_reg_ID in self.Imputer_continuous_dict[Imputer_cont_ID].keys():
                             
-                            if self.verbose>=1: print('\t\t\tImpute Continuous Features:',
-                                                      Imputer_cont_ID,'[',Imputer_iter_reg_ID,']')
-
                             for OneHot_case in self.OneHot_cases:
-                                
-                                if self.verbose>=1: print('\t\t\t\tOne Hot Encode:','[',OneHot_case,']')
                                     
                                 for AbsCorrCoeff_threshold in self.AbsCorrCoeff_thresholds:
                                     
-                                    if self.verbose>=1: print('\t\t\t\t\tCorrCoeffThreshold:','[',AbsCorrCoeff_threshold,']')
-
                                     self.__fit_transform_feat_eng_case__(X,
                                                               headers_dict,
                                                               path_feat_eng_dir,
@@ -1130,13 +1180,13 @@ class feat_eng_pipe():
                                                               AbsCorrCoeff_threshold)
 
                                     self.path_feat_eng_dirs.append(self.__path_feat_eng_base_dir__(path_feat_eng_dir, 
-                                                                                                  OneHot_case,
-                                                                                                  Scaler_ID,
-                                                                                                  Imputer_cat_ID,
-                                                                                                  Imputer_iter_class_ID,
-                                                                                                  Imputer_cont_ID,
-                                                                                                  Imputer_iter_reg_ID,
-                                                                                                  AbsCorrCoeff_threshold))
+                                                                                              OneHot_case,
+                                                                                              Scaler_ID,
+                                                                                              Imputer_cat_ID,
+                                                                                              Imputer_iter_class_ID,
+                                                                                              Imputer_cont_ID,
+                                                                                              Imputer_iter_reg_ID,
+                                                                                              AbsCorrCoeff_threshold))
 
                                     gc.collect()
 
@@ -1175,37 +1225,25 @@ class feat_eng_pipe():
                 
         #LabelEncode
         print('---------------------------- feat_eng_pipe transform ---------------------------')
-        if self.verbose>=1: print('LabelEncode')
+        
         X_field, path_feat_eng_dir = self.__transform_LabelEncode__(X_field,
                                                                     path_feat_eng_dir)
         
         self.path_feat_eng_dirs = []
         
         for Scaler_ID in self.Scalers_dict.keys():
-            if self.verbose>=1: print('\tScale:',Scaler_ID)
-
-            #Impute categorical features
+            
             for Imputer_cat_ID in self.Imputer_categorical_dict.keys():
                 
                 for Imputer_iter_class_ID in self.Imputer_categorical_dict[Imputer_cat_ID].keys():
-                    if self.verbose>=1: print('\t\tImpute Categorical Features:',
-                                              Imputer_cat_ID,'[',Imputer_iter_class_ID,']')
-
-                    #impute continuous features
+                   
                     for Imputer_cont_ID in self.Imputer_continuous_dict.keys():
 
                         for Imputer_iter_reg_ID in self.Imputer_continuous_dict[Imputer_cont_ID].keys():
                             
-                            if self.verbose>=1: print('\t\t\tImpute Continuous Features:',
-                                                      Imputer_cont_ID,'[',Imputer_iter_reg_ID,']')
-
                             for OneHot_case in self.OneHot_cases:
                                 
-                                if self.verbose>=1: print('\t\t\t\tOne Hot Encode:','[',OneHot_case,']')
-                                    
                                 for AbsCorrCoeff_threshold in self.AbsCorrCoeff_thresholds:
-
-                                    if self.verbose>=1: print('\t\t\t\t\tCorrCoeffThreshold:','[',AbsCorrCoeff_threshold,']')
 
                                     self.__transform_feat_eng_case__(X_field,
                                                                       path_feat_eng_dir,
