@@ -10,7 +10,7 @@ from . import inspection
 try:
     import tensorflow as __tf__
 except:
-    print('tensorflow is not installed, run "pip install tensorflow==1.12.2" and "pip install tensorflow-gpu==1.12.2"')
+    print('tensorflow is not installed, run "pip install tensorflow==1.14.0" and "pip install tensorflow-gpu==1.14.0"')
     
     
 class metrics():
