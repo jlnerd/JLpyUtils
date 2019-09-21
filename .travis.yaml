@@ -1,0 +1,10 @@
+language: python
+python:
+    - "3.7"
+intstall:
+    - pip install -e .
+    - pip install pytest-cov codecov
+script:
+    - pytest --cov=JLpyUtils tests
+after_success:
+    - codecov

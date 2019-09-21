@@ -76,7 +76,7 @@ setuptools.setup(
     version= find_version('JLpyUtils', '__init__.py'),
     author="John T. Leonard",
     author_email="jtleona01@gmail.com",
-    description='Custom methodes for various data science, computer vision, and machine learning operations in python',
+    description='General utilities to streamline data science and machine learning routines in python',
     long_description= README,
     long_description_content_type="text/markdown",
     url="https://github.com/jlnerd/JLpyUtils.git",

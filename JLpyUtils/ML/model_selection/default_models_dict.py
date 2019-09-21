@@ -68,13 +68,20 @@ def regression(n_features=None, n_labels=None,
                                                       'max_depth':[3, 10]}
                                        }
 
-        if 'XGBoost' in model or 'xgboost' in model:                
-            import xgboost as xgb                                           
-            models_dict['XGBoost'] = {'model':xgb.XGBRegressor(booster='gbtree',
-                                                               objective='reg:linear',
-                                                               verbosity=1,
-                                                               n_jobs= -1,
-                                                               ),
+        if 'xgboost' in model or 'xgboost' in model:                
+            import dask_ml, dask_ml.xgboost
+            from ... import ML
+            
+            device_counts = ML.device_counts()
+            
+            if device_counts['GPUs']>1:
+                tree_method = 'gpu_hist'
+            else:
+                tree_method = 'auto'
+                
+            models_dict['XGBoost'] = {'model':dask_ml.xgboost.XGBRegressor(
+                                                                 n_jobs = -1,
+                                                                 tree_method = tree_method),
                                       'param_grid':{'max_depth': [3,10],
                                                     'learning_rate':[0.01, 0.1, 1],
                                                     'n_estimators':[10, 100, 1000],
@@ -95,11 +102,14 @@ def regression(n_features=None, n_labels=None,
     return models_dict                       
                     
 def classification(n_features=None, n_labels=None, 
-               models = ['Logistic', 'SVM', 'KNN', 'DecisionTree', 'RandomForest', 'XGBoost', 'DenseNet'],
+               models = ['Logistic', 'SVM', 'KNN', 
+                         'DecisionTree', 'RandomForest', 
+                         'XGBoost', 'DenseNet'],
                ):
     
     """
     Fetch dictionary of standard classification models and their 'param_grid' dictionaries.     
+    
     Arguments: 
     ---------
         n_features, n_labels: The number of features and labels used for the model. These parameters are only required if 'DenseNet' is selected
@@ -108,6 +118,23 @@ def classification(n_features=None, n_labels=None,
             - xgboost models: 'XGBoost'
             - keras modesl: 'DenseNet'
         Note: if running binary classfication, your labels should be 0 and 1. If running multiclass classifciation, your labels should be one-hot encoded
+        
+    Examples:
+    ---------
+        simple xgboost:
+        ---------------
+            import dask
+            client = dask.distributed.Client()
+            
+            params = {'objective': 'binary:logistic',
+                      'tree_method':  'auto',#'gpu_hist',
+                      'num_rounds':   2,
+                      'n_gpus':       1}
+            models_dict = JLpyUtils.ML.model_selection.default_models_dict.classification(models=['xgboost'])
+            model = models_dict['xgboost']['model']
+
+            model.fit(client, params, X_train, y_train, num_boost_round = params['num_rounds'])
+            
     """
     import sklearn
         
@@ -160,9 +187,19 @@ def classification(n_features=None, n_labels=None,
                                    }
 
         if 'XGBoost' in model or 'xgboost' in model:                
-            import xgboost as xgb                                           
-            models_dict['XGBoost'] = {'model':xgb.XGBClassifier(booster='gbtree',
-                                                                objective = "reg:logistic"),
+            import dask_ml, dask_ml.xgboost
+            from ... import ML
+            
+            device_counts = ML.device_counts()
+            
+            if device_counts['GPUs']>1:
+                tree_method = 'gpu_hist'
+            else:
+                tree_method = 'auto'
+            
+            models_dict['xgboost'] = {'model': dask_ml.xgboost.XGBClassifier(
+                                                                 n_jobs = -1,
+                                                                 tree_method = tree_method),
                                       'param_grid':{'max_depth': [3,10],
                                                     'learning_rate':[0.001, 0.01, 0.1],
                                                     'n_estimators':[10, 100, 1000],

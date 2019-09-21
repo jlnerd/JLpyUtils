@@ -57,8 +57,8 @@ class CorrCoeffThreshold():
         
         Arguments:
         ----------
-            df: the pandas dataframe of interest
-            conv_features: list. the subset of features to analyze the covariance on. If 'auto' then all columns in the df will be used
+            df: the dataframe of interest
+            CorrCoeff_features: list. the subset of features to analyze the correlation coeff. on. If 'auto' then all columns in the df will be used
         """
         import numpy as np
         import joblib   
@@ -84,7 +84,6 @@ class CorrCoeffThreshold():
         else:
             np_corr = np.corrcoef(df, rowvar=False)
         
-        
         del df
         gc.collect()
         
@@ -104,26 +103,29 @@ class CorrCoeffThreshold():
         self.dropped_features_dict = {'dropped feature':[],
                                       'correlated feature':[],
                                       'corr coeff':[]}
+        self.outputs = outputs
         for dropped_feat_slice_dict in outputs:
             for i in range(len(dropped_feat_slice_dict['dropped feature idx'])):
                 correlated_feat = self.CorrCoeff_features[dropped_feat_slice_dict['correlated feature idx'][i]]
-                if correlated_feat  not in self.dropped_features_dict['correlated feature']:
-                    dropped_feature = self.CorrCoeff_features[dropped_feat_slice_dict['dropped feature idx'][i]]
-                    self.dropped_features_dict['dropped feature'].append(dropped_feature)
+                dropped_feat = self.CorrCoeff_features[dropped_feat_slice_dict['dropped feature idx'][i]]
+                corr_coeff = dropped_feat_slice_dict['corr coeff'][i]
+                
+                if correlated_feat not in self.dropped_features_dict['correlated feature'] and correlated_feat not in self.dropped_features_dict['dropped feature']:
+                    self.dropped_features_dict['dropped feature'].append(dropped_feat)
                     self.dropped_features_dict['correlated feature'].append(correlated_feat)
-                    self.dropped_features_dict['corr coeff'].append(dropped_feat_slice_dict['corr coeff'][i])
+                    self.dropped_features_dict['corr coeff'].append(corr_coeff)
                         
     def transform(self, df):
         """
-        Transform the pandas df based on the previously run fit
+        Transform the dataframe based on the previously run fit
         
         Arguments:
         ----------
-            df: pandas dataframe which will be transformed
+            df: dataframe which will be transformed
         """
         df = df.copy()
         for feature in self.dropped_features_dict['dropped feature']:
-            if feature in df:
+            if feature in df.columns:
                 df = df.drop(columns=[feature])
         return df
         
@@ -936,7 +938,8 @@ class feat_eng_pipe():
                 X_field = OneHotEncoder.transform(X_field)
                 
             else: #if OneHot is False, just skip transform to numpy array
-                X_field = np.array(X_field) 
+                #X_field = np.array(X_field) 
+                None
                     
             #save
             self.save(X_field, 'X_field', self.format_, path_feat_eng_dir)

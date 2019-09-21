@@ -1,3 +1,7 @@
+[![codecov](https://codecov.io/gh/jlnerd/JLpyUtils/branch/master/graph/badge.svg)](https://codecov.io/gh/jlnerd/JLpyUtils)
+
+
+
 # JLpyUtils
 __Author: [John T. Leonard](https://www.linkedin.com/in/johntleonard/)__<br>
 __Repo: [JLpyUtils](https://github.com/jlnerd/JLpyUtils)__

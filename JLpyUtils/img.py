@@ -227,7 +227,7 @@ class auto_crop():
             ax_list[i].grid(which='both', visible=False)
             ax_list[i].axis('off')
             i+=1
-        
+
         #find edges
         edges = skimage.feature.canny(img_gray,
                                         sigma = edges_dict['sigma'],

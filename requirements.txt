@@ -19,23 +19,3 @@ dask_xgboost
 xgboost       
 dask   
                                
-bokeh                       
-click                     
-cloudpickle                 
-cytoolz                 
-distributed                           
-fsspec                          
-heapdict                              
-locket                         
-mkl_fft                 
-mkl_random                     
-msgpack-python                    
-packaging                               
-partd                 
-psutil               
-sortedcontainers                            
-tblib                                 
-toolz                                
-zict                             
-zstd
-tables
