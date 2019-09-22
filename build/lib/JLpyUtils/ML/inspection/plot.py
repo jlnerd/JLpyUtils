@@ -1,7 +1,9 @@
 import matplotlib.pyplot as __plt__
 
 def true_vs_pred(y_true, y_pred, train_test_ID, 
-                 scale = 'linear', color = 'dodgerblue'):
+                 scale = 'linear', color = 'dodgerblue',
+                 rect = (0, 0, 1,1)
+                ):
     """
     plot y_true vs. y_pred as a scatter plot
     
@@ -11,6 +13,7 @@ def true_vs_pred(y_true, y_pred, train_test_ID,
         train_test_ID: string. label to be appended to axis labels 'y_true' & 'y_pred'
         scale: 'linear' or 'log' scale to be used in the plot
         color: color to be used for the data points in the plot
+        rect = tight_layout(rect=...) coordinates for plot size
     """
     
     import matplotlib.pyplot as plt
@@ -23,12 +26,14 @@ def true_vs_pred(y_true, y_pred, train_test_ID,
     ax.set_xscale(scale)
     ax.set_yscale(scale)
     
+    fig.tight_layout(rect = rect)
+    
     plt.show()
     
 def feature_importance(model, model_ID, feature_headers, 
                        max_labels = 30,
                        color = 'dodgerblue',
-                       tight_layout_rect = (0, 0, 1, 1),
+                       rect = (0, 0, 1, 1),
                       ):
     """
     Plot the feature importance for a given model
@@ -41,9 +46,9 @@ def feature_importance(model, model_ID, feature_headers,
         feature_headers: list of feature headers for labeling the plot
         max_labels: the max number of labels you want to plot. If more features than this are present, then the top and bottom half of the least and most important features will be plotted.
         color: default matplotlib color to use in the plot. If number of features>max_labels, the colors will be assigned automatically.
-        tight_layout_rect: rectangular scaling coordinates for the plots tight_layout
+        rect: rectangular scaling coordinates for the plots tight_layout
     """
-    valid_model_IDs = ['RandomForest','DecisionTree']
+    valid_model_IDs = ['RandomForest','DecisionTree', 'xgboost']
     assert(model_ID in valid_model_IDs), 'Invalid model_ID passed. Valid model_IDs are:'+str(valid_model_IDs)
     
     import matplotlib.pyplot as plt

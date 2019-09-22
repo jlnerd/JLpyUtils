@@ -1,12 +1,19 @@
 Metadata-Version: 2.1
 Name: JLpyUtils
 Version: 0.2.9
-Summary: Custom methodes for various data science, computer vision, and machine learning operations in python
+Summary: General utilities to streamline data science and machine learning routines in python
 Home-page: https://github.com/jlnerd/JLpyUtils.git
 Author: John T. Leonard
 Author-email: jtleona01@gmail.com
 License: UNKNOWN
-Description: # JLpyUtils
+Description: [![Build Status](https://travis-ci.com/jlnerd/JLpyUtils.svg?branch=master)](https://travis-ci.com/jlnerd/JLpyUtils)
+        [![codecov](https://codecov.io/gh/jlnerd/JLpyUtils/branch/master/graph/badge.svg)](https://codecov.io/gh/jlnerd/JLpyUtils)
+        
+        
+        # JLpyUtils
+        __Author: [John T. Leonard](https://www.linkedin.com/in/johntleonard/)__<br>
+        __Repo: [JLpyUtils](https://github.com/jlnerd/JLpyUtils)__
+        
         Custom modules/classes/methods for various data science, computer vision, and machine learning operations in python
             
         ## Installing & Importing

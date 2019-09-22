@@ -6,6 +6,9 @@ from . import model_selection
 from . import NeuralNet
 from . import preprocessing
 from . import inspection
+from . import dask_ml_extend
+from ._devices import list_local_devices
+from ._devices import device_counts
 
 try:
     import tensorflow as __tf__
@@ -26,4 +29,3 @@ class metrics():
         TN = conf_mat[1,1]
         lift = (TP/(TP+FP)) / ((TP+FN)/(TP+TN+FP+FN))
         return lift
-        
