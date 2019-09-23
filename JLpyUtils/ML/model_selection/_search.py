@@ -79,13 +79,12 @@ class GridSearchCV():
         """
         Run Grid Search CV on a single model specified by the "key" argument
         """
-
         #import libs
         import sklearn.model_selection
         import numpy as np
         import sys, os
         import JLpyUtils.ML.NeuralNet as NeuralNet
-        
+
         type_model = str(type(model_dict_['model']))
         type_X_train = str(type(X_train))
         if 'sklearn' in type_model:
@@ -97,10 +96,10 @@ class GridSearchCV():
                                                               verbose = np.max((0,self.verbose-1))
                                                              )
             GridSearchCV.fit(X_train,y_train)
-            
+
         elif 'dask' in type_X_train:
             from ..dask_ml_extend import model_selection as dask_ml_model_selection
-            
+
             GridSearchCV = dask_ml_model_selection.GridSearchCV(model_dict_['model'],
                                                                 model_dict_['param_grid'],
                                                                 n_jobs= self.n_jobs,
@@ -108,7 +107,7 @@ class GridSearchCV():
                                                                 scoring= self.scoring['metric'],
                                                                 )
             GridSearchCV.fit(X_train, y_train)
-            
+
         else: #run gridsearch using neural net function
             if self.scoring['metric'] == None:
                 self.scoring={'metric': 'loss', 'maximize': False}
@@ -134,7 +133,7 @@ class GridSearchCV():
 
         if 'sklearn' in str(type(model_dict_['model'])):
             self.save(model_dict_, 'model_dict', 'dill', path_model_dir)
-
+        
         return model_dict_
         
        

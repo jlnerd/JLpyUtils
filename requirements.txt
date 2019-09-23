@@ -17,8 +17,8 @@ nose
 dill
 h5py
 
+dask
+dask[dataframe]
 dask_ml
 dask_xgboost  
-xgboost       
-dask   
-                               
+xgboost                          

@@ -4,18 +4,26 @@ Fetch dictionary of default models for classification or regression tasks. The m
                 'param_grid': default parameter grid to run hypeparameter search on'}
      }
 """
-def regression(n_features=None, n_labels=None, 
+def regression(n_features, 
+               n_labels, 
                models = ['Linear','SVM','KNN','DecisionTree','RandomForest','XGBoost','DenseNet'],
                ):
     """
-    Fetch dictionary of standard regression models and their 'param_grid' dictionaries.     
+    Fetch dictionary of standard regression models and their 'param_grid' dictionaries.
+    
     Arguments: 
     ---------
-        n_features, n_labels: The number of features and labels used for the model. These parameters are only required if 'DenseNet' is selected
+        n_features, n_labels: The number of features and labels used for the model.
         models: list of models to fetch. Valid models include:
             - sklearn models: 'Linear', 'DecisionTree', 'RandomForest', 'GradBoost', 'SVM', 'KNN'
             - xgboost models: 'XGBoost'
             - keras modesl: 'DenseNet'
+            
+    Returns:
+    --------
+        models_dict: dictionary of format {model ID: {'model': model object,
+                                                    'param_grid': default parameter grid to run hypeparameter search on'}
+                                           }
     """
     import sklearn
         
@@ -24,14 +32,22 @@ def regression(n_features=None, n_labels=None,
     for model in models: #ensure the dictionary keys are in the order you specify in the models list
     
         if 'Linear' in model:
+            import sklearn.linear_model
             models_dict['Linear'] = {'model':sklearn.linear_model.LinearRegression(),
                                      'param_grid': {'normalize': [False,True]}
                                     }
         if 'SVM' in model:
             import sklearn.svm
-            models_dict['SVM'] = {'model':sklearn.svm.SVR(),
-                                  'param_grid': {'kernel':['rbf', 'sigmoid']} #'linear', 'poly', 
-                                 }
+            if n_labels == 1:
+                models_dict['SVM'] = {'model':sklearn.svm.SVR(),
+                                      'param_grid': {'kernel':['rbf', 'sigmoid']} #'linear', 'poly', 
+                                     }
+            else:
+                import sklearn.multioutput
+                models_dict['SVM'] = {'model':sklearn.multioutput.MultiOutputRegressor(sklearn.svm.SVR()),
+                                      'param_grid': {'estimator__kernel':['rbf', 'sigmoid']} #'linear', 'poly', 
+                                     }
+                
 
         if 'KNN' in model:
             import sklearn.neighbors
@@ -143,6 +159,7 @@ def classification(n_features=None, n_labels=None,
     for model in models: #ensure the dictionary keys are in the order you specify in the models list
 
         if 'Logistic' in model:
+            import sklearn.linear_model
             models_dict['Logistic'] = {'model':sklearn.linear_model.LogisticRegression(),
                                          'param_grid': {'penalty': ['l1', 'l2']}
                                         }
