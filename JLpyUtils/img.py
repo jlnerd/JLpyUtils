@@ -2,7 +2,7 @@
 This sub-module contains functions/classes related to image analysis, most of which wrap SciKit image functions in some way.
 """
 
-import numpy as __np__
+import numpy as _np
 import matplotlib.pyplot as __plt__
 
 try:
@@ -62,7 +62,7 @@ def __build_crop_array__(img,yx_min,yx_max,padding, use_square = False):
     crop_array = [y_min_index, y_max_index, x_min_index, x_max_index]
     
     if use_square:
-        mean_width = __np__.mean((crop_array[1]-crop_array[0],crop_array[3]-crop_array[2]))
+        mean_width = _np.mean((crop_array[1]-crop_array[0],crop_array[3]-crop_array[2]))
         x_offset = mean_width - (crop_array[1]-crop_array[0])
         y_offset = mean_width - (crop_array[3]-crop_array[2])
         
@@ -104,10 +104,10 @@ def __find_img_contours_and_cropping_array__(img, contour_level = 0.1, padding =
         yx_min = [0,0]
     else:
         #get corner indices
-        yx_max = __np__.array([[contours[i][:, 0].max(), contours[i][:, 1].max()] for i in range(len(contours))])
+        yx_max = _np.array([[contours[i][:, 0].max(), contours[i][:, 1].max()] for i in range(len(contours))])
         yx_max = [int(yx_max[:,0].max()),int(yx_max[:,1].max())]
 
-        yx_min = __np__.array([[contours[i][:, 0].min(), contours[i][:, 1].min()] for i in range(len(contours))])
+        yx_min = _np.array([[contours[i][:, 0].min(), contours[i][:, 1].min()] for i in range(len(contours))])
         yx_min = [int(yx_min[:,0].min()), int(yx_min[:,1].min())]
     
     #Build Cropping array  
@@ -220,7 +220,7 @@ class auto_crop():
         
         #convert to grayscale
         img_gray = skimage.color.rgb2gray(img)
-        img_gray = img_gray/__np__.mean(img_gray.flatten()) # mean normalized
+        img_gray = img_gray/_np.mean(img_gray.flatten()) # mean normalized
         if show_plots:
             ax_list[i].set_title('grayscale img')
             ax_list[i].imshow(img_gray)
@@ -243,10 +243,23 @@ class auto_crop():
             i+=1
         
         #fetch indices of coner edges
-        edge_indices = __np__.where(edges==True)
+        edge_indices = _np.where(edges==True)
         if edge_indices[0].shape[0] != 0 and edge_indices[1].shape[0] != 0 :
-            ylim = (__np__.min(edge_indices[0])-padding[0],__np__.max(edge_indices[0])+padding[0])
-            xlim = (__np__.min(edge_indices[1])-padding[1],__np__.max(edge_indices[1])+padding[1])
+            ylim = [_np.min(edge_indices[0])-padding[0],_np.max(edge_indices[0])+padding[0]]
+            
+            #ensure the padding doesn't extend beyond the image itself
+            if ylim[0]<0:
+                ylim[0]=0
+            if ylim[1]>img.shape[0]:
+                ylim[1] = img.shape[0]
+            
+            xlim = [_np.min(edge_indices[1])-padding[1],_np.max(edge_indices[1])+padding[1]]
+            
+            #ensure the padding doesn't extend beyond the image itself
+            if xlim[0]<0:
+                xlim[0]=0
+            if xlim[1]>img.shape[1]:
+                xlim[1] = img.shape[1]
 
             #plot cropped image
             img_cropped = img[ylim[0]:ylim[1], xlim[0]:xlim[1],:]
@@ -269,7 +282,7 @@ class auto_crop():
         if verbose>=1:
             print('img.shape:',img.shape)
             print('img_cropped.shape',img_cropped.shape)
-            print('img reduction factor:', __np__.prod(img.shape)/__np__.prod(img_cropped.shape))
+            print('img reduction factor:', _np.prod(img.shape)/_np.prod(img_cropped.shape))
             
         return img_cropped, img_cropped_gray
     
@@ -296,9 +309,9 @@ def autocrop_and_downscale(img, target_min_dim = 256, verbose = 0):
     
     #calculate downscale factors
     if len(img.shape)==3: 
-        downscale_factors = (int(__np__.min(dims)/target_min_dim), int(__np__.min(dims)/target_min_dim), 1)
+        downscale_factors = (int(_np.min(dims)/target_min_dim), int(_np.min(dims)/target_min_dim), 1)
     else:
-        downscale_factors = (int(__np__.min(dims)/target_min_dim), int(__np__.min(dims)/target_min_dim))
+        downscale_factors = (int(_np.min(dims)/target_min_dim), int(_np.min(dims)/target_min_dim))
     
     if img_autocrop.max()>1:
         img_autocrop = img_autocrop/255
@@ -310,7 +323,7 @@ def autocrop_and_downscale(img, target_min_dim = 256, verbose = 0):
         print('img.shape:',img.shape)
         print('img_autocrop.shape:',img_autocrop.shape)
         print('img_autocrop_downscale.shape:',img_autocrop_downscale.shape)
-        print('img size reduction factor:', round(__np__.prod(img.shape)/__np__.prod(img_autocrop_downscale.shape),0))
+        print('img size reduction factor:', round(_np.prod(img.shape)/_np.prod(img_autocrop_downscale.shape),0))
     
     return img_autocrop_downscale 
 
@@ -355,7 +368,7 @@ def decompose_video_to_img(path_video,
         fig, ax_list = __plt__.subplots(1,5)
         p=0
         #build dummy img
-        img_dummy = __np__.zeros((int(prop_dict['frame_height']),int(prop_dict['frame_width']),3)).astype(int)+255
+        img_dummy = _np.zeros((int(prop_dict['frame_height']),int(prop_dict['frame_width']),3)).astype(int)+255
         
     for i in range(int(prop_dict['frame_count'])):
         retval, img = cap.read()
