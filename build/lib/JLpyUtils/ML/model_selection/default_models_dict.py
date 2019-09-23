@@ -4,18 +4,29 @@ Fetch dictionary of default models for classification or regression tasks. The m
                 'param_grid': default parameter grid to run hypeparameter search on'}
      }
 """
-def regression(n_features=None, n_labels=None, 
+
+import warnings as _warnings
+
+def regression(n_features, 
+               n_labels, 
                models = ['Linear','SVM','KNN','DecisionTree','RandomForest','XGBoost','DenseNet'],
                ):
     """
-    Fetch dictionary of standard regression models and their 'param_grid' dictionaries.     
+    Fetch dictionary of standard regression models and their 'param_grid' dictionaries.
+    
     Arguments: 
     ---------
-        n_features, n_labels: The number of features and labels used for the model. These parameters are only required if 'DenseNet' is selected
+        n_features, n_labels: The number of features and labels used for the model.
         models: list of models to fetch. Valid models include:
             - sklearn models: 'Linear', 'DecisionTree', 'RandomForest', 'GradBoost', 'SVM', 'KNN'
             - xgboost models: 'XGBoost'
             - keras modesl: 'DenseNet'
+            
+    Returns:
+    --------
+        models_dict: dictionary of format {model ID: {'model': model object,
+                                                    'param_grid': default parameter grid to run hypeparameter search on'}
+                                           }
     """
     import sklearn
         
@@ -24,14 +35,23 @@ def regression(n_features=None, n_labels=None,
     for model in models: #ensure the dictionary keys are in the order you specify in the models list
     
         if 'Linear' in model:
+            import sklearn.linear_model
             models_dict['Linear'] = {'model':sklearn.linear_model.LinearRegression(),
                                      'param_grid': {'normalize': [False,True]}
                                     }
         if 'SVM' in model:
+            _warnings.warn('SVMs do not scale well. The fit time complexity is more than quadratic with the number of samples which makes it hard to scale to datasets with more than a couple of 10000 samples.')
             import sklearn.svm
-            models_dict['SVM'] = {'model':sklearn.svm.SVR(),
-                                  'param_grid': {'kernel':['rbf', 'sigmoid']} #'linear', 'poly', 
-                                 }
+            if n_labels == 1:
+                models_dict['SVM'] = {'model':sklearn.svm.SVR(),
+                                      'param_grid': {'kernel':['rbf', 'sigmoid']} #'linear', 'poly', 
+                                     }
+            else:
+                import sklearn.multioutput
+                models_dict['SVM'] = {'model':sklearn.multioutput.MultiOutputRegressor(sklearn.svm.SVR()),
+                                      'param_grid': {'estimator__kernel':['rbf', 'sigmoid']} #'linear', 'poly', 
+                                     }
+                
 
         if 'KNN' in model:
             import sklearn.neighbors
@@ -44,7 +64,7 @@ def regression(n_features=None, n_labels=None,
         if 'DecisionTree' in model:
             import sklearn.tree
             models_dict['DecisionTree'] = {'model':sklearn.tree.DecisionTreeRegressor(),
-                                           'param_grid': {'criterion':     ['mse','friedman_mse','mae'],
+                                           'param_grid': {'criterion':     ['mse','friedman_mse'],#,'mae'],
                                                          'splitter':       ['best','random'],
                                                          'max_depth':      [None,5,10,100],
                                                          'max_features':   [None,0.25,0.5,0.75]}
@@ -119,22 +139,6 @@ def classification(n_features=None, n_labels=None,
             - keras modesl: 'DenseNet'
         Note: if running binary classfication, your labels should be 0 and 1. If running multiclass classifciation, your labels should be one-hot encoded
         
-    Examples:
-    ---------
-        simple xgboost:
-        ---------------
-            import dask
-            client = dask.distributed.Client()
-            
-            params = {'objective': 'binary:logistic',
-                      'tree_method':  'auto',#'gpu_hist',
-                      'num_rounds':   2,
-                      'n_gpus':       1}
-            models_dict = JLpyUtils.ML.model_selection.default_models_dict.classification(models=['xgboost'])
-            model = models_dict['xgboost']['model']
-
-            model.fit(client, params, X_train, y_train, num_boost_round = params['num_rounds'])
-            
     """
     import sklearn
         
@@ -143,6 +147,7 @@ def classification(n_features=None, n_labels=None,
     for model in models: #ensure the dictionary keys are in the order you specify in the models list
 
         if 'Logistic' in model:
+            import sklearn.linear_model
             models_dict['Logistic'] = {'model':sklearn.linear_model.LogisticRegression(),
                                          'param_grid': {'penalty': ['l1', 'l2']}
                                         }
@@ -154,15 +159,16 @@ def classification(n_features=None, n_labels=None,
                                  }
         if 'KNN' in model:
             import sklearn.neighbors
-            models_dict['SVM'] = {'model':sklearn.svm.SVC(probability=True),
-                                  'param_grid': {'kernel':['rbf', 'sigmoid'], #'linear', 'poly'
-                                             }
+            models_dict['KNN'] = {'model': sklearn.neighbors.KNeighborsClassifier(),
+                                  'param_grid': {'n_neighbors':[5, 10, 100],
+                                                'weights':['uniform','distance'],
+                                                'algorithm':['ball_tree','kd_tree','brute']}
                                  }
 
         if 'DecisionTree' in model:
             import sklearn.tree
             models_dict['DecisionTree'] = {'model':sklearn.tree.DecisionTreeRegressor(),
-                                           'param_grid': {'criterion':     ['mse','friedman_mse','mae'],
+                                           'param_grid': {'criterion':     ['mse','friedman_mse'],#,'mae'],
                                                           'splitter':       ['best','random'],
                                                          'max_depth':      [None,5,10,100],
                                                          'max_features':   [None,0.25,0.5,0.75]}

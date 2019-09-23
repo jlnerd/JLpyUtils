@@ -52,7 +52,7 @@ class categorical_features():
         #build uniques dictionary (This loop is necessary of compatability with dask, where X[header].unique() cannot be pickled)
         uniques_dict = {}
         for header in LabelEncode_headers:
-            uniques_dict[header] = list(X[header].unique().fillna('missing_value'))
+            uniques_dict[header] = list(X[header].fillna('missing_value').unique())
         
          # run parallel computing job for label encoding 
         executor = joblib.parallel.Parallel(n_jobs = -1, verbose=self.verbose, backend='multiprocessing')

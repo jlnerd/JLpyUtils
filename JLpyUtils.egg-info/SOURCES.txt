@@ -38,4 +38,9 @@ JLpyUtils/ML/preprocessing/Impute.py
 JLpyUtils/ML/preprocessing/LabelEncode.py
 JLpyUtils/ML/preprocessing/OneHotEncode.py
 JLpyUtils/ML/preprocessing/Scale.py
+JLpyUtils/ML/preprocessing/_CorrCoeff.py
 JLpyUtils/ML/preprocessing/__init__.py
+JLpyUtils/ML/preprocessing/_feat_eng_pipe.py
+tests/ML/__init__.py
+tests/ML/model_selection/__init__.py
+tests/ML/model_selection/test_search.py

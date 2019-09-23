@@ -201,6 +201,9 @@ def hist_or_bar(df, n_plot_columns = 3,
     import datetime
     import sklearn.impute
     import numpy as np
+    import warnings
+    
+    warnings.filterwarnings('ignore')
     
     df = df.copy()
     
@@ -212,14 +215,19 @@ def hist_or_bar(df, n_plot_columns = 3,
     p=0
     for header in df.columns:
         
-        type_ = df[header].dtype
+        if 'dask' in str(type(df)):
+            Series_ = df[header].compute()
+        else:
+            Series_ = df[header]
+        
+        type_ = Series_.dtype
         
         #plot as bar char if object and not date time
-        if (type_ == 'O' and isinstance(df[header].iloc[0], datetime.time)==False) or header in categorical_headers:
+        if (type_ == 'O' and isinstance(Series_.iloc[0], datetime.time)==False) or header in categorical_headers:
             
-            df[header] = df[header].fillna('NaN')
+            Series_ = Series_.fillna('NaN')
             
-            df_counts = df[header].value_counts().reset_index()
+            df_counts = Series_.value_counts().reset_index()
             df_counts.columns = [header, 'counts']
             df_counts = df_counts.sort_values('counts').reset_index(drop=True)
             df_counts[header] = df_counts[header].astype(str)
@@ -242,11 +250,11 @@ def hist_or_bar(df, n_plot_columns = 3,
                 ax_list[p].set_xticklabels(df_counts[header], rotation=90)
         
         #plot counts vs time if time pts
-        elif isinstance(df[header].head()[0], datetime.time):
-            slice_ = df[[header]]
-            slice_ = slice_.dropna()
+        elif isinstance(df.head()[header].iloc[0], datetime.time):
             
-            df_counts = slice_[header].value_counts().reset_index()
+            Series_ = Series_.dropna()
+            
+            df_counts = Series_.value_counts().reset_index()
             df_counts.columns = [header, 'counts']
             df_counts = df_counts.sort_values(header)
             
@@ -256,10 +264,8 @@ def hist_or_bar(df, n_plot_columns = 3,
             
             
         else: #plot as histogram
-            slice_ = df[[header]]
-            slice_ = slice_.dropna()
             
-            ax_list[p].hist(slice_[header], bins = __np__.min((100, df[header].nunique())))
+            ax_list[p].hist(Series_, bins = __np__.min((100, Series_.nunique())))
             
             ax_list[p].set_xscale(xscale)
             
@@ -270,10 +276,10 @@ def hist_or_bar(df, n_plot_columns = 3,
         else:
             xlabel = header
             
-        ax_list[p].ticklabel_format(axis='y', style='sci', scilimits=(-2,2))
         ax_list[p].set_xlabel(xlabel)
         ax_list[p].set_ylabel('counts')
         ax_list[p].set_yscale(yscale)
+        ax_list[p].ticklabel_format(axis='y', style='sci', scilimits=(-2,2))
         
         p+=1
         
@@ -309,3 +315,5 @@ def hist_or_bar(df, n_plot_columns = 3,
                 print('Exception: '+ str(e))
 
         plt.show()
+    warnings.filterwarnings('default')
+    
