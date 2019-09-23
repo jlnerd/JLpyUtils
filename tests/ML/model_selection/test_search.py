@@ -13,7 +13,7 @@ def build_data_and_headers_dict():
     """
     
     #create some dummy data
-    X1 = np.linspace(0,1,1000)#*np.random.ranf(1000)
+    X1 = np.linspace(0,1,200)#*np.random.ranf(1000)
     X2 = X1#*np.random.ranf(1000)
     X3 = X1#*np.random.ranf(1000)
 
@@ -46,31 +46,47 @@ def build_data_and_headers_dict():
     return data_dict, headers_dict
 
 
-def test_single_output_regression_models_GridSearchCV(tmpdir):
-    
-    data_dict, headers_dict = build_data_and_headers_dict()
-    
-    for dataframe_type in ['pandas','dask']:
+class TestRegressionSingleOutputModelsGridSearchCV():
+  
+    def test_linear_single_output_pandas_df(self, tmpdir):
         
-        if dataframe_type == 'pandas':
-            X = data_dict['df_X']
-            y = data_dict['df_y']
+        data_dict, headers_dict = build_data_and_headers_dict()
 
-        elif dataframe_type=='dask':
-            X = data_dict['ddf_X']
-            y = data_dict['ddf_y']
+        X = data_dict['df_X']
+        y = data_dict['df_y']
 
         n_features = X.shape[1]
         n_labels = y.shape[1]
 
         models_dict = JLpyUtils.ML.model_selection.default_models_dict.regression(
                                                             n_features, 
-                                                            n_labels)
+                                                            n_labels,
+                                                            models = ['Linear'])
         GridSearchCV = JLpyUtils.ML.model_selection.GridSearchCV(
                                          models_dict,
                                          cv=2,
                                          path_root_dir=tmpdir)
         GridSearchCV.fit(X, y, X, y)
+        
+#     def test_linear_single_output_dask_df(self, tmpdir):
+        
+#         data_dict, headers_dict = build_data_and_headers_dict()
+
+#         X = data_dict['ddf_X']
+#         y = data_dict['ddf_y']
+
+#         n_features = X.shape[1]
+#         n_labels = y.shape[1]
+
+#         models_dict = JLpyUtils.ML.model_selection.default_models_dict.regression(
+#                                                             n_features, 
+#                                                             n_labels,
+#                                                             models = ['Linear'])
+#         GridSearchCV = JLpyUtils.ML.model_selection.GridSearchCV(
+#                                          models_dict,
+#                                          cv=2,
+#                                          path_root_dir=tmpdir)
+#         GridSearchCV.fit(X, y, X, y)
         
     
     

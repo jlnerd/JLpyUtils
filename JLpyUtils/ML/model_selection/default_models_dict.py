@@ -64,7 +64,7 @@ def regression(n_features,
         if 'DecisionTree' in model:
             import sklearn.tree
             models_dict['DecisionTree'] = {'model':sklearn.tree.DecisionTreeRegressor(),
-                                           'param_grid': {'criterion':     ['mse','friedman_mse','mae'],
+                                           'param_grid': {'criterion':     ['mse','friedman_mse'],#,'mae'],
                                                          'splitter':       ['best','random'],
                                                          'max_depth':      [None,5,10,100],
                                                          'max_features':   [None,0.25,0.5,0.75]}
@@ -139,22 +139,6 @@ def classification(n_features=None, n_labels=None,
             - keras modesl: 'DenseNet'
         Note: if running binary classfication, your labels should be 0 and 1. If running multiclass classifciation, your labels should be one-hot encoded
         
-    Examples:
-    ---------
-        simple xgboost:
-        ---------------
-            import dask
-            client = dask.distributed.Client()
-            
-            params = {'objective': 'binary:logistic',
-                      'tree_method':  'auto',#'gpu_hist',
-                      'num_rounds':   2,
-                      'n_gpus':       1}
-            models_dict = JLpyUtils.ML.model_selection.default_models_dict.classification(models=['xgboost'])
-            model = models_dict['xgboost']['model']
-
-            model.fit(client, params, X_train, y_train, num_boost_round = params['num_rounds'])
-            
     """
     import sklearn
         
@@ -175,15 +159,16 @@ def classification(n_features=None, n_labels=None,
                                  }
         if 'KNN' in model:
             import sklearn.neighbors
-            models_dict['SVM'] = {'model':sklearn.svm.SVC(probability=True),
-                                  'param_grid': {'kernel':['rbf', 'sigmoid'], #'linear', 'poly'
-                                             }
+            models_dict['KNN'] = {'model': sklearn.neighbors.KNeighborsClassifier(),
+                                  'param_grid': {'n_neighbors':[5, 10, 100],
+                                                'weights':['uniform','distance'],
+                                                'algorithm':['ball_tree','kd_tree','brute']}
                                  }
 
         if 'DecisionTree' in model:
             import sklearn.tree
             models_dict['DecisionTree'] = {'model':sklearn.tree.DecisionTreeRegressor(),
-                                           'param_grid': {'criterion':     ['mse','friedman_mse','mae'],
+                                           'param_grid': {'criterion':     ['mse','friedman_mse'],#,'mae'],
                                                           'splitter':       ['best','random'],
                                                          'max_depth':      [None,5,10,100],
                                                          'max_features':   [None,0.25,0.5,0.75]}
