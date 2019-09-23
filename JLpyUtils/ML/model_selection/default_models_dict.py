@@ -4,6 +4,9 @@ Fetch dictionary of default models for classification or regression tasks. The m
                 'param_grid': default parameter grid to run hypeparameter search on'}
      }
 """
+
+import warnings as _warnings
+
 def regression(n_features, 
                n_labels, 
                models = ['Linear','SVM','KNN','DecisionTree','RandomForest','XGBoost','DenseNet'],
@@ -37,6 +40,7 @@ def regression(n_features,
                                      'param_grid': {'normalize': [False,True]}
                                     }
         if 'SVM' in model:
+            _warnings.warn('SVMs do not scale well. The fit time complexity is more than quadratic with the number of samples which makes it hard to scale to datasets with more than a couple of 10000 samples.')
             import sklearn.svm
             if n_labels == 1:
                 models_dict['SVM'] = {'model':sklearn.svm.SVR(),
