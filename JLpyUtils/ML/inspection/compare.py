@@ -2,15 +2,17 @@
 sub-module with functions to compare trained models
 """
 
-def model_metrics(models_dict, metrics, verbose = 1):
+def model_metrics(models_dict, metrics, X, y, verbose = 1):
     """
     Iterate throught the models in the models_dict & analyize the metrics for each model, compiling all the metrics into a df_metrics pandas dataframe object.
     
     Arguments:
     ----------
-        models_dict: dictionary containing trained models from ML_models.hyperparams.search... methods
+        models_dict: dictionary containing trained models from ML.model_selection.<search method>. The model metrics will be evaluated by callling the 'best model' key for each model_dict in the models_dict.
         metrics: [[key(str), method(sklearn.metrics...)]'
-    
+        X, y: test sets you will evaluate on
+        verbose: printout verbosity
+        
     Returns:
     --------
         models_dict: passed models_dict with metrics added as new key
@@ -26,9 +28,9 @@ def model_metrics(models_dict, metrics, verbose = 1):
     metrics_dict['model'] =[]
     for key in models_dict.keys():
         metrics_dict['model'].append(key)
+        y_pred = models_dict[key]['best_model'].predict(X)
         for metric_key in metrics.keys():
-            models_dict[key][metric_key] = metrics[metric_key](models_dict[key]['y_test'], 
-                                                               models_dict[key]['y_pred'])
+            models_dict[key][metric_key] = metrics[metric_key](y, y_pred)
             if metric_key not in metrics_dict.keys():
                 metrics_dict[metric_key]=[]
             metrics_dict[metric_key].append(models_dict[key][metric_key])

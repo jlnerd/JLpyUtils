@@ -3,6 +3,8 @@ pytest
 pytest-cov
 codecov
 
+gitpython
+
 numpy
 pandas
 sklearn

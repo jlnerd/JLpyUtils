@@ -87,7 +87,7 @@ class GridSearchCV():
 
         type_model = str(type(model_dict_['model']))
         type_X_train = str(type(X_train))
-        if 'sklearn' in type_model:
+        if ('sklearn' in type_model or 'xgboost' in type_model) and 'dask' not in type_X_train:
             GridSearchCV = sklearn.model_selection.GridSearchCV(model_dict_['model'],
                                                               model_dict_['param_grid'],
                                                               n_jobs= self.n_jobs,
@@ -163,8 +163,9 @@ class GridSearchCV():
             path_model_dir = os.path.join(self.path_root_dir, key)
             self.path_model_dirs[key] = path_model_dir
             if self.verbose >=1: print('path_model_dir:',path_model_dir)
-
-            if 'sklearn' in str(type(self.models_dict[key]['model'])):
+            
+            model_type = type(self.models_dict[key]['model'])
+            if 'sklearn' in str(model_type) or 'xgboost' in str(model_type):
                 path_file = os.path.join(path_model_dir,'model_dict.dill')
             elif 'Net' in key:
                 path_file = os.path.join(path_model_dir,'best_params_.dill')
@@ -187,8 +188,7 @@ class GridSearchCV():
                                                                             X_train, y_train, 
                                                                             epochs)
 
-            self.models_dict[key]['y_test'] = y_test
-            self.models_dict[key]['y_pred'] = self.models_dict[key]['best_model'].predict(X_test)
+            y_pred = self.models_dict[key]['best_model'].predict(X_test)
 
             if 'Net' not in key:
                 self.models_dict[key]['best_pred_score'] = self.models_dict[key]['best_model'].score(X_test, y_test)
@@ -202,7 +202,7 @@ class GridSearchCV():
             for metric_key in self.metrics.keys():
                 if self.metrics[metric_key] !=None:
                     try:
-                        self.models_dict[key][metric_key] = self.metrics[metric_key](y_test, self.models_dict[key]['y_pred'])
+                        self.models_dict[key][metric_key] = self.metrics[metric_key](y_test, y_pred)
                         print('\t',metric_key,':',self.models_dict[key][metric_key])
                     except Exception as e:
                         print('Exception occured for',metric_key,':',str(e))

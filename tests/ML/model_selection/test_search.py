@@ -45,28 +45,45 @@ def build_data_and_headers_dict():
     
     return data_dict, headers_dict
 
+def test_regression_linear_single_output_pandas_df(tmpdir):
 
-class TestRegressionSingleOutputModelsGridSearchCV():
-  
-    def test_linear_single_output_pandas_df(self, tmpdir):
-        
-        data_dict, headers_dict = build_data_and_headers_dict()
+    data_dict, headers_dict = build_data_and_headers_dict()
 
-        X = data_dict['df_X']
-        y = data_dict['df_y']
+    X = data_dict['df_X']
+    y = data_dict['df_y']
 
-        n_features = X.shape[1]
-        n_labels = y.shape[1]
+    n_features = X.shape[1]
+    n_labels = y.shape[1]
 
-        models_dict = JLpyUtils.ML.model_selection.default_models_dict.regression(
-                                                            n_features, 
-                                                            n_labels,
-                                                            models = ['Linear'])
-        GridSearchCV = JLpyUtils.ML.model_selection.GridSearchCV(
-                                         models_dict,
-                                         cv=2,
-                                         path_root_dir=tmpdir)
-        GridSearchCV.fit(X, y, X, y)
+    models_dict = JLpyUtils.ML.model_selection.default_models_dict.regression(
+                                                        n_features, 
+                                                        n_labels,
+                                                        models = ['Linear'])
+    GridSearchCV = JLpyUtils.ML.model_selection.GridSearchCV(
+                                     models_dict,
+                                     cv=2,
+                                     path_root_dir=tmpdir)
+    GridSearchCV.fit(X, y, X, y)
+    
+def test_regression_xgboost_single_output_pandas_df(tmpdir):
+
+    data_dict, headers_dict = build_data_and_headers_dict()
+
+    X = data_dict['df_X']
+    y = data_dict['df_y']
+
+    n_features = X.shape[1]
+    n_labels = y.shape[1]
+
+    models_dict = JLpyUtils.ML.model_selection.default_models_dict.regression(
+                                                        n_features, 
+                                                        n_labels,
+                                                        models = ['XGBoost'])
+    GridSearchCV = JLpyUtils.ML.model_selection.GridSearchCV(
+                                     models_dict,
+                                     cv=2,
+                                     path_root_dir=tmpdir)
+    GridSearchCV.fit(X, y, X, y)
         
 #     def test_linear_single_output_dask_df(self, tmpdir):
         

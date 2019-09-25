@@ -72,7 +72,7 @@ def regression(n_features,
         if 'RandomForest' in model:
             import sklearn.ensemble
             models_dict['RandomForest'] = {'model': sklearn.ensemble.RandomForestRegressor(),
-                                           'param_grid': {'criterion':      ['mse','mae'],
+                                           'param_grid': {'criterion':      ['mse'],#'mae'],
                                                           'n_estimators':  [10,100],
                                                           'max_depth':      [None,5,10],
                                                           'max_features':   [None,0.25,0.5,0.75]}
@@ -88,7 +88,46 @@ def regression(n_features,
                                                       'max_depth':[3, 10]}
                                        }
 
-        if 'xgboost' in model or 'xgboost' in model:                
+        if ('xgboost' in model or 'XGBoost' in model) and 'dask' not in model:                
+            import xgboost
+            from ... import ML
+            
+            device_counts = ML.device_counts()
+            
+#             if device_counts['GPUs']>1:
+#                 tree_method = 'gpu_hist'
+#             else:
+            tree_method = 'auto'
+            
+            if n_labels == 1:
+                models_dict['XGBoost'] = {'model':xgboost.XGBRegressor(
+                                                         n_jobs = -1,
+                                                         tree_method = tree_method),
+                                          'param_grid':{'max_depth': [3,10],
+                                                        'learning_rate':[0.01, 0.1, 1],
+                                                        'n_estimators':[10, 100, 1000],
+                                                        'subsample':[1,0.9,0.5],
+                                                        'colsample_bytree':[1.0,0.8,0.5],
+                                                        #reg_alpha
+                                                        #reg_lambda
+                                                       }
+                                     }
+            else:
+                import sklearn.multioutput
+                models_dict['XGBoost'] = {'model':sklearn.multioutput.MultiOutputRegressor(xgboost.XGBRegressor(
+                                                         n_jobs = -1,
+                                                         tree_method = tree_method)),
+                                      'param_grid': {'estimator__max_depth': [3,10],
+                                                        'estimator__learning_rate':[0.01, 0.1, 1],
+                                                        'estimator__n_estimators':[10, 100, 1000],
+                                                        'estimator__subsample':[1,0.9,0.5],
+                                                        'estimator__colsample_bytree':[1.0,0.8,0.5],
+                                                        #reg_alpha
+                                                        #reg_lambda
+                                                       }
+                                         }
+        
+        if 'dask_xgboost' in model or 'dask_XGBoost' in model:                
             import dask_ml, dask_ml.xgboost
             from ... import ML
             
@@ -192,7 +231,31 @@ def classification(n_features=None, n_labels=None,
                                                    'max_depth':[3, 10]}
                                    }
 
-        if 'XGBoost' in model or 'xgboost' in model:                
+        if ('xgboost' in model or 'XGBoost' in model) and 'dask' not in model:                
+            import xgboost
+            from ... import ML
+            
+            device_counts = ML.device_counts()
+            
+            if device_counts['GPUs']>1:
+                tree_method = 'gpu_hist'
+            else:
+                tree_method = 'auto'
+                
+            models_dict['XGBoost'] = {'model':xgboost.XGBClassifier(
+                                                     n_jobs = -1,
+                                                     tree_method = tree_method),
+                                      'param_grid':{'max_depth': [3,10],
+                                                    'learning_rate':[0.01, 0.1, 1],
+                                                    'n_estimators':[10, 100, 1000],
+                                                    'subsample':[1,0.9,0.5],
+                                                    'colsample_bytree':[1.0,0.8,0.5],
+                                                    #reg_alpha
+                                                    #reg_lambda
+                                                   }
+                                 }
+        
+        if 'dask_XGBoost' in model or 'dask_xgboost' in model:                
             import dask_ml, dask_ml.xgboost
             from ... import ML
             

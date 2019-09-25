@@ -13,3 +13,4 @@ from . import video
 from . import ML
 from . import kaggle
 from . import file_utils
+from . import git
