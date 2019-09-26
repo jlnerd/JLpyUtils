@@ -39,7 +39,7 @@ class continuous_features():
         else:
             self.continuous_headers = list(X.columns)
             
-        self.Scaler.fit(X[continuous_headers])
+        self.Scaler.fit(X[self.continuous_headers])
         
     def transform(self, X):
         
@@ -56,6 +56,7 @@ class continuous_features():
         X[self.continuous_headers] = self.Scaler.transform(X[self.continuous_headers])
         
         if 'dask' in type_X:
+            import dask, dask.dataframe
             X = dask.dataframe.from_pandas(X, npartitions=npartitions)
             
         warnings.filterwarnings('default')

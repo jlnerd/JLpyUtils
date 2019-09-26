@@ -55,3 +55,15 @@ def test_Scale_continuous_features_on_pandas_df():
     X = Scaler.transform(X)
     
     assert(X.shape[0]>0)
+    
+def test_Scale_continuous_features_on_dask_df():
+    
+    data_dict, headers_dict = build_data_and_headers_dict()
+    
+    X = data_dict['ddf_X'][headers_dict['continuous features']]
+    
+    Scaler = JLpyUtils.ML.preprocessing.Scale.continuous_features()
+    Scaler.fit(X)
+    X = Scaler.transform(X)
+    
+    assert(X.compute().shape[0]>0)
