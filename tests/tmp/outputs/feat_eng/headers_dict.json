@@ -1,0 +1,1 @@
+{"continuous features": ["X1", "X2", "X3"], "categorical features": ["categorical int", "categorical str"], "features": ["X1", "X2", "X3", "categorical int", "categorical str"]}
