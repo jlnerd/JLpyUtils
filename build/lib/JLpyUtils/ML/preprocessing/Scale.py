@@ -17,15 +17,15 @@ class continuous_features():
         
         self.Scaler = Scaler
 
-        
-    def fit(self, X, continuous_headers):
+    def fit(self, X, continuous_headers = 'auto'):
         """
         Fit the Scaler to the continous features contained in the dataframe passed
         
         Arguments:
         ----------
             X: the dataframe of interest (dask or pandas)
-            continuous_headers: the header names for the continuous features of interest
+            continuous_headers: the header names for the continuous features of interest.
+                - If 'auto', all columns will be assumed to be continuous features.
         
         Returns:
         --------
@@ -33,26 +33,30 @@ class continuous_features():
         """
         
         X = X.copy()
-
-        self.Scaler.fit(X[continuous_headers])
-        self.continuous_headers = continuous_headers
+        
+        if type(continuous_headers) == type(list):
+            self.continuous_headers = continuous_headers
+        else:
+            self.continuous_headers = list(X.columns)
+            
+        self.Scaler.fit(X[self.continuous_headers])
         
     def transform(self, X):
         
         import warnings
-        import dask
         
         warnings.filterwarnings('ignore')
     
         
-        type_X = type(X)
-        if type_X==dask.dataframe.core.DataFrame:
+        type_X = str(type(X))
+        if 'dask' in type_X:
             npartitions = X.npartitions
             X = X.compute()
 
         X[self.continuous_headers] = self.Scaler.transform(X[self.continuous_headers])
         
-        if type_X==dask.dataframe.core.DataFrame:
+        if 'dask' in type_X:
+            import dask, dask.dataframe
             X = dask.dataframe.from_pandas(X, npartitions=npartitions)
             
         warnings.filterwarnings('default')

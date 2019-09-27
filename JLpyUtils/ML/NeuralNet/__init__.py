@@ -7,3 +7,4 @@ from . import plot
 from . import search
 from . import DenseNet
 from . import utils
+from . import Bert

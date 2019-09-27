@@ -461,7 +461,7 @@ class feat_eng_pipe():
                 
                 CorrCoeffThresholder = CorrCoeffThreshold(AbsCorrCoeff_threshold)
                 
-                CorrCoeffThresholder.fit(X, verbose = 8)
+                CorrCoeffThresholder.fit(X)
 
                 X = CorrCoeffThresholder.transform(X)
                 

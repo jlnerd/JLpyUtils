@@ -2,6 +2,7 @@ README.md
 setup.py
 JLpyUtils/__init__.py
 JLpyUtils/file_utils.py
+JLpyUtils/git.py
 JLpyUtils/img.py
 JLpyUtils/kaggle.py
 JLpyUtils/plot.py
@@ -41,6 +42,7 @@ JLpyUtils/ML/preprocessing/Scale.py
 JLpyUtils/ML/preprocessing/_CorrCoeff.py
 JLpyUtils/ML/preprocessing/__init__.py
 JLpyUtils/ML/preprocessing/_feat_eng_pipe.py
+JLpyUtils/ML/preprocessing/log.py
 tests/ML/__init__.py
 tests/ML/model_selection/__init__.py
 tests/ML/model_selection/test_search.py
