@@ -9,6 +9,8 @@ scipy
 matplotlib
 tensorflow-gpu>=1.14.0
 tensorflow>=1.14.0
+torch
+pytorch_pretrained_bert
 kaggle
 scikit-image
 opencv-python

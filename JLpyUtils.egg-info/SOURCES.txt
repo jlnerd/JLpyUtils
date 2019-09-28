@@ -16,6 +16,7 @@ JLpyUtils.egg-info/requires.txt
 JLpyUtils.egg-info/top_level.txt
 JLpyUtils/ML/__init__.py
 JLpyUtils/ML/_devices.py
+JLpyUtils/ML/NeuralNet/Bert.py
 JLpyUtils/ML/NeuralNet/Conv2D.py
 JLpyUtils/ML/NeuralNet/DenseNet.py
 JLpyUtils/ML/NeuralNet/__init__.py
@@ -44,5 +45,7 @@ JLpyUtils/ML/preprocessing/__init__.py
 JLpyUtils/ML/preprocessing/_feat_eng_pipe.py
 JLpyUtils/ML/preprocessing/log.py
 tests/ML/__init__.py
+tests/ML/NeuralNet/__init__.py
+tests/ML/NeuralNet/test_Bert.py
 tests/ML/model_selection/__init__.py
 tests/ML/model_selection/test_search.py
