@@ -6,6 +6,7 @@ Fetch dictionary of default models for classification or regression tasks. The m
 """
 
 import warnings as _warnings
+import numpy as _np
 
 def regression(n_features, 
                n_labels, 
@@ -67,7 +68,7 @@ def regression(n_features,
                                            'param_grid': {'criterion':     ['mse','friedman_mse'],#,'mae'],
                                                          'splitter':       ['best','random'],
                                                          'max_depth':      [None,5,10,100],
-                                                         'max_features':   [None,0.25,0.5,0.75]}
+                                                         'max_features':   [0.25,0.5,0.75,1.0]}
                                           }
         if 'RandomForest' in model:
             import sklearn.ensemble
@@ -75,7 +76,7 @@ def regression(n_features,
                                            'param_grid': {'criterion':      ['mse'],#'mae'],
                                                           'n_estimators':  [10,100],
                                                           'max_depth':      [None,5,10],
-                                                          'max_features':   [None,0.25,0.5,0.75]}
+                                                          'max_features':   [0.25,0.5,0.75,1.0]}
                                           }
         if 'GradBoost' in model:
             import sklearn.ensemble
@@ -106,7 +107,7 @@ def regression(n_features,
                                           'param_grid':{'max_depth': [3,10],
                                                         'learning_rate':[0.01, 0.1, 1],
                                                         'n_estimators':[10, 100, 1000],
-                                                        'subsample':[1,0.9,0.5],
+                                                        'subsample':[1.0, 0.9,0.5],
                                                         'colsample_bytree':[1.0,0.8,0.5],
                                                         #reg_alpha
                                                         #reg_lambda
@@ -114,13 +115,13 @@ def regression(n_features,
                                      }
             else:
                 import sklearn.multioutput
-                models_dict['XGBoost'] = {'model':sklearn.multioutput.MultiOutputRegressor(xgboost.XGBRegressor(
+                models_dict['xgboost'] = {'model':sklearn.multioutput.MultiOutputRegressor(xgboost.XGBRegressor(
                                                          n_jobs = -1,
                                                          tree_method = tree_method)),
                                       'param_grid': {'estimator__max_depth': [3,10],
                                                         'estimator__learning_rate':[0.01, 0.1, 1],
                                                         'estimator__n_estimators':[10, 100, 1000],
-                                                        'estimator__subsample':[1,0.9,0.5],
+                                                        'estimator__subsample':[1.0, 0.9,0.5],
                                                         'estimator__colsample_bytree':[1.0,0.8,0.5],
                                                         #reg_alpha
                                                         #reg_lambda
@@ -138,7 +139,7 @@ def regression(n_features,
             else:
                 tree_method = 'auto'
                 
-            models_dict['XGBoost'] = {'model':dask_ml.xgboost.XGBRegressor(
+            models_dict['xgboost'] = {'model':dask_ml.xgboost.XGBRegressor(
                                                                  n_jobs = -1,
                                                                  tree_method = tree_method),
                                       'param_grid':{'max_depth': [3,10],
@@ -160,10 +161,10 @@ def regression(n_features,
                                                                     metrics=['mse','mae'])
     return models_dict                       
                     
-def classification(n_features=None, n_labels=None, 
+def classification(n_features, n_labels, 
                models = ['Logistic', 'SVM', 'KNN', 
                          'DecisionTree', 'RandomForest', 
-                         'XGBoost', 'DenseNet'],
+                         'xgboost', 'DenseNet'],
                ):
     
     """
@@ -210,7 +211,7 @@ def classification(n_features=None, n_labels=None,
                                            'param_grid': {'criterion':     ['mse','friedman_mse'],#,'mae'],
                                                           'splitter':       ['best','random'],
                                                          'max_depth':      [None,5,10,100],
-                                                         'max_features':   [None,0.25,0.5,0.75]}
+                                                         'max_features':   [0.25,0.5,0.75,1.0]}
                                           }
         if 'RandomForest' in model:
             import sklearn.ensemble
@@ -218,7 +219,7 @@ def classification(n_features=None, n_labels=None,
                                        'param_grid':{'criterion':['gini','entropy'],
                                                      'n_estimators':  [10,100],
                                                      'max_depth':      [None,5,10],
-                                                     'max_features':   [None,0.25,0.5,0.75]}
+                                                     'max_features':   [0.25,0.5,0.75,1.0]}
                                        }
         if 'GradBoost' in model:
             import sklearn.ensemble
@@ -242,13 +243,13 @@ def classification(n_features=None, n_labels=None,
             else:
                 tree_method = 'auto'
                 
-            models_dict['XGBoost'] = {'model':xgboost.XGBClassifier(
+            models_dict['xgboost'] = {'model':xgboost.XGBClassifier(
                                                      n_jobs = -1,
                                                      tree_method = tree_method),
                                       'param_grid':{'max_depth': [3,10],
                                                     'learning_rate':[0.01, 0.1, 1],
                                                     'n_estimators':[10, 100, 1000],
-                                                    'subsample':[1,0.9,0.5],
+                                                    'subsample':[1.0, 0.9,0.5],
                                                     'colsample_bytree':[1.0,0.8,0.5],
                                                     #reg_alpha
                                                     #reg_lambda

@@ -67,7 +67,7 @@ Finished!
 #### JLpyUtils.ML.model_selection
 Functions/classes for running hyperparameter searches across multiple types of models & comparing those models
 
-The main class of interest is the ```JLpyUtils.ML.model_selection.GridSearchCV``` class, which runs hyperparameter GridSearchCV across different types of models & compares the results to allow one to find the best-of-best (BoB) model. The functions is compatible with evaluating sklearn models, tensorflow/keras models, and xgboost models.
+The main classes of interest are the ```JLpyUtils.ML.model_selection.GridSearchCV``` class and the ```JLpyUtils.ML.model_selection.BayesianSearchCV``` class, which run hyperparameter GridSearchCV and BayesianSearchCV optimizations across different types of models & compares the results to allow one to find the best-of-best (BoB) model. The ```.fit``` functions for both these classes are compatible with evaluating sklearn models, tensorflow/keras models, and xgboost models. Check out the doc-strings for each class for additional notes on implementation.
 
 #### JLpyUtils.ML.NeuralNet
 sub-modules/functions/classes for streamlining common neural-net architectures implemented in tensorflow/keras.
@@ -111,4 +111,9 @@ where ```competition``` is the competition name, such as  "home-credit-default-r
 
 ### JLpyUtils.file_utils
 This module contains simple but extremely useful helper functions to save and load standard file types including 'hdf', 'csv', 'json', 'dill'. Essentially the ```save``` and ```load``` functions take care of the boiler plate operations related to saving or loading on the file-types specified above.
+
+# Example Notebooks
+Basic notebook examples can be found in the (notebooks)[notebooks] folder. Some examples include:
+* (example_ML.NeuralNet.Bert.word2vec)[notebooks/example_ML.NeuralNet.Bert.word2vec.ipynb]
+* (example_ML.model_selection.BayesianSearchCV) [notebooks/example_ML.model_selection.BayesianSearchCV]
 
