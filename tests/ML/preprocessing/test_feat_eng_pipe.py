@@ -50,7 +50,7 @@ def test_feat_eng_pipe_with_pandas_df(tmpdir):
 
     df_ID = 'df_X'
     feat_eng_pipe = JLpyUtils.ML.preprocessing.feat_eng_pipe(
-                            path_report_dir = tmpdir, overwrite=True)
+                            path_feat_eng_root_dir = tmpdir, overwrite=True)
     feat_eng_pipe.fit(data_dict[df_ID], headers_dict)
     feat_eng_pipe.transform(data_dict[df_ID])
 
@@ -60,7 +60,7 @@ def test_feat_eng_pipe_with_dask_df(tmpdir):
 
     df_ID = 'ddf_X'
     feat_eng_pipe = JLpyUtils.ML.preprocessing.feat_eng_pipe(
-                            path_report_dir = tmpdir, overwrite=True)
+                            path_feat_eng_root_dir = tmpdir, overwrite=True)
     feat_eng_pipe.fit(data_dict[df_ID], headers_dict)
     feat_eng_pipe.transform(data_dict[df_ID])
         
