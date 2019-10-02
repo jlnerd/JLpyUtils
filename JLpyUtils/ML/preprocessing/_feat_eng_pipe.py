@@ -154,6 +154,16 @@ class feat_eng_pipe():
                                   'OneHot_case['+str(OneHot_case)+']',
                                   'CorrCoeffThreshold['+str(AbsCorrCoeff_threshold)+']')
         return path_feat_eng_base_dir
+    
+    def _assert_n_samples_is_unchaged(self, X):
+        
+        if 'dask' in str(type(X)):
+            n_samples_after_process = X.iloc[:,0].shape[0]
+        else:
+            n_samples_after_process = X.shape[1]
+
+        assert(self.n_samples==n_samples_after_process), 'expected '+str(self.n_samples)+', but received '+str(n_samples_after_process)
+        
 
  
     ######### Fit Transforme Operations ############
@@ -183,6 +193,7 @@ class feat_eng_pipe():
             self.BertWord2VecPCAer = _BertWord2VecPCA(**self.BertWord2VecPCA_args)
             
             X = self.BertWord2VecPCAer.fit_transform(X)
+            self._assert_n_samples_is_unchaged(X)
             
             #update headers dict
             self.headers_dict['categorical features'] = [feat for feat in self.headers_dict['categorical features'] if feat not in self.BertWord2VecPCAer.vectorized_columns]
@@ -198,8 +209,10 @@ class feat_eng_pipe():
             _gc.collect()
                 
             X = self.load('X', format_, path_feat_eng_dir)
+            self._assert_n_samples_is_unchaged(X)
             
         _gc.collect()
+        
         return X, path_feat_eng_dir
         
     
@@ -224,7 +237,8 @@ class feat_eng_pipe():
             self.LabelEncoder.fit(X, categorical_headers=self.headers_dict['categorical features'])
 
             X = self.LabelEncoder.transform(X)
-
+            self._assert_n_samples_is_unchaged(X)
+            
             #save
             self.save(X, 'X', format_, path_feat_eng_dir)
             self.save(self.LabelEncoder, 'LabelEncoder', 'dill', path_feat_eng_dir)
@@ -236,6 +250,7 @@ class feat_eng_pipe():
                 
             X = self.load('X', format_, path_feat_eng_dir)
             self.LabelEncoder = self.load('LabelEncoder', 'dill', path_feat_eng_dir)
+            self._assert_n_samples_is_unchaged(X)
             
         _gc.collect()
         return X, path_feat_eng_dir
@@ -263,8 +278,10 @@ class feat_eng_pipe():
 
             self.Scaler = Scale.continuous_features(Scaler = self.Scalers_dict[Scaler_ID])
             self.Scaler.fit(X, self.headers_dict['continuous features'])
+            
             X = self.Scaler.transform(X)
-
+            self._assert_n_samples_is_unchaged(X)
+            
             #save
             self.save(X, 'X', format_, path_feat_eng_dir)
             self.save(self.Scaler, 'Scaler', 'dill', path_feat_eng_dir)
@@ -279,6 +296,8 @@ class feat_eng_pipe():
                 del X
                 _gc.collect()
                 X = self.load('X', format_, path_feat_eng_dir)
+                self._assert_n_samples_is_unchaged(X)
+                
                 self.headers_dict = self.load('headers_dict', 'json', path_feat_eng_dir)
                 
         _gc.collect()
@@ -315,6 +334,7 @@ class feat_eng_pipe():
                                                     strategy = Imputer_cat_ID, 
                                                     estimator = self.Imputer_categorical_dict[Imputer_cat_ID][Imputer_iter_class_ID],
                                                     verbose= 0)
+            self._assert_n_samples_is_unchaged(X)
 
             #save
             self.save(X, 'X', format_, path_feat_eng_dir)
@@ -331,6 +351,7 @@ class feat_eng_pipe():
                 _gc.collect()
                 
                 X = self.load('X', format_, path_feat_eng_dir)
+                self._assert_n_samples_is_unchaged(X)
                 self.headers_dict = self.load('headers_dict', 'json', path_feat_eng_dir)
                 
         _gc.collect()
@@ -366,6 +387,7 @@ class feat_eng_pipe():
                     strategy = Imputer_cont_ID, 
                     estimator = self.Imputer_continuous_dict[Imputer_cont_ID][Imputer_iter_reg_ID],
                     verbose= 0)
+            self._assert_n_samples_is_unchaged(X)
 
             #save
             self.save(X, 'X', format_, path_feat_eng_dir)
@@ -381,6 +403,7 @@ class feat_eng_pipe():
                 _gc.collect()
                 
                 X = self.load('X', format_, path_feat_eng_dir)
+                self._assert_n_samples_is_unchaged(X)
                  
                 if format_ != 'csv' and format_!='hdf':
                     
@@ -420,6 +443,7 @@ class feat_eng_pipe():
                 OneHotEncoder.fit(X, categorical_headers=self.headers_dict['categorical features'])
 
                 X = OneHotEncoder.transform(X)
+                self._assert_n_samples_is_unchaged(X)
                 
                 #save the self.headers_dict after one hot
                 self.headers_dict['headers after OneHot'] = OneHotEncoder.headers_after_OneHot
@@ -447,6 +471,7 @@ class feat_eng_pipe():
                 _gc.collect()
             
                 X = self.load('X', format_, path_feat_eng_dir)
+                self._assert_n_samples_is_unchaged(X)
                 self.headers_dict = self.load('headers_dict', 'json', path_feat_eng_dir)
                  
                 #transform back to pandas df
@@ -480,6 +505,7 @@ class feat_eng_pipe():
                 CorrCoeffThresholder.fit(X)
 
                 X = CorrCoeffThresholder.transform(X)
+                self._assert_n_samples_is_unchaged(X)
                 
                 #save the encoder
                 self.save(CorrCoeffThresholder, 'CorrCoeffThresholder', 'dill', path_feat_eng_dir)
@@ -496,6 +522,7 @@ class feat_eng_pipe():
             
             #load
             X = self.load('X', format_, path_feat_eng_dir)
+            self._assert_n_samples_is_unchaged(X)
             self.headers_dict = self.load('headers_dict', 'json', path_feat_eng_dir)
         
             if format_ != 'csv':
@@ -623,6 +650,7 @@ class feat_eng_pipe():
             self.BertWord2VecPCAer = self.load('BertWord2VecPCAer', 'dill', path_feat_eng_dir)
             
             X_field = self.BertWord2VecPCAer.transform(X_field)
+            self._assert_n_samples_is_unchaged(X_field)
 
             #save
             self.save(X_field, 'X_field', self.format_, path_feat_eng_dir)
@@ -632,6 +660,7 @@ class feat_eng_pipe():
             _gc.collect()
             
             X_field = self.load('X_field', self.format_, path_feat_eng_dir)
+            self._assert_n_samples_is_unchaged(X_field)
         
         _gc.collect()
         return X_field, path_feat_eng_dir
@@ -654,6 +683,7 @@ class feat_eng_pipe():
             LabelEncoder = self.load('LabelEncoder', 'dill', path_feat_eng_dir)
             
             X_field = LabelEncoder.transform(X_field)
+            self._assert_n_samples_is_unchaged(X_field)
 
             #save
             self.save(X_field, 'X_field', self.format_, path_feat_eng_dir)
@@ -663,6 +693,7 @@ class feat_eng_pipe():
             _gc.collect()
             
             X_field = self.load('X_field', self.format_, path_feat_eng_dir)
+            self._assert_n_samples_is_unchaged(X_field)
         
         _gc.collect()
         return X_field, path_feat_eng_dir
@@ -690,6 +721,7 @@ class feat_eng_pipe():
             Scaler = self.load('Scaler', 'dill', path_feat_eng_dir)
             
             X_field = Scaler.transform(X_field)
+            self._assert_n_samples_is_unchaged(X_field)
 
             #save
             self.save(X_field, 'X_field', self.format_, path_feat_eng_dir)
@@ -701,6 +733,7 @@ class feat_eng_pipe():
                                   'Imputer_iterator_classifier_ID['+str(Imputer_iter_class_ID)+']')
             if self._feat_eng_files_saved(files, path_next_step, self.format_)==False:
                 X_field = self.load('X_field', self.format_, path_feat_eng_dir)
+                self._assert_n_samples_is_unchaged(X_field)
         
         _gc.collect()
 
@@ -739,6 +772,7 @@ class feat_eng_pipe():
                 X_field = X_field.compute()
             
             X_field[self.headers_dict['categorical features']] = Imputer.transform(X_field[self.headers_dict['categorical features']])
+            self._assert_n_samples_is_unchaged(X_field)
             
             if type_X_field==dask.dataframe.core.DataFrame:
                 X_field = dask.dataframe.from_pandas(X_field, npartitions=npartitions)
@@ -754,6 +788,7 @@ class feat_eng_pipe():
                                           'Imputer_iterator_regressor_ID['+str(Imputer_iter_reg_ID)+']')
             if self._feat_eng_files_saved(files, path_next_step, self.format_)==False:
                 X_field = self.load('X_field', self.format_, path_feat_eng_dir)
+                self._assert_n_samples_is_unchaged(X_field)
         
         _gc.collect()
 
@@ -793,6 +828,7 @@ class feat_eng_pipe():
                 X_field = X_field.compute()
             
             X_field[self.headers_dict['continuous features']] = Imputer.transform(X_field[self.headers_dict['continuous features']])
+            self._assert_n_samples_is_unchaged(X_field)
             
             if type_X_field==dask.dataframe.core.DataFrame:
                 X_field = dask.dataframe.from_pandas(X_field, npartitions=npartitions)
@@ -805,6 +841,7 @@ class feat_eng_pipe():
             path_next_step = _os.path.join(path_feat_eng_dir,'OneHot_case['+str(OneHot_case)+']')
             if self._feat_eng_files_saved(files, path_next_step, self.format_)==False or self.overwrite=='OneHot':
                 X_field = self.load('X_field', self.format_, path_feat_eng_dir)
+                self._assert_n_samples_is_unchaged(X)
                     
                 if self.format_ != 'csv':
                     import pandas as pd
@@ -845,6 +882,7 @@ class feat_eng_pipe():
                 OneHotEncoder = self.load('OneHotEncoder', 'dill', path_feat_eng_dir)
                 
                 X_field = OneHotEncoder.transform(X_field)
+                self._assert_n_samples_is_unchaged(X_field)
                 
             else: #if OneHot is False, just skip transform to numpy array
                 #X_field = _np.array(X_field) 
@@ -868,6 +906,7 @@ class feat_eng_pipe():
                 #transform back to pandas df
                 import pandas as pd
                 X_field  = _pd.DataFrame(X_field, columns = self.headers_dict['headers after OneHot'])
+                self._assert_n_samples_is_unchaged(X_field)
             
         _gc.collect()
 
@@ -895,6 +934,7 @@ class feat_eng_pipe():
                 CorrCoeffThresholder = self.load('CorrCoeffThresholder', 'dill', path_feat_eng_dir)
                 
                 X_field = CorrCoeffThresholder.transform(X_field)
+                self._assert_n_samples_is_unchaged(X_field)
                 
             #save
             self.save(X_field, 'X_field', self.format_, path_feat_eng_dir)
@@ -905,12 +945,14 @@ class feat_eng_pipe():
             
             #load
             X_field = self.load('X_field', self.format_, path_feat_eng_dir)
+            self._assert_n_samples_is_unchaged(X_field)
             
             self.headers_dict = self.load('headers_dict', 'json', path_feat_eng_dir)
         
             if self.format_ != 'csv':
                 import pandas as pd
                 X_field = _pd.DataFrame(X_field, columns = self.headers_dict['headers after CorrCoeffThreshold'])
+                
 
         _gc.collect()
 
@@ -1032,6 +1074,11 @@ class feat_eng_pipe():
         n_features = X[self.headers_dict['categorical features']+self.headers_dict['continuous features']].shape[1]
         assert(n_features == X.shape[1]), 'headers_dict specifies '+str(n_features)+' features, but X contains'+str(X.shape[1])+' features. Update the X dataframe or headers_dict["categorical features"]+headers_dict["continuous features"]'
         
+        if 'dask' in str(type(X)):
+            self.n_samples = X.iloc[:,0].compute().shape[0]
+        else:
+            self.n_samples = X.shape[1]
+        
         if self.verbose>=2: 
             print('X.info():')
             X.info()
@@ -1120,6 +1167,11 @@ class feat_eng_pipe():
         if self.verbose>=2: 
             print('\nX_field.info():')
             X_field.info()
+            
+        if 'dask' in str(type(X)):
+            self.n_samples = X_field.iloc[:,0].compute().shape[0]
+        else:
+            self.n_samples = X_field.shape[1]
 
         #Save the X and X_field data
         path_feat_eng_dir = self.path_feat_eng_root_dir 
