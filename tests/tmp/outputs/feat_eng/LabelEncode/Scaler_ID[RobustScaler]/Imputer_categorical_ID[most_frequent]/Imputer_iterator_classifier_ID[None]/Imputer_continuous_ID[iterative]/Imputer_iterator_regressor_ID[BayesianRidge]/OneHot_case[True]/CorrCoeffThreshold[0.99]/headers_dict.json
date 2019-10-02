@@ -1,1 +1,0 @@
-{"continuous features": ["X1", "X2", "X3"], "categorical features": ["categorical int", "categorical str"], "features": ["X1", "X2", "X3", "categorical int", "categorical str"], "headers after OneHot": ["X1", "X2", "X3", "categorical int(0)", "categorical str(-1)", "categorical str(a)"], "headers after CorrCoeffThreshold": ["X3", "categorical int(0)", "categorical str(-1)"]}
