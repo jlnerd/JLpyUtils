@@ -9,7 +9,11 @@ import torch as _torch
 import transformers as _transformers #pytorch_pretrained_bert
 from .. import _devices
 
-class word2vec():
+import sklearn.decomposition as _sklearn_decomposition
+import dask.dataframe as _dask_dataframe
+import pandas as _pd
+
+class Word2Vec():
     
     def __init__(self, model_ID = 'bert-base-uncased'):
         """
@@ -31,7 +35,12 @@ class word2vec():
         """
         self.model_ID = model_ID
         self.tokenizer = _transformers.BertTokenizer.from_pretrained(model_ID)
-        
+    
+    def _replace_illegal_chars(self, text):
+        for illegal_str in ['-','_','%',',','.']:
+            text = text.replace(illegal_str, ' ')
+        return text
+    
     def _insert_transformers_special_tokens(self, text):
         """
         add special ending and starting tokens to text
@@ -50,7 +59,7 @@ class word2vec():
         --------
             vect: a vector enconding of length 768
         """
-
+        text = self._replace_illegal_chars(text)
         text = self._insert_transformers_special_tokens(text)
         
         self._tokenized_text = self.tokenizer.tokenize(text)
@@ -93,3 +102,170 @@ class word2vec():
             assert(len(vect)==768), 'len(vect) = '+str(len(vect))+'. Expected len(vect)=768'
         
         return vect
+    
+    
+class Word2VecPCA():
+    def __init__(self,
+                 n_unique_threshold = 20,
+                 PCA_vect_length = 20,
+                 bert_model_ID = 'bert-base-uncased',
+                 verbose = 1):
+        """
+        Vectorizer function which transforms the text based columns in a data frame using the bert word2vec operation, following by PCA to reduce the length of the vector
+
+        Arguments:
+        ----------
+            n_unique_threshold: integer value defining the minimum number of n_unique values for a given column to warrant word2vecPCA fitting
+            PCA_vect_length: the n_components returned by the PCA operation after bert's word2vec operation
+            bert_model_ID: string. bert model ID of interest.
+                - bert-base-uncased: 12-layer, 768-hidden, 12-heads, 110M parameters
+                    - bert-large-uncased: 24-layer, 1024-hidden, 16-heads, 340M parameters
+                    - bert-base-cased: 12-layer, 768-hidden, 12-heads , 110M parameters
+                    - bert-large-cased: 24-layer, 1024-hidden, 16-heads, 340M parameters
+            verbose: print-out verbosity
+        """
+
+        self.n_unique_threshold = n_unique_threshold
+        self.PCA_vect_length = PCA_vect_length
+        self.bert_model_ID = bert_model_ID
+        self.BertWord2VecVectorizer = Word2Vec(model_ID=bert_model_ID)
+        self.verbose = verbose
+
+        if 'base' in bert_model_ID:
+            bert_vect_length = 768
+        elif 'large' in bert_model_ID:
+            bert_vect_length = 1024
+
+        assert(PCA_vect_length<=bert_vect_length), bert_model_ID+' returns vectors of '+str(bert_vect_length)+', choose a PCA_vect_length less than or equal to this value.'
+
+    
+    def fit_transform(self, df, text_columns = 'auto'):
+        """
+        Run fit operation on the passed dataframe
+        
+        Arguments:
+        ----------
+            df: dataframe to run the fit on
+            text_columns: list or 'auto'.
+                - If 'auto' the columns of type object or str will be transformed if they have more unique values than the n_unique_threshold parameter
+                - If a list is passed, only the columns listed will be considered. The n_unique_threshold criteria will still be evaluated on these columns.
+                
+                
+        Returns:
+        --------
+            None. The Bert.word2vecPCA object will be updated to allow transform operations.
+        """
+        
+        if type(text_columns)!=type(list()):
+            assert(text_columns == 'auto'), 'type(text_columns)='+str(type(text_columns))+'. This not a valid argument. Valid arguments include a list or "auto"'
+            text_columns = [col for col in df.columns if df[col].dtype=='O' or df[col].dtype==object]
+        else:
+            for header in text_columns:
+                assert(header in df.columns()), header+' is not in the df passed. Pass a list of valid columns or choose "auto"'
+        df = df.copy()
+        
+        type_df = str(type(df))
+        
+        if 'dask' in type_df:
+            npartitions = df.npartitions
+            df = df.compute()
+        
+        self.BertWord2VecVectorizer_dict = {}
+        self.PCAers = {}
+        
+        for c in range(len(text_columns)):
+            col = text_columns[c]
+            
+            Series = df[col]
+                
+            Series = Series.fillna('missing')    
+            
+            texts = list(Series.unique())
+            
+            if len(texts)>self.n_unique_threshold:
+                
+                self.BertWord2VecVectorizer_dict[col] = {}
+
+                for t in range(len(texts)):
+                    if self.verbose>=1:
+                        print('Total Progress:', round((c+1)/len(text_columns)*100,3),'%.',
+                              col,'Vectorizing Progress:',round((t+1)/len(texts)*100,3),'%',end='\r')
+                    
+                    text = texts[t]
+                    
+                    self.BertWord2VecVectorizer_dict[col][text] = self.BertWord2VecVectorizer.fit_transform(text)
+                    
+                self.PCAers[col] = _sklearn_decomposition.PCA(n_components=self.PCA_vect_length)
+                self.PCAers[col].fit([self.BertWord2VecVectorizer_dict[col][text] for text in self.BertWord2VecVectorizer_dict[col].keys()])
+
+                vects = self.PCAers[col].transform([self.BertWord2VecVectorizer_dict[col][text] for text in self.BertWord2VecVectorizer_dict[col].keys()])
+                vects = _pd.DataFrame(vects, columns=[col+'_vect'+str(v) for v in range(len(vects[0]))])
+                vects[col] = texts
+                
+                df = _pd.merge(df, vects, on=col)
+                df = df.drop(columns = [col])
+                
+        if self.verbose>=1:
+            print('',end='\r')
+            
+        self.vectorized_columns = list(self.BertWord2VecVectorizer_dict.keys())
+        
+        if 'dask' in type_df:
+            df = _dask_dataframe.from_pandas(df, npartitions = npartitions)
+            
+        return df
+        
+    def transform(self, df):
+        """
+        Run a transform operation after the fit_transform operation has been performed.
+        
+        Arguments:
+        ----------
+            df: the dataframe on which the transformation will be applied
+        """
+        
+        df = df.copy()
+        
+        type_df = str(type(df))
+        
+        if 'dask' in type_df:
+            npartitions = df.npartitions
+            df = df.compute()
+        
+        for c in range(len(self.vectorized_columns)):
+            
+            col = self.vectorized_columns[c]
+            
+            Series = df[col]
+                
+            Series = Series.fillna('missing')    
+            
+            texts = list(Series.unique())
+            
+            vects = []
+            for t in range(len(texts)):
+                
+                print('Total Progress:', round((c+1)/len(self.vectorized_columns)*100,3),'%.',
+                          col,'Vectorizing Progress:',round((t+1)/len(texts)*100,3),'%',end='\r')
+                
+                text = texts[t]
+                
+                if text in self.BertWord2VecVectorizer_dict[col].keys():
+                    vect = self.BertWord2VecVectorizer_dict[col][text]
+                else:
+                    vect = self.BertWord2VecVectorizer.fit_transform(text)
+                vects.append(vect)
+            
+            vects = self.PCAers[col].transform(vects)
+            vects = _pd.DataFrame(vects, columns=[col+'_vect'+str(v) for v in range(len(vects[0]))])
+            vects[col] = texts
+                
+            df = _pd.merge(df, vects, on=col)
+            df = df.drop(columns = [col])
+            
+        if 'dask' in type_df:
+            df = _dask_dataframe.from_pandas(df, npartitions = npartitions)
+            
+        return df
+            
+            
