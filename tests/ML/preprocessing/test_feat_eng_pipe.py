@@ -44,7 +44,7 @@ def build_data_and_headers_dict():
     
     return data_dict, headers_dict
 
-def test_with_pandas_df(tmpdir):
+def test_feat_eng_pipe_with_pandas_df(tmpdir):
 
     data_dict, headers_dict = build_data_and_headers_dict()
 
@@ -54,7 +54,7 @@ def test_with_pandas_df(tmpdir):
     feat_eng_pipe.fit(data_dict[df_ID], headers_dict)
     feat_eng_pipe.transform(data_dict[df_ID])
 
-def test_with_dask_df(tmpdir):
+def test_feat_eng_pipe_with_dask_df(tmpdir):
 
     data_dict, headers_dict = build_data_and_headers_dict()
 

@@ -11,4 +11,4 @@ def test_kaggle_competition_download_files(tmpdir):
         JLpyUtils.kaggle.competition_download_files(competition='foo',
                                         path_report_dir=tmpdir)
     except Exception as e:
-        assert('Reason: Unauthorized' in str(e)), 'JLpyUtils.kaggle.competition_download_files is returning an unexpected error:'+str(e)
+        assert('Reason: Unauthorized' in str(e) or 'Could not find kaggle.json' in str(e)), 'JLpyUtils.kaggle.competition_download_files is returning an unexpected error:'+str(e)
