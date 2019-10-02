@@ -37,7 +37,7 @@ class Word2Vec():
         self.tokenizer = _transformers.BertTokenizer.from_pretrained(model_ID)
     
     def _replace_illegal_chars(self, text):
-        for illegal_str in ['-','_','%',',','.']:
+        for illegal_str in ['-','_','%',',','.',':']:
             text = text.replace(illegal_str, ' ')
         return text
     

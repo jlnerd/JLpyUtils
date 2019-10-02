@@ -442,7 +442,9 @@ class BayesianSearchCV():
         type_model = str(type(model))
         type_X = str(type(X))
         
-        assert('dask' not in type_X), 'dask dataframes are not supported yet'
+        if 'dask' in type_X:
+            X = X.compute()
+            y = y.compute()
         
         if obj_verbose>=2:
             print('params',params)
@@ -452,7 +454,7 @@ class BayesianSearchCV():
         if obj_verbose>=2:
             print('params_transform',params_transform)
         
-        if ('sklearn' in type_model or 'xgboost' in type_model) and 'dask' not in type_X:
+        if 'sklearn' in type_model or 'xgboost' in type_model:
             cv_scores = _sklearn_model_selection.cross_val_score(model, X, y,
                                                               scoring= self.scoring['metric'],
                                                               cv = self.cv,

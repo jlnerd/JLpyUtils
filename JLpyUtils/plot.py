@@ -318,6 +318,8 @@ def hist_or_bar(df, n_plot_columns = 3,
         
         if p==n_plot_columns:
             
+            p=0
+            
             try:
                 fig.tight_layout(rect=(0,0,int(n_plot_columns/1.2),1))
             except:
@@ -335,7 +337,9 @@ def hist_or_bar(df, n_plot_columns = 3,
                 #fill in dummy plots
                 for ax in ax_list:
                     ax.grid(which='both',visible=False)
-                p=0
+            p=0
+        
+        print(p)
 
     #ensure last plot is formated and shown
     if p!=n_plot_columns:
