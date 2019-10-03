@@ -7,6 +7,7 @@ Fetch dictionary of default models for classification or regression tasks. The m
 
 import warnings as _warnings
 import numpy as _np
+import lightgbm as _lgb
 
 def regression(n_features, 
                n_labels, 
@@ -248,7 +249,7 @@ def classification(n_features, n_labels,
                                                      tree_method = tree_method),
                                       'param_grid':{'max_depth': [3,10],
                                                     'learning_rate':[0.01, 0.1, 1],
-                                                    'n_estimators':[10, 100, 1000],
+                                                    'n_estimators':[10, 100, 1000, 5000],
                                                     'subsample':[1.0, 0.9,0.5],
                                                     'colsample_bytree':[1.0,0.8,0.5],
                                                     #reg_alpha
@@ -272,7 +273,7 @@ def classification(n_features, n_labels,
                                                                  tree_method = tree_method),
                                       'param_grid':{'max_depth': [3,10],
                                                     'learning_rate':[0.001, 0.01, 0.1],
-                                                    'n_estimators':[10, 100, 1000],
+                                                    'n_estimators':[10, 100, 1000, 5000],
                                                     'subsample':[1,0.9,0.5],
                                                     'colsample_bytree':[1.0,0.8,0.5],
                                                     #reg_alpha
@@ -292,6 +293,16 @@ def classification(n_features, n_labels,
                                                                     final_activation = 'softmax',
                                                                     loss = loss,
                                                                     metrics=['accuracy'])
+            
+        if 'lightgbm' in model:
+            models_dict['lightgbm'] = {'model':_lgb.LGBMClassifier(metric= 'auc'),
+                                       'param_grid':{'learning_rate':[0.001, 0.01, 0.1],
+                                                    'n_estimators':[10, 100, 1000, 5000],
+                                                     'num_leaves':[31,256, 512],
+                                                    'subsample':[1,0.9,0.5],
+                                                    'colsample_bytree':[1.0,0.8,0.5],
+                                                   }}
+            
     return models_dict
 
 
