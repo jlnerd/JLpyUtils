@@ -160,7 +160,7 @@ class feat_eng_pipe():
         if 'dask' in str(type(X)):
             n_samples_after_process = X.iloc[:,0].shape[0]
         else:
-            n_samples_after_process = X.shape[1]
+            n_samples_after_process = X.shape[0]
 
         assert(self.n_samples==n_samples_after_process), 'expected '+str(self.n_samples)+', but received '+str(n_samples_after_process)
         
