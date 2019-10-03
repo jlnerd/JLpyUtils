@@ -57,7 +57,7 @@ class feat_eng_pipe():
         
         #BertWord2VecPCA:
         self.BertWord2VecPCA_args = {'n_unique_threshold': 20,
-                                     'PCA_vect_length':20,
+                                     'PCA_n_components':0.99,
                                      'bert_model_ID': 'bert-base-uncased'}
         
         #define default OneHot_cases
@@ -1168,7 +1168,7 @@ class feat_eng_pipe():
             print('\nX_field.info():')
             X_field.info()
             
-        if 'dask' in str(type(X)):
+        if 'dask' in str(type(X_field)):
             self.n_samples = X_field.iloc[:,0].compute().shape[0]
         else:
             self.n_samples = X_field.shape[1]

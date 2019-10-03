@@ -107,7 +107,7 @@ class Word2Vec():
 class Word2VecPCA():
     def __init__(self,
                  n_unique_threshold = 20,
-                 PCA_vect_length = 20,
+                 PCA_n_components = 0.99,
                  bert_model_ID = 'bert-base-uncased',
                  verbose = 1):
         """
@@ -116,7 +116,9 @@ class Word2VecPCA():
         Arguments:
         ----------
             n_unique_threshold: integer value defining the minimum number of n_unique values for a given column to warrant word2vecPCA fitting
-            PCA_vect_length: the n_components returned by the PCA operation after bert's word2vec operation
+            PCA_n_components: the n_components returned by the PCA operation after bert's word2vec operation.
+                -If 0 < n_components < 1 and svd_solver == 'full', select the number of components such that the amount of variance that needs to be explained is greater than the percentage specified by n_components.
+                - See https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html for more details
             bert_model_ID: string. bert model ID of interest.
                 - bert-base-uncased: 12-layer, 768-hidden, 12-heads, 110M parameters
                     - bert-large-uncased: 24-layer, 1024-hidden, 16-heads, 340M parameters
@@ -126,7 +128,7 @@ class Word2VecPCA():
         """
 
         self.n_unique_threshold = n_unique_threshold
-        self.PCA_vect_length = PCA_vect_length
+        self.PCA_n_components = PCA_n_components
         self.bert_model_ID = bert_model_ID
         self.BertWord2VecVectorizer = Word2Vec(model_ID=bert_model_ID)
         self.verbose = verbose
@@ -136,7 +138,7 @@ class Word2VecPCA():
         elif 'large' in bert_model_ID:
             bert_vect_length = 1024
 
-        assert(PCA_vect_length<=bert_vect_length), bert_model_ID+' returns vectors of '+str(bert_vect_length)+', choose a PCA_vect_length less than or equal to this value.'
+        assert(PCA_n_components<=bert_vect_length), bert_model_ID+' returns vectors of '+str(bert_vect_length)+', choose a PCA_n_components less than or equal to this value.'
 
     
     def fit_transform(self, df, text_columns = 'auto'):
@@ -195,7 +197,7 @@ class Word2VecPCA():
                     
                     self.BertWord2VecVectorizer_dict[col][text] = self.BertWord2VecVectorizer.fit_transform(text)
                     
-                self.PCAers[col] = _sklearn_decomposition.PCA(n_components=self.PCA_vect_length)
+                self.PCAers[col] = _sklearn_decomposition.PCA(n_components=self.PCA_n_components)
                 self.PCAers[col].fit([self.BertWord2VecVectorizer_dict[col][text] for text in self.BertWord2VecVectorizer_dict[col].keys()])
 
                 vects = self.PCAers[col].transform([self.BertWord2VecVectorizer_dict[col][text] for text in self.BertWord2VecVectorizer_dict[col].keys()])
@@ -233,35 +235,41 @@ class Word2VecPCA():
             df = df.compute()
         
         for c in range(len(self.vectorized_columns)):
-            
-            col = self.vectorized_columns[c]
-            
-            Series = df[col]
+            try:
+                col = self.vectorized_columns[c]
                 
-            Series = Series.fillna('missing')    
-            
-            texts = list(Series.unique())
-            
-            vects = []
-            for t in range(len(texts)):
-                
-                print('Total Progress:', round((c+1)/len(self.vectorized_columns)*100,3),'%.',
-                          col,'Vectorizing Progress:',round((t+1)/len(texts)*100,3),'%',end='\r')
-                
-                text = texts[t]
-                
-                if text in self.BertWord2VecVectorizer_dict[col].keys():
-                    vect = self.BertWord2VecVectorizer_dict[col][text]
-                else:
-                    vect = self.BertWord2VecVectorizer.fit_transform(text)
-                vects.append(vect)
-            
-            vects = self.PCAers[col].transform(vects)
-            vects = _pd.DataFrame(vects, columns=[col+'_vect'+str(v) for v in range(len(vects[0]))])
-            vects[col] = texts
-                
-            df = _pd.merge(df, vects, on=col)
-            df = df.drop(columns = [col])
+                try:
+                    Series = df[col]
+                except Exception as e:
+                    display(df)
+                    raise Exception(str(e)+' for '+col)
+                    
+                Series = Series.fillna('missing')    
+
+                texts = list(Series.unique())
+
+                vects = []
+                for t in range(len(texts)):
+
+                    print('Total Progress:', round((c+1)/len(self.vectorized_columns)*100,3),'%.',
+                              col,'Vectorizing Progress:',round((t+1)/len(texts)*100,3),'%',end='\r')
+
+                    text = texts[t]
+
+                    if text in self.BertWord2VecVectorizer_dict[col].keys():
+                        vect = self.BertWord2VecVectorizer_dict[col][text]
+                    else:
+                        vect = self.BertWord2VecVectorizer.fit_transform(text)
+                    vects.append(vect)
+
+                vects = self.PCAers[col].transform(vects)
+                vects = _pd.DataFrame(vects, columns=[col+'_vect'+str(v) for v in range(len(vects[0]))])
+                vects[col] = texts
+
+                df = _pd.merge(df, vects, on=col)
+                df = df.drop(columns = [col])
+            except Exception as e:
+                raise Exception(str(e)+' for '+col)
             
         if 'dask' in type_df:
             df = _dask_dataframe.from_pandas(df, npartitions = npartitions)

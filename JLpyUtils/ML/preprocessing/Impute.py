@@ -19,6 +19,11 @@ def categorical_features(X,
             estimator: sklearn estimator object
                 The estimator to be used if 'iterative' strategy chosen
         Note: sklearn.impute.IterativeImputer has a number of other options which could be varied/tuned, but for simplicity we just use the defaults
+        
+        Returns:
+        --------
+            X: Imputed dataframe
+            Imputer: Imputer object
         """
         import sklearn.preprocessing, sklearn.impute
         from sklearn.experimental import enable_iterative_imputer
@@ -99,6 +104,11 @@ def continuous_features(X,
         estimator: sklearn estimator object
             The estimator to be used if 'iterative' strategy chosen
         Note: sklearn.impute.IterativeImputer has a number of other options which could be varied/tuned, but for simplicity we just use the defaults
+        
+    Returns:
+    --------
+        X: Imputed dataframe
+        Imputer: Imputer object
     """
     import sklearn.preprocessing, sklearn.impute
     from sklearn.experimental import enable_iterative_imputer
