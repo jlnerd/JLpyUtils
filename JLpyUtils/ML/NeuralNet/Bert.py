@@ -233,6 +233,8 @@ class Word2VecPCA():
         if 'dask' in type_df:
             npartitions = df.npartitions
             df = df.compute()
+            
+        n_rows = df.shape[0]
         
         for c in range(len(self.vectorized_columns)):
             try:
@@ -268,6 +270,8 @@ class Word2VecPCA():
 
                 df = _pd.merge(df, vects, on=col)
                 df = df.drop(columns = [col])
+                
+                assert(df.shape[0]==n_rows), 'expected df.shape[0]='+str(n_rows)+' but received '+str(df.shape[0])
             except Exception as e:
                 raise Exception(str(e)+' for '+col)
             
