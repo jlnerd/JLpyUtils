@@ -339,7 +339,6 @@ def hist_or_bar(df, n_plot_columns = 3,
                     ax.grid(which='both',visible=False)
             p=0
         
-        print(p)
 
     #ensure last plot is formated and shown
     if p!=n_plot_columns:

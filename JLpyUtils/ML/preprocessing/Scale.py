@@ -34,7 +34,7 @@ class continuous_features():
         
         X = X.copy()
         
-        if type(continuous_headers) == type(list):
+        if type(continuous_headers) == type(list()):
             self.continuous_headers = continuous_headers
         else:
             self.continuous_headers = list(X.columns)

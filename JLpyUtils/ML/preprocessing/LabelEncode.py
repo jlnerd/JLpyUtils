@@ -1,16 +1,18 @@
 class categorical_features():
+    
+    """
+    LabelEncode non-numeric categorical features. Unlike in sklearns default encoder, this class ensures missing values can be handled when transforming an arbitrary dataset.
+    """
     def __init__(self, verbose = 0):
-        
         """
-        LabelEncode non-numeric categorical features. Unlike in sklearns default encoder, this class ensures missing values can be handled when transforming an arbitrary dataset.
-        
         Arguments:
         ---------
             verbose: int. Default: 0. higher implies more prints
         """
+
         self.verbose = verbose
         
-    def __LabelEncode_uniques_list__(self,
+    def _LabelEncode_uniques_list(self,
                                uniques_list):
             import pandas as pd
             import sklearn.preprocessing
@@ -34,6 +36,7 @@ class categorical_features():
         ----------
             X: pandas X with the features of interest
             categorical_headers: list of headers within the dataframe which are categorical
+                - Only non-numeric categorical columns will be encoded, even if the categorical headers contains some numeric columns.
         """
         import pandas as pd
         import numpy as np
@@ -56,7 +59,7 @@ class categorical_features():
         
          # run parallel computing job for label encoding 
         executor = joblib.parallel.Parallel(n_jobs = -1, verbose=self.verbose, backend='multiprocessing')
-        tasks = [joblib.parallel.delayed(self.__LabelEncode_uniques_list__)(uniques_dict[header]) for header in LabelEncode_headers]
+        tasks = [joblib.parallel.delayed(self._LabelEncode_uniques_list)(uniques_dict[header]) for header in LabelEncode_headers]
 
         #execute the task
         outputs = executor(tasks)

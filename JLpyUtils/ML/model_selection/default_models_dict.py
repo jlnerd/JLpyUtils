@@ -7,7 +7,6 @@ Fetch dictionary of default models for classification or regression tasks. The m
 
 import warnings as _warnings
 import numpy as _np
-import lightgbm as _lgb
 
 def regression(n_features, 
                n_labels, 
@@ -295,6 +294,7 @@ def classification(n_features, n_labels,
                                                                     metrics=['accuracy'])
             
         if 'lightgbm' in model:
+            import lightgbm as _lgb
             models_dict['lightgbm'] = {'model':_lgb.LGBMClassifier(metric= 'auc'),
                                        'param_grid':{'learning_rate':[0.001, 0.01, 0.1],
                                                     'n_estimators':[10, 100, 1000, 5000],

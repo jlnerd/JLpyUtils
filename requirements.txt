@@ -10,8 +10,8 @@ pandas
 sklearn
 scipy
 matplotlib
-tensorflow-gpu>=1.14.0
-tensorflow>=1.14.0
+tensorflow-gpu
+tensorflow
 
 torch
 transformers
