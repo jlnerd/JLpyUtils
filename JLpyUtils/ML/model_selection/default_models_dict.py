@@ -10,7 +10,7 @@ import numpy as _np
 
 def regression(n_features, 
                n_labels, 
-               models = ['Linear','SVM','KNN','DecisionTree','RandomForest','XGBoost','DenseNet'],
+               models = ['Linear','SVM','KNN','DecisionTree','RandomForest','xgboost','lightgbm','DenseNet'],
                ):
     """
     Fetch dictionary of standard regression models and their 'param_grid' dictionaries.
@@ -20,8 +20,9 @@ def regression(n_features,
         n_features, n_labels: The number of features and labels used for the model.
         models: list of models to fetch. Valid models include:
             - sklearn models: 'Linear', 'DecisionTree', 'RandomForest', 'GradBoost', 'SVM', 'KNN'
-            - xgboost models: 'XGBoost'
-            - keras modesl: 'DenseNet'
+            - xgboost models: 'xgboost'
+            - lighgbm models: 'lightgbm'
+            - keras models: 'DenseNet'
             
     Returns:
     --------
@@ -145,7 +146,7 @@ def regression(n_features,
                                       'param_grid':{'max_depth': [3,10],
                                                     'learning_rate':[0.01, 0.1, 1],
                                                     'n_estimators':[10, 100, 1000],
-                                                    'subsample':[1,0.9,0.5],
+                                                    'subsample':[1.0,0.9,0.5],
                                                     'colsample_bytree':[1.0,0.8,0.5],
                                                     #reg_alpha
                                                     #reg_lambda
@@ -159,6 +160,42 @@ def regression(n_features,
                                                                     final_activation = 'elu',
                                                                     loss = 'mse',
                                                                     metrics=['mse','mae'])
+        if 'lightgbm' in model:
+            import lightgbm as _lgb
+            from ... import ML
+            
+            if n_labels == 1:
+                models_dict['lightgbm'] = {'model':_lgb.LGBMRegressor(objective= 'regression',
+                                                                       metric = 'r2' ),
+                                           'param_grid':{'learning_rate':[0.001, 0.01, 0.1],
+                                                        'n_estimators':[10, 100, 1000, 5000],
+                                                         'num_leaves':[31,256, 512],
+                                                        'subsample':[1.0,0.9,0.5],
+                                                        'colsample_bytree':[1.0,0.8,0.5],
+                                                       }
+                                          }
+                device_counts = ML.device_counts()
+                #if device_counts['GPUs']>1:
+                models_dict['lightgbm']['model'].__dict__['gpu_device_id'] = 0
+            
+            elif n_labels>1:
+                import sklearn.multioutput
+                models_dict['lightgbm'] = { 'model':sklearn.multioutput.MultiOutputRegressor(
+                                                _lgb.LGBMRegressor(
+                                                                objective= 'regression',
+                                                                metric = 'r2' )),
+                                           'param_grid':{
+                                               'estimator__learning_rate':[0.001, 0.01, 0.1],
+                                               'estimator__n_estimators':[10, 100, 1000, 5000],
+                                               'estimator__num_leaves':[31,256, 512],
+                                               'estimator__subsample':[1.0,0.9,0.5],
+                                               'estimator__colsample_bytree':[1.0,0.8,0.5],
+                                                       }
+                                          }
+                device_counts = ML.device_counts()
+                #if device_counts['GPUs']>1:
+                models_dict['lightgbm']['model'].__dict__['estimator__gpu_device_id'] = 0
+                
     return models_dict                       
                     
 def classification(n_features, n_labels, 
@@ -175,7 +212,8 @@ def classification(n_features, n_labels,
         n_features, n_labels: The number of features and labels used for the model. These parameters are only required if 'DenseNet' is selected
         models: list of models to fetch. Valid models include:
             - sklearn models: 'Linear', 'DecisionTree', 'RandomForest', 'GradBoost', 'SVM', 'KNN'
-            - xgboost models: 'XGBoost'
+            - xgboost models: 'Xoost'
+            - lighgbm models: 'lightgbm'
             - keras modesl: 'DenseNet'
         Note: if running binary classfication, your labels should be 0 and 1. If running multiclass classifciation, your labels should be one-hot encoded
         
@@ -273,7 +311,7 @@ def classification(n_features, n_labels,
                                       'param_grid':{'max_depth': [3,10],
                                                     'learning_rate':[0.001, 0.01, 0.1],
                                                     'n_estimators':[10, 100, 1000, 5000],
-                                                    'subsample':[1,0.9,0.5],
+                                                    'subsample':[1.0,0.9,0.5],
                                                     'colsample_bytree':[1.0,0.8,0.5],
                                                     #reg_alpha
                                                     #reg_lambda
@@ -299,9 +337,14 @@ def classification(n_features, n_labels,
                                        'param_grid':{'learning_rate':[0.001, 0.01, 0.1],
                                                     'n_estimators':[10, 100, 1000, 5000],
                                                      'num_leaves':[31,256, 512],
-                                                    'subsample':[1,0.9,0.5],
+                                                    'subsample':[1.0,0.9,0.5],
                                                     'colsample_bytree':[1.0,0.8,0.5],
-                                                   }}
+                                                   }
+                                      }
+            from ... import ML
+            device_counts = ML.device_counts()
+            if device_counts['GPUs']>1:
+                models_dict['lightgbm']['model'].__dict__['gpu_device_id'] = 0
             
     return models_dict
 

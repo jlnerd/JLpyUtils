@@ -17,7 +17,7 @@ class GridSearchCV():
     
     def __init__(self,
                  models_dict, 
-                 cv = 5,
+                 cv = 4,
                  scoring= {'metric':None,'maximize':True},
                  metrics = {None:None},
                  retrain = True,
@@ -219,7 +219,7 @@ class BayesianSearchCV():
     
     def __init__(self,
                  models_dict, 
-                 cv = 5,
+                 cv = 4,
                  scoring= {'metric':None,'maximize':True},
                  metrics = {None:None},
                  retrain = True,
@@ -453,8 +453,8 @@ class BayesianSearchCV():
         
         if obj_verbose>=2:
             print('params_transform',params_transform)
-        
         if 'sklearn' in type_model or 'xgboost' in type_model:
+            
             cv_scores = _sklearn_model_selection.cross_val_score(model, X, y,
                                                               scoring= self.scoring['metric'],
                                                               cv = self.cv,
@@ -538,6 +538,8 @@ class BayesianSearchCV():
         best_params_ = {}
         for key in space.keys():
             best_params_[key] = best_params_bad_keys[key.replace('log10.','')]
+        if self.verbose>=3:
+            print('hyperopt_input_best_params_:',best_params_)
             
         best_score_ = self._objective(best_params_, 
                                        model_dict = model_dict, 
@@ -545,6 +547,9 @@ class BayesianSearchCV():
         
         #transform params back to original model values
         best_params_, best_model_ = self._update_model_params(best_params_, model, param_grid)
+        
+        if self.verbose>=3:
+            print('model_input_best_params_:',best_params_)
         
         if refit:
             if y_train.shape[1]==1:
