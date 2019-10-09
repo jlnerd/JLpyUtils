@@ -7,8 +7,8 @@ pandas
 sklearn
 scipy
 matplotlib
-tensorflow-gpu>=1.14.0
-tensorflow>=1.14.0
+tensorflow-gpu
+tensorflow
 torch
 transformers
 hyperopt
@@ -24,3 +24,5 @@ fsspec>=0.3.3
 dask_ml
 dask_xgboost
 xgboost
+lightgbm
+pydicom

@@ -20,7 +20,8 @@ def setup_config_dir(username, key):
     """
 
     config_dir = _os.path.join(_os.path.expanduser('~'),'.kaggle')
-    assert(_os.path.isdir(config_dir)), '{0} directory does not exist. run $pip install kaggle'.format(config_dir)
+    if _os.path.isdir(config_dir)==False:
+        _os.makedirs(config_dir)
 
     config_dict = {"username":username,
                    "key": key}

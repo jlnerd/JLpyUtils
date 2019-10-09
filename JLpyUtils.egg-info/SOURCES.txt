@@ -1,6 +1,7 @@
 README.md
 setup.py
 JLpyUtils/__init__.py
+JLpyUtils/_plot_imgs.py
 JLpyUtils/file_utils.py
 JLpyUtils/git.py
 JLpyUtils/img.py
@@ -27,6 +28,7 @@ JLpyUtils/ML/dask_ml_extend/__init__.py
 JLpyUtils/ML/dask_ml_extend/model_selection/__init__.py
 JLpyUtils/ML/dask_ml_extend/model_selection/_search.py
 JLpyUtils/ML/inspection/__init__.py
+JLpyUtils/ML/inspection/_unique.py
 JLpyUtils/ML/inspection/compare.py
 JLpyUtils/ML/inspection/feature_importance.py
 JLpyUtils/ML/inspection/maximize_success.py
