@@ -114,6 +114,6 @@ This module contains simple but extremely useful helper functions to save and lo
 
 # Example Notebooks
 Basic notebook examples can be found in the (notebooks)[notebooks] folder. Some examples include:
-* [example_ML.NeuralNet.Bert.word2vec](notebooks/example_ML.NeuralNet.Bert.word2vec.ipynb)
-* [example_ML.model_selection.BayesianSearchCV](notebooks/example_ML.model_selection.BayesianSearchCV)
+* [example_ML.NeuralNet.Bert.Word2Vec](notebooks/example_ML.NeuralNet.Bert.Word2Vec.ipynb)
+* [example_ML.model_selection.BayesianSearchCV](notebooks/example_ML.model_selection.BayesianSearchCV.ipynb)
 
