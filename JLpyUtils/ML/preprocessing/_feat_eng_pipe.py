@@ -1077,7 +1077,7 @@ class feat_eng_pipe():
         if 'dask' in str(type(X)):
             self.n_samples = X.iloc[:,0].compute().shape[0]
         else:
-            self.n_samples = X.shape[1]
+            self.n_samples = X.shape[0]
         
         if self.verbose>=2: 
             print('X.info():')
@@ -1171,7 +1171,7 @@ class feat_eng_pipe():
         if 'dask' in str(type(X_field)):
             self.n_samples = X_field.iloc[:,0].compute().shape[0]
         else:
-            self.n_samples = X_field.shape[1]
+            self.n_samples = X_field.shape[0]
 
         #Save the X and X_field data
         path_feat_eng_dir = self.path_feat_eng_root_dir 

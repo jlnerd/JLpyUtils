@@ -6,6 +6,9 @@ import matplotlib as _mpl
 import matplotlib.pyplot as _plt
 import numpy as _np
 import warnings as _warnings
+import os as _os
+
+from . import _plot_imgs as imgs
 
 _mpl.rcParams['grid.color'] =  'lightgray'
 _mpl.rcParams['grid.linestyle'] = '-'
@@ -352,4 +355,4 @@ def hist_or_bar(df, n_plot_columns = 3,
 
         _plt.show()
     _warnings.filterwarnings('default')
-    
+        

@@ -33,3 +33,5 @@ dask_xgboost
 xgboost       
 
 lightgbm
+
+pydicom #allows interacting with DICOM files (*.dcm), which medical images are typically stored as
