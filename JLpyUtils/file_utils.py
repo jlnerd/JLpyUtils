@@ -11,7 +11,7 @@ def save(obj, filename, format_, path_dir) :
         obj:
         filename:
         format_:
-            - valid formats: 'h5', 'csv', 'json', 'dill', 'h5_csv', 'hdf'
+            - valid formats: 'h5', 'csv', 'json', 'dill', 'h5_csv', 'hdf', 'png'
         path_dir:
     """
     try:
@@ -100,6 +100,15 @@ def save(obj, filename, format_, path_dir) :
                     os.remove(path_save_file)
 
                 obj.to_csv(path_save_file.replace('.hdf','_*.csv'), index=False)
+        elif format_ =='png':
+            #import PIL.Image
+            import matplotlib.pyplot as plt
+            
+            #obj = PIL.Image.fromarray(obj)
+            path_save_file = os.path.join(path_dir, filename+'.png' )
+            #obj.save(path_save_file)
+            plt.imsave(path_save_file, obj)
+            
     except Exception as e:
         print('Error for:',filename, format_, path_dir)
         raise e

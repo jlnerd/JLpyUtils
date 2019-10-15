@@ -20,8 +20,10 @@ hyperopt
 
 kaggle
 scikit-image
+Pillow
 opencv-python
 nose
+
 dill
 h5py
 

@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: JLpyUtils
-Version: 0.2.18
+Version: 0.2.19
 Summary: General utilities to streamline data science and machine learning routines in python
 Home-page: https://github.com/jlnerd/JLpyUtils.git
 Author: John T. Leonard
@@ -122,8 +122,8 @@ Description: [![Build Status](https://travis-ci.com/jlnerd/JLpyUtils.svg?branch=
         
         # Example Notebooks
         Basic notebook examples can be found in the (notebooks)[notebooks] folder. Some examples include:
-        * (example_ML.NeuralNet.Bert.word2vec)[notebooks/example_ML.NeuralNet.Bert.word2vec.ipynb]
-        * (example_ML.model_selection.BayesianSearchCV) [notebooks/example_ML.model_selection.BayesianSearchCV]
+        * [example_ML_NeuralNet_Bert_Word2Vec](notebooks/example_ML_NeuralNet_Bert_Word2Vec.ipynb)
+        * [example_ML_model_selection_BayesianSearchCV](notebooks/example_ML_model_selection_BayesianSearchCV.ipynb)
         
         
 Platform: UNKNOWN

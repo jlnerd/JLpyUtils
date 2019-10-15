@@ -1,15 +1,19 @@
 """
 functions related to a keras implementation of a generic dense neural network
 """
-try:
-    import tensorflow as __tf__
-    __pooling_layer__ = __tf__.keras.layers.MaxPool2D
-    __loss__= __tf__.keras.losses.MSE
-    __optimizer__ = __tf__.keras.optimizers.Adam
-except:
-    __loss__= None
-    __optimizer__ = None 
 
+
+import numpy as _np
+
+import tensorflow as _tf
+import tensorflow.keras as _keras
+import tensorflow.keras.layers as _layers
+
+_pooling_layer = _tf.keras.layers.MaxPool2D
+_loss= _tf.keras.losses.MSE
+_optimizer = _tf.keras.optimizers.Adam
+
+from . import utils as _utils
 
 def model(n_features,
              n_labels,
@@ -22,9 +26,9 @@ def model(n_features,
              batch_norm_rate = None,
              dropout_layer_rate = None,
              dropout_rate = 0.5,
-             loss= __loss__,
+             loss= _loss,
              learning_rate = 0.001,
-             optimizer= __optimizer__,
+             optimizer= _optimizer,
              metrics=['mae','accuracy']):
     """
     Build a keras-based Dense Neural Net computational graph (model) which can be fit to a given dataset
@@ -51,24 +55,18 @@ def model(n_features,
         learning_rate: the learning rate the be used by the optimizer
         optimizer: the optimizer to be used
         metrics: list of additional metrics to be output.
+    
     Returns:
     --------
-        model
+        model: tensorflow-keras model object
     """
-    
-    import tensorflow as tf
-    import tensorflow.keras as keras
-    import tensorflow.keras.layers as layers
-    import numpy as np
-    
-    from . import utils
 
-    keras.backend.clear_session()
+    _keras.backend.clear_session()
     
     model_dict = {}
-    model_dict['inputs'] = layers.Input(shape= [n_features], 
+    model_dict['inputs'] = _layers.Input(shape= [n_features], 
                                         batch_size= batch_size,
-                                        dtype = tf.float32,
+                                        dtype = _tf.float32,
                                         name = 'inputs')
     g = 0 #group index
     idx_dict = {'batch_norm_rate':0,
@@ -89,7 +87,7 @@ def model(n_features,
         gl=0
         for gl in range(layers_per_group):  #group layer index
             name = 'G'+str(g)+'_L'+str(gl)+'_Dense'
-            model_dict[name]= layers.Dense(units,  
+            model_dict[name]= _layers.Dense(units,  
                                            kernel_initializer='glorot_uniform', 
                                            bias_initializer='zeros',
                                            name = name,
@@ -98,19 +96,19 @@ def model(n_features,
             gl+=1 
             
             #add batch norm and/or dropout layers
-            model_dict, BatchNorm_Dropout_dict, idx_dict, g, gl = utils.Apply_BatchNorm_Dropouts(model_dict, BatchNorm_Dropout_dict, idx_dict, g, gl)
+            model_dict, BatchNorm_Dropout_dict, idx_dict, g, gl = _utils.Apply_BatchNorm_Dropouts(model_dict, BatchNorm_Dropout_dict, idx_dict, g, gl)
 
         units = units/dense_scaling_factor
         g+=1
 
     gl=0
     name = 'outputs'
-    model_dict[name] = layers.Dense(n_labels,
+    model_dict[name] = _layers.Dense(n_labels,
                                        activation = final_activation,
                                        name = name
                                       )(model_dict[list(model_dict.keys())[-1]])
 
-    model = keras.Model(inputs = model_dict['inputs'],
+    model = _keras.Model(inputs = model_dict['inputs'],
                        outputs = model_dict['outputs'])
     
     model.compile(loss=loss,
@@ -130,15 +128,10 @@ def model_dict(n_features,
                  batch_norm_rate = None,
                  dropout_layer_rate = None,
                  dropout_rate = 0.5,
-                 loss=  __loss__,
+                 loss=  _loss,
                  learning_rate = 0.001,
-                 optimizer= __optimizer__,
+                 optimizer= _optimizer,
                  metrics=['mse','mae','accuracy']):
-    
-    import tensorflow as tf
-    import tensorflow.keras as keras
-    import tensorflow.keras.layers as layers
-    import numpy as np
     
     assert(type(n_features)==int), 'n_features must be of type int'
     assert(type(n_labels)==int), 'n_labels must be of type int'

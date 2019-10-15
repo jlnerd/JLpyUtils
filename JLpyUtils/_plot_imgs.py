@@ -7,7 +7,7 @@ import numpy as _np
 import warnings as _warnings
 import os as _os
 
-def from_list(imgs_list, n_plot_columns = 3, cmap = 'virdis'):
+def from_list(imgs_list, n_plot_columns = 3, cmap = 'virdis', title_list = None):
     """
     Plot the images contained in the list of images passed
     
@@ -17,6 +17,7 @@ def from_list(imgs_list, n_plot_columns = 3, cmap = 'virdis'):
         n_plot_columns: int. Number of plot columns per row of plots to display
             - If len(imgs_list)<n_plot_columns, the n_plot_columns will be updated to be equal to the len(imgs_list)
         cmap: matplotlib colormap
+        title_list: list of strings to use as the title for each plot
         
     Returns:
     --------
@@ -37,11 +38,11 @@ def from_list(imgs_list, n_plot_columns = 3, cmap = 'virdis'):
         
         img = imgs_list[i]
         
+        if type(title_list)==type(list()):
+            ax_list[p].set_title(title_list[i])
+        
         ax_list[p].imshow(img, cmap = cmap)
         ax_list[p].grid(which='both', visible=False)
-        
-        title = 'img.shape:'+str(img.shape)
-        ax_list[p].set_title(title)
         
         ax_list[p].set_axis_off()
         
