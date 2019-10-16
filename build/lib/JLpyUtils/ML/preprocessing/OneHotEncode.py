@@ -1,12 +1,11 @@
 
     
 class categorical_features():
-    
+    """
+    OneHot encode each categorical feature. This function assumes an impute transformation (fill na) has been performed prior to encoding such that the encoder does not need to be able to transform datasets containng NaN values    
+    """
     def __init__(self, return_format = 'DataFrame', LabelEncoder = None):
-            
         """
-        OneHot encode each categorical feature. This function assumes an impute transformation (fill na) has been performed prior to encoding such that the encoder does not need to be able to transform datasets containng NaN values
-
         Arugments:
         ----------
            return_format: string, default = 'DataFrame'
@@ -26,6 +25,7 @@ class categorical_features():
     def fit(self, X, categorical_headers):
         """
         Fit the encoder to the categorical_headers in X dataframe passed. 
+        
         Arugments:
         ----------
             X: dask or pandas dataframe of interest
@@ -93,7 +93,15 @@ class categorical_features():
         
     def transform(self, X):
         """
-        transform the X dataframe passed
+        Transform the X dataframe passed
+        
+        Arguments:
+        ----------
+            X: dataframe to transform
+            
+        Returns:
+        --------
+            X: dataframe with transformations applied
         """
         import numpy as np
         import pandas as pd

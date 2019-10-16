@@ -6,3 +6,4 @@ from . import compare
 from . import plot
 from . import maximize_success
 from . import feature_importance
+from ._unique import uniques

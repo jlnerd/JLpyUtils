@@ -4,5 +4,5 @@ functions/classes for running hyperparameter searches across multiple types of m
 
 from . import default_models_dict
 from ._search import GridSearchCV
-
+from ._search import BayesianSearchCV
                     

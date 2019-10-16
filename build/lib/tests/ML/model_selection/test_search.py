@@ -2,6 +2,7 @@ import sys, os
 import numpy as np
 import pandas as pd
 import dask, dask.dataframe
+import sklearn, sklearn.datasets, sklearn.model_selection
 
 import pytest
 
@@ -45,7 +46,7 @@ def build_data_and_headers_dict():
     
     return data_dict, headers_dict
 
-def test_regression_linear_single_output_pandas_df(tmpdir):
+def test_GridSearchCV_regression_linear_single_output_pandas_df(tmpdir):
 
     data_dict, headers_dict = build_data_and_headers_dict()
 
@@ -65,7 +66,7 @@ def test_regression_linear_single_output_pandas_df(tmpdir):
                                      path_root_dir=tmpdir)
     GridSearchCV.fit(X, y, X, y)
     
-def test_regression_xgboost_single_output_pandas_df(tmpdir):
+def test_GridSearchCV_regression_xgboost_single_output_pandas_df(tmpdir):
 
     data_dict, headers_dict = build_data_and_headers_dict()
 
@@ -78,12 +79,53 @@ def test_regression_xgboost_single_output_pandas_df(tmpdir):
     models_dict = JLpyUtils.ML.model_selection.default_models_dict.regression(
                                                         n_features, 
                                                         n_labels,
-                                                        models = ['XGBoost'])
+                                                        models = ['xgboost'])
     GridSearchCV = JLpyUtils.ML.model_selection.GridSearchCV(
                                      models_dict,
                                      cv=2,
                                      path_root_dir=tmpdir)
     GridSearchCV.fit(X, y, X, y)
+    
+def test_BayesianSearchCV_classification_xgboost_single_output_pandas_df(tmpdir):
+    
+    data_dict = sklearn.datasets.load_breast_cancer()
+    
+    X = pd.DataFrame(data_dict['data'], columns=data_dict['feature_names'])
+    y = pd.DataFrame(data_dict['target'], columns=[data_dict['target_names'][0]])
+    
+    X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y,
+                                                                            random_state = 0,
+                                                                            test_size = 0.3)
+    n_features = X.shape[1]
+    n_labels = y.shape[1]
+
+    models = ['xgboost']
+    n_features = X_train.shape[1]
+    n_labels = y_train.shape[1]
+
+    models_dict = JLpyUtils.ML.model_selection.default_models_dict.classification(n_features, 
+                                                                                  n_labels, 
+                                                                                  models)
+    
+    metrics = {'roc_auc': sklearn.metrics.roc_auc_score,
+           'accuracy': sklearn.metrics.accuracy_score,
+           'precision': sklearn.metrics.precision_score,
+           'recall': sklearn.metrics.recall_score,
+           'f1_score': sklearn.metrics.f1_score}
+
+    BayesianSearchCV = JLpyUtils.ML.model_selection.BayesianSearchCV(
+                                                     models_dict, 
+                                                     cv=2, 
+                                                     scoring={'metric': None,
+                                                              'maximize': True}, 
+                                                     metrics= metrics , 
+                                                     retrain=True, 
+                                                     path_BayesianSearchCV_dir=tmpdir,
+                                                     n_jobs=-1, 
+                                                     verbose=100
+                                                    )
+
+    BayesianSearchCV.fit(X_train, y_train, X_test, y_test, max_evals = 2)
         
 #     def test_linear_single_output_dask_df(self, tmpdir):
         

@@ -1,3 +1,5 @@
+import numpy as _np
+
 def categorical_features(X, 
                         categorical_headers, 
                         strategy = 'most_frequent', 
@@ -17,13 +19,16 @@ def categorical_features(X,
             estimator: sklearn estimator object
                 The estimator to be used if 'iterative' strategy chosen
         Note: sklearn.impute.IterativeImputer has a number of other options which could be varied/tuned, but for simplicity we just use the defaults
+        
+        Returns:
+        --------
+            X: Imputed dataframe
+            Imputer: Imputer object
         """
         import sklearn.preprocessing, sklearn.impute
         from sklearn.experimental import enable_iterative_imputer
         import warnings
         import pandas as pd
-        import dask
-        import numpy as np
         import dask
         
         warnings.filterwarnings('ignore')
@@ -35,7 +40,7 @@ def categorical_features(X,
                                                    verbose = verbose)
 
         else:
-            n_nearest_features = np.min([10, len(categorical_headers)]) #use less than or equal to 10 features
+            n_nearest_features = _np.min([10, len(categorical_headers)]) #use less than or equal to 10 features
             Imputer = sklearn.impute.IterativeImputer(estimator= estimator, 
                                                       initial_strategy = 'most_frequent',
                                                       verbose = verbose,
@@ -48,12 +53,31 @@ def categorical_features(X,
             npartitions = X.npartitions
             X = X.compute()
             
-        X_nans = pd.DataFrame(np.array([[np.nan for header in categorical_headers]]), columns =  categorical_headers)
+        X_nans = pd.DataFrame(_np.array([[_np.nan for header in categorical_headers]]), columns =  categorical_headers)
         X_fit = pd.concat((X[categorical_headers],X_nans))
         
+        X_drop = X_fit.dropna(axis='columns', how = 'all')
+        
+        all_nan_categorical_columns = [header for header in categorical_headers if header not in X_drop.columns]
+        for col in all_nan_categorical_columns:
+            X_fit[col] = 0
+            X[col] = 0
+        
         Imputer.fit(X_fit)
-
-        X[categorical_headers] = Imputer.transform(X[categorical_headers])
+        
+        try:
+            X[categorical_headers] = Imputer.transform(X[categorical_headers])
+        except:
+            print('X[categorical_headers]:')
+            display(X[categorical_headers])
+            print('X_fit:')
+            display(X_fit)
+            print(X_fit.shape)
+            print('Imputer.transform(X[categorical_headers]):')
+            display(Imputer.transform(X[categorical_headers]))
+            print(Imputer.transform(X[categorical_headers]).shape)
+                  
+            raise
 
         if type_X==dask.dataframe.core.DataFrame:
             X = dask.dataframe.from_pandas(X, npartitions=npartitions)
@@ -80,6 +104,11 @@ def continuous_features(X,
         estimator: sklearn estimator object
             The estimator to be used if 'iterative' strategy chosen
         Note: sklearn.impute.IterativeImputer has a number of other options which could be varied/tuned, but for simplicity we just use the defaults
+        
+    Returns:
+    --------
+        X: Imputed dataframe
+        Imputer: Imputer object
     """
     import sklearn.preprocessing, sklearn.impute
     from sklearn.experimental import enable_iterative_imputer
@@ -95,7 +124,7 @@ def continuous_features(X,
         Imputer = sklearn.impute.SimpleImputer(strategy=strategy,
                                                verbose = verbose)
     if strategy == 'iterative':
-        n_nearest_features = np.min([10, len(continuous_headers)]) 
+        n_nearest_features = _np.min([10, len(continuous_headers)]) 
         Imputer = sklearn.impute.IterativeImputer(estimator= estimator, 
                                                   initial_strategy = 'most_frequent',
                                                   verbose = verbose,
@@ -106,8 +135,15 @@ def continuous_features(X,
         X = X.compute()
         
     #create a dummy nan row to ensure any dataset containing nan for any of the features can be transformed
-    X_nans = pd.DataFrame(np.array([[np.nan for header in continuous_headers]]), columns =  continuous_headers)
+    X_nans = pd.DataFrame(_np.array([[_np.nan for header in continuous_headers]]), columns =  continuous_headers)
     X_fit = pd.concat((X[continuous_headers],X_nans))
+    
+    X_drop = X_fit.dropna(axis='columns', how = 'all')
+        
+    all_nan_columns = [header for header in continuous_headers if header not in X_drop.columns]
+    for col in all_nan_columns:
+        X_fit[col] = 0
+        X[col] = 0
 
     Imputer.fit(X_fit)
 
