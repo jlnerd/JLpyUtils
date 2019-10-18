@@ -7,6 +7,7 @@ from . import NeuralNet
 from . import preprocessing
 from . import inspection
 from . import dask_ml_extend
+from . import postprocessing
 from ._devices import list_local_devices
 from ._devices import device_counts
 
