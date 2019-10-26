@@ -127,7 +127,7 @@ def test_BayesianSearchCV_classification_xgboost_single_output_pandas_df(tmpdir)
     try:
         BayesianSearchCV.fit(X_train, y_train, X_test, y_test, max_evals = 2)
     except Exception as e:
-        if str(e) contains "module 'bson' has no attribute 'BSON'":
+        if "module 'bson' has no attribute 'BSON'" in str(e):
             pass
         else:
             raise
