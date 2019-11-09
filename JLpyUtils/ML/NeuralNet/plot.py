@@ -1,3 +1,4 @@
+import matplotlib.pyplot as _plt
 
 def learning_curves(history):
     """
@@ -5,7 +6,7 @@ def learning_curves(history):
     """
     metrics = [key for key in history.history.keys() if key != 'lr' and 'val' not in key]
 
-    fig, ax_list = plt.subplots(1,len(metrics))
+    fig, ax_list = _plt.subplots(1,len(metrics))
     p=0
     for metric in metrics:
         for train_val_label in ['','val_']:
@@ -16,4 +17,4 @@ def learning_curves(history):
         ax_list[p].legend()
         p+=1
     fig.tight_layout(rect=(0,0,int(len(metrics)), int(len(metrics)/2)))
-    plt.show()
+    _plt.show()
