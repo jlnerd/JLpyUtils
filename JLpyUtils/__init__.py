@@ -2,8 +2,8 @@
 Custom modules/classes/methods for various data science, computer vision, and machine learning operations in python
 """
 
-__version__ = '0.3.2'
-__repo__ = "https://github.com/jlnerd/.git",
+__version__ = '0.3.3'
+__repo__ = "https://github.com/jlnerd/JLpyUtils",
 __PyPi_url__ = 'https://pypi.org/project/JLpyUtils/'
 
 from . import plot

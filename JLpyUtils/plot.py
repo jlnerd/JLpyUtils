@@ -67,7 +67,9 @@ def fetch_color_map_for_primary_color(primary_color,
         color_map = _plt.cm.jet(_np.linspace(color_space_range[0],color_space_range[1],n_colors))    
     return color_map
 
-def corr_matrix(df_corr, cbar_label = 'Correlation Coeff.', vmin = None, vmax = None):
+def corr_matrix(df_corr, cbar_label = 'Correlation Coeff.', 
+                vmin = None, vmax = None,
+                tight_layout_rect = (0,0,1.5,1.5)):
     """
     Plot a correlation matrix chart
     
@@ -84,8 +86,12 @@ def corr_matrix(df_corr, cbar_label = 'Correlation Coeff.', vmin = None, vmax = 
     cbar = fig.colorbar(cax)
     cbar.set_label(cbar_label, labelpad=15, ha='center', va='center', rotation=90)
     ax.grid(which='both',visible=False)
-    ax.set_xticklabels([0]+list(df_corr.columns), rotation='vertical')
-    ax.set_yticklabels([0]+list(df_corr.columns))
+    ax.set_xticks([i for i in range(len(df_corr.columns))])
+    ax.set_yticks([i for i in range(len(df_corr.columns))])
+    ax.set_xticklabels(list(df_corr.columns), rotation='vertical')
+    ax.set_yticklabels(list(df_corr.columns))
+    
+    fig.tight_layout(rect=tight_layout_rect)
     _plt.show()
 
 def corr_pareto(df_corr, label, max_bars = 30, rect = (0, 0, 1, 1), ylim = None, return_df = False):
@@ -275,8 +281,8 @@ def hist_or_bar(df, n_plot_columns = 3,
                 bottom = df_counts.iloc[:int(max_labels/2), :]
                 top = df_counts.iloc[-int(max_labels/2):, :]
                 
-                ax_list[p].bar(bottom[header], bottom['counts'], label = 'bottom counts')
-                ax_list[p].bar(top[header], top['counts'], label = 'top counts')
+                ax_list[p].bar(bottom[header], bottom['counts'], label = 'bottom '+str(max_labels//2)+' counts')
+                ax_list[p].bar(top[header], top['counts'], label = 'top '+str(max_labels//2)+' counts')
                 
                 ax_list[p].set_xticklabels(list(bottom[header])+list(top[header]), rotation=90)
                 ax_list[p].legend()

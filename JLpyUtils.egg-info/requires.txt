@@ -12,6 +12,7 @@ tensorflow
 torch
 transformers
 hyperopt
+bson
 kaggle
 scikit-image
 Pillow
