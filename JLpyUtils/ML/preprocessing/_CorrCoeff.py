@@ -1,3 +1,4 @@
+import warnings as _warnings
 
 class CorrCoeffThreshold():
     def __init__(self, 
@@ -58,6 +59,8 @@ class CorrCoeffThreshold():
         import gc
         import dask
         
+        _warnings.filterwarnings('ignore')
+        
         df = df.copy()
         
         type_df = type(df)
@@ -107,7 +110,9 @@ class CorrCoeffThreshold():
                     self.dropped_features_dict['dropped feature'].append(dropped_feat)
                     self.dropped_features_dict['correlated feature'].append(correlated_feat)
                     self.dropped_features_dict['corr coeff'].append(corr_coeff)
-                        
+        
+        _warnings.filterwarnings('default')
+        
     def transform(self, df):
         """
         Transform the dataframe based on the previously run fit
@@ -116,8 +121,12 @@ class CorrCoeffThreshold():
         ----------
             df: dataframe which will be transformed
         """
+        _warnings.filterwarnings('ignore')
+        
         df = df.copy()
         for feature in self.dropped_features_dict['dropped feature']:
             if feature in df.columns:
                 df = df.drop(columns=[feature])
+                
+        _warnings.filterwarnings('default')
         return df

@@ -9,6 +9,8 @@ import tensorflow as _tf
 import tensorflow.keras as _keras
 import tensorflow.keras.layers as _layers
 
+import functools as _functools
+
 _pooling_layer = _tf.keras.layers.MaxPool2D
 _loss= _tf.keras.losses.MSE
 _optimizer = _tf.keras.optimizers.Adam
@@ -23,8 +25,8 @@ def model(n_features,
              dense_scaling_factor = 2,
              activation = 'elu',
              final_activation = 'elu',
-             batch_norm_rate = None,
-             dropout_layer_rate = None,
+             batch_norm_rate = 0,
+             dropout_layer_rate = 0,
              dropout_rate = 0.5,
              loss= _loss,
              learning_rate = 0.001,
@@ -96,7 +98,10 @@ def model(n_features,
             gl+=1 
             
             #add batch norm and/or dropout layers
-            model_dict, BatchNorm_Dropout_dict, idx_dict, g, gl = _utils.Apply_BatchNorm_Dropouts(model_dict, BatchNorm_Dropout_dict, idx_dict, g, gl)
+            model_dict, BatchNorm_Dropout_dict, idx_dict, g, gl = _utils.Apply_BatchNorm_Dropouts(model_dict,
+                                                                                      BatchNorm_Dropout_dict, 
+                                                                                      idx_dict, 
+                                                                                      g, gl)
 
         units = units/dense_scaling_factor
         g+=1
@@ -137,21 +142,23 @@ def model_dict(n_features,
     assert(type(n_labels)==int), 'n_labels must be of type int'
     
     model_dict = {}
-    model_dict['model'] = model
     
-    model_dict['param_grid'] = {'n_features': [n_features],
-                                   'n_labels': [n_labels],
-                                   'batch_size' : [None], #pass batch size on fit
-                                   'layers_per_group': [1,2],
-                                   'initial_dense_unit_size' : [n_features, 2*n_features],
-                                   'dense_scaling_factor': [1.5, 2, 3, 5],
-                                   'activation': ['elu', 'relu'], 
-                                   'final_activation': [final_activation],
-                                   'batch_norm_rate': [None, 1, 2],
-                                   'dropout_layer_rate': [None, 1, 2],
-                                   'dropout_rate': [0.1,0.5],
-                                   'loss': [loss],
-                                   'learning_rate': [0.001],
-                                   'optimizer':[optimizer],
-                                   'metrics': [metrics]}
+    model_dict['model'] = _functools.partial(model, 
+                                             n_features = n_features, 
+                                             n_labels = n_labels,
+                                             final_activation = final_activation,
+                                             loss = loss,
+                                             learning_rate = learning_rate,
+                                             optimizer = optimizer,
+                                             metrics = metrics
+                                            )
+    
+    model_dict['param_grid'] = {'layers_per_group': [1,2],
+                                'initial_dense_unit_size' : [n_features, 2*n_features],
+                                'dense_scaling_factor': [1.5, 2, 3, 5],
+                                'activation': ['elu', 'relu'], 
+                                'batch_norm_rate': [0, 1, 2],
+                                'dropout_layer_rate': [0, 1, 2],
+                                'dropout_rate': [0.1,0.5]
+                               }
     return model_dict

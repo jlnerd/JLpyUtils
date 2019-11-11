@@ -69,7 +69,7 @@ def fetch_color_map_for_primary_color(primary_color,
 
 def corr_matrix(df_corr, cbar_label = 'Correlation Coeff.', 
                 vmin = None, vmax = None,
-                tight_layout_rect = (0,0,1.5,1.5)):
+                rect = (0,0,1.5,1.5)):
     """
     Plot a correlation matrix chart
     
@@ -91,7 +91,7 @@ def corr_matrix(df_corr, cbar_label = 'Correlation Coeff.',
     ax.set_xticklabels(list(df_corr.columns), rotation='vertical')
     ax.set_yticklabels(list(df_corr.columns))
     
-    fig.tight_layout(rect=tight_layout_rect)
+    fig.tight_layout(rect=rect)
     _plt.show()
 
 def corr_pareto(df_corr, label, max_bars = 30, rect = (0, 0, 1, 1), ylim = None, return_df = False):

@@ -7,11 +7,16 @@ import os as _os
 import hyperopt as _hyperopt
 import time as _time
 import functools as _functools
+import warnings as _warnings
+import matplotlib.pyplot as _plt
+
 import sklearn.model_selection as _sklearn_model_selection
 from .. import NeuralNet as _NeuralNet
 from ... import file_utils as _file_utils
 
-import matplotlib.pyplot as _plt
+
+from hyperopt import base as _base
+_base.have_bson = False
 
 class GridSearchCV():
     
@@ -27,7 +32,6 @@ class GridSearchCV():
                  **kwargs):
         """
         hyperparameter GridSearchCV across different types of models
-
         Arguments:
         ----------
             models_dict: dictionary containing all models and their param_grid. 
@@ -293,10 +297,19 @@ class BayesianSearchCV():
             
             To convert the hyperparameters from hyperopts 'space' back to the parameters required by the model under evaluation, we run the function '_update_model_params()' in each instance of the 'objective' function evaluation.
         """
+        if self.verbose>9:
+            'Building param space...'
+        
+        _warnings.filterwarnings('ignore')
+        
         param_grid = param_grid.copy()
         space = {}
         for key in param_grid.keys():
             params = param_grid[key]
+            
+            if self.verbose>9:
+                print('\tinput:',key, params)
+                
             type_str = str(type(params[0]))
 
             if 'float' in type_str or 'int' in type_str:
@@ -306,24 +319,42 @@ class BayesianSearchCV():
                 log10_min_ = _np.log10(min_)
                 log10_max_ = _np.log10(max_)
 
-                if round(log10_max_)-round(log10_min_)>1: # use uniform distribution on log spacing 
-
+                if round(log10_max_)-round(log10_min_)>1 and round(log10_max_)-round(log10_min_)!=_np.inf: # use uniform distribution on log spacing 
+                    
                     space['log10.'+key] = _hyperopt.hp.uniform(key, log10_min_, log10_max_)
+                    
+                    if self.verbose>9:
+                        print('\toutput:','log10.'+key, 'uniform', log10_min_, log10_max_)
                         
                 else:
                     if 'int' in type_str:
                         space[key] = _hyperopt.hp.quniform(key, min_, max_, 1)
                         
+                        if self.verbose>9:
+                            print('\toutput:',key, 'quniform', min_, max_)
+                        
                     elif 'float' in type_str:
                         space[key] = _hyperopt.hp.uniform(key, min_, max_)
                         
+                        if self.verbose>9:
+                            print('\toutput:',key, 'uniform', min_, max_)
+                        
+                        
             elif 'str' in type_str:
                 space[key] = _hyperopt.hp.choice(key, [i for i in range(len(params))])
+                
+                if self.verbose>9:
+                    print('\toutput:',key, 'choice', [i for i in range(len(params))])
 
             else:
                 raise Exception('type(params[0]) is '+type_str+'. This type of hyperparameter is not yet supported.')
 
         assert(len(space.keys())==len(param_grid.keys())), 'len(space.keys())='+str(len(space.keys()))+', which is not equal to len(param_grid.keys())='+str(len(param_grid.keys()))
+        
+        if self.verbose>9:
+            print('...finished building space')
+            
+        _warnings.filterwarnings('default')
 
         return space
     
@@ -349,7 +380,7 @@ class BayesianSearchCV():
             _plt.grid(which='both',visible=False)
             _plt.show()
     
-    def _update_model_params(self, params, model, param_grid):
+    def _update_model_params(self, params, model_ID, model, param_grid):
         """
         Iterate through the params and update the models arguments/params, ensuring the type of each parameter does not change after updating and transforming log10 distributions back to their base value
         
@@ -367,7 +398,7 @@ class BayesianSearchCV():
         
         params = params.copy()
         param_grid = param_grid.copy()
-        
+            
         params_transform = {}
         
         for key in params.keys():
@@ -383,32 +414,37 @@ class BayesianSearchCV():
             
             if 'int' in type_str: 
                 if log10_transform:
-                    model.__dict__[key]=int(10**params['log10.'+key])
+                    params_transform[key] = int(10**params['log10.'+key])
                 else:
-                    model.__dict__[key]=int(params[key])
+                    params_transform[key] = int(params[key])
             
             elif 'float' in type_str:
                 if log10_transform:
-                    model.__dict__[key]=float(10**params['log10.'+key])
+                    params_transform[key] = float(10**params['log10.'+key])
+                                                
                 else:
-                    model.__dict__[key]=float(params[key])
+                    params_transform[key] = float(params[key])
             
             elif 'str' in type_str: #index the param grid for hyperparams using 'choice'
-                model.__dict__[key]=param_grid[key][params[key]]
+                params_transform[key] = param_grid[key][params[key]]
                 
-            params_transform[key] = model.__dict__[key]    
-            
-            assert(type_str == str(type(model.__dict__[key]))), 'type(param_grid[key][0]) changed from '+type_str+' to '+str(type(param_grid[key][0]))+' after updating params for key:'+str(key)
+            if 'densenet' not in model_ID.lower():                                   
+                model.__dict__[key] = params_transform[key]
+                                                
+            assert(type_str == str(type(params_transform[key]))), 'type(param_grid[key][0]) changed from '+type_str+' to '+str(type(param_grid[key][0]))+' after updating params for key:'+str(key)
             
             if 'str' in type_str:
                 assert(params_transform[key] in param_grid[key]), 'params_transform['+key+']='+str(params_transform[key])+' is not in the list of valid parameter choices:'+str(param_grid[key])
                 
             else:
                 assert(params_transform[key]<=max(param_grid[key]) and params_transform[key]>=min(param_grid[key])), 'params_transform['+key+']='+str(params_transform[key])+' does not lie in the range of valid values:'+str([min(param_grid[key]),max(param_grid[key])] )
-
-        return params_transform, model 
+                                                
+        if 'densenet' in model_ID.lower():    
+            model = model(**params_transform)
+            
+        return params_transform, model
         
-    def _objective(self, params, model_dict, X, y):
+    def _objective(self, params, model_ID, model_dict, X, y, **kwargs):
         """
         Objective function for hyperopt fmin. Note hyperopt assumes the only argument required is the params argument, thus before passing this objective as an argument into the hyperopt.fmin() function, we specify the other arguments using the functools.partial() function (see the _single_model_BayesianSearchCV() function code for more details)
         
@@ -439,7 +475,6 @@ class BayesianSearchCV():
         
         obj_verbose = max(0,self.verbose-2)
         
-        type_model = str(type(model))
         type_X = str(type(X))
         
         if 'dask' in type_X:
@@ -449,7 +484,11 @@ class BayesianSearchCV():
         if obj_verbose>=2:
             print('params',params)
         
-        params_transform, model = self._update_model_params(params, model, param_grid)
+        params_transform, model = self._update_model_params(params, 
+                                                                 model_ID,
+                                                                 model, 
+                                                                 param_grid)
+        type_model = str(type(model))
         
         if obj_verbose>=2:
             print('params_transform',params_transform)
@@ -462,19 +501,27 @@ class BayesianSearchCV():
                                                               verbose = obj_verbose
                                                              )
 
-        else: #run gridsearch using neural net function
-            
-            #check kwargs for epochs
+        else: #using neural net function
+            import tensorflow as _tf
+            #check for kwargs
             epochs = 100
-            for item in self.kwargs.items():
-                if 'epochs' in item[0]: epochs = item[1]
-
-            cv_scores = _NeuralNet.cross_val_score(model, X, y,
-                                                   scoring=self.scoring,
-                                                   cv = self.cv,
-                                                   epochs =  epochs,
-                                                   verbose = obj_verbose
-                                                   )
+            batch_size = 32
+            callbacks = [_tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience =10)]
+            for item in kwargs.items():
+                if 'epochs' in item[0]: 
+                    epochs = item[1]
+                elif 'batch_size' in item[0]: 
+                    batch_size = item[1]
+                elif 'callbacks' in item[0]: 
+                    callbacks = item[1]           
+            cv_scores = _NeuralNet.cross_val_score(model,
+                                                    batch_size,
+                                                    epochs,
+                                                    X, y,
+                                                    callbacks,
+                                                    scoring = self.scoring['metric'],
+                                                    cv = self.cv,
+                                                    verbose= obj_verbose)
             
         cv_score = _np.mean(cv_scores)
         
@@ -492,11 +539,13 @@ class BayesianSearchCV():
         return objective
     
     def _single_model_BayesianSearchCV(self, 
+                                       model_ID,
                                        model_dict, 
                                        X_train, y_train, 
                                        X_test, y_test,
                                        path_model_dir,
-                                       refit=True):
+                                       refit=True,
+                                       **kwargs):
         """
         Run BayesianSearchCV on a single model of interest, save the results, and return the updated model_dict
         
@@ -517,11 +566,15 @@ class BayesianSearchCV():
         
         model_dict = model_dict.copy()
         model = model_dict['model']
+        type_model = str(type(model))
         model_type = str(type(model_dict['model']))
         param_grid = model_dict['param_grid'].copy()
         objective = _functools.partial(self._objective, 
+                                       model_ID = model_ID,
                                        model_dict = model_dict, 
-                                       X = X_train, y=y_train)
+                                       X = X_train, y=y_train, 
+                                       **kwargs)
+        
         space = self._build_space(param_grid)
         
         if self.verbose>=4:
@@ -542,19 +595,51 @@ class BayesianSearchCV():
             print('hyperopt_input_best_params_:',best_params_)
             
         best_score_ = self._objective(best_params_, 
-                                       model_dict = model_dict, 
-                                       X = X_train, y=y_train)['loss']
+                                      model_ID,
+                                      model_dict = model_dict, 
+                                      X = X_train, y=y_train)['loss']
         
         #transform params back to original model values
-        best_params_, best_model_ = self._update_model_params(best_params_, model, param_grid)
+        best_params_, best_model_ = self._update_model_params(best_params_, model_ID, model, param_grid)
         
         if self.verbose>=3:
             print('model_input_best_params_:',best_params_)
         
+        
         if refit:
-            if y_train.shape[1]==1:
-                y_train = _np.array(y_train).reshape(-1,)
-            best_model_.fit(X_train, y_train)
+            if 'sklearn' in type_model or 'xgboost' in type_model:
+                if y_train.shape[1]==1:
+                    y_train = _np.array(y_train).reshape(-1,)
+                best_model_.fit(X_train, y_train)
+            else: #using neural net function
+                import tensorflow as _tf
+                
+                if 'dataframe' in str(type(X_train)).lower():
+                    X_train = _np.array(X_train)
+                    X_test = _np.array(X_test)
+                if 'dataframe' in str(type(y_train)).lower():
+                    y_train = _np.array(y_train)
+                    y_test = _np.array(y_test)
+                    
+                #check for kwargs
+                epochs = 100
+                batch_size = 32
+                callbacks = [_tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience =10)]
+                for item in kwargs.items():
+                    if 'epochs' in item[0]: 
+                        epochs = item[1]
+                    elif 'batch_size' in item[0]: 
+                        batch_size = item[1]
+                    elif 'callbacks' in item[0]: 
+                        callbacks = item[1]
+                
+                history = best_model_.fit(x= X_train, 
+                                            y= y_train, 
+                                            validation_data=(X_test, y_test),
+                                            batch_size=batch_size, 
+                                            epochs = epochs, 
+                                            verbose= max(0,self.verbose-2), 
+                                            callbacks = callbacks)
         
         model_dict['best_params'] = best_params_
         model_dict['best_model'] = best_model_
@@ -562,6 +647,11 @@ class BayesianSearchCV():
         
         if 'sklearn' in model_type or 'xgboost' in model_type:
             self.save(model_dict, 'model_dict', 'dill', path_model_dir)
+        else:
+            if _os.path.isdir(path_model_dir)==False:
+                _os.makedirs(path_model_dir)
+            best_model_.save(_os.path.join(path_model_dir, 'best_model.h5')) 
+            self.save(model_dict['best_params'], 'best_params', 'dill', path_model_dir)
         
         return model_dict
         
@@ -571,6 +661,7 @@ class BayesianSearchCV():
             X_test, 
             y_test,
             max_evals,
+            **kwargs,
             ):
         """
         Fit the X_train, y_train dataset & evaluate metrics on X_test, y_test for each of the best models found in each individual models GridSearchCV
@@ -579,6 +670,7 @@ class BayesianSearchCV():
         ---------
             X_train, y_train, X_test, y_test: train & test datasets (pandas or dask dataframes)
             max_evals: Max number of evaluations to perform during the BayesianSearchCV procedure for each model.
+            kwargs: For use in neural network hyperopts: epochs, batch_size, callbacks
             
         Returns:
         -------
@@ -601,13 +693,15 @@ class BayesianSearchCV():
             if 'sklearn' in model_type or 'xgboost' in model_type:
                 path_file = _os.path.join(path_model_dir,'model_dict.dill')
             elif 'Net' in key:
-                path_file = _os.path.join(path_model_dir,'best_params_.dill')
-
+                path_file = _os.path.join(path_model_dir,'best_model.h5')
+                
             if self.retrain or _os.path.isfile(path_file)==False:
-                model_dict = self._single_model_BayesianSearchCV(model_dict, 
+                model_dict = self._single_model_BayesianSearchCV(key, 
+                                                                 model_dict, 
                                                                 X_train, y_train, 
                                                                 X_test, y_test,
-                                                                path_model_dir)
+                                                                path_model_dir,
+                                                                **kwargs)
                 self.models_dict[key] = model_dict
                 
 
@@ -619,25 +713,46 @@ class BayesianSearchCV():
                     epochs = 100
                     for item in self.kwargs.items():
                         if 'epochs' in item[0]: epochs = item[1]
-                    self.models_dict[key] = self.load_NeuralNet(path_model_dir, 
-                                                                X_train, y_train, 
-                                                                epochs)
-
-            y_pred = self.models_dict[key]['best_model'].predict(X_test)
+                    self.models_dict[key]['best_model'] = _NeuralNet.utils.load_model(
+                                                             _os.path.join(path_model_dir,'best_model.h5'))
+                    self.models_dict[key]['best_params'] = self.load('best_params', 'dill', path_model_dir)
+                    
+            if 'Net' in key:
+                y_pred = self.models_dict[key]['best_model'].predict(_np.array(X_test))
+            else:
+                y_pred = self.models_dict[key]['best_model'].predict(X_test)
+            
 
             if 'Net' not in key:
                 self.models_dict[key]['best_pred_score'] = self.models_dict[key]['best_model'].score(X_test, y_test)
+                y_pred_proba = self.models_dict[key]['best_model'].predict_proba(X_test)[:,1]
             else:
-                self.models_dict[key]['best_pred_score'] = self.models_dict[key]['best_model'].evaluate(X_test, y_test, verbose =0)
+                
+                if 'crossentropy' in self.models_dict[key]['best_model'].loss:
+                    y_pred_proba = y_pred
+                    y_pred = (y_pred < 0.5).astype(int)
+                    
+                self.models_dict[key]['best_pred_score'] = self.models_dict[key]['best_model'].evaluate(_np.array(X_test), 
+                                                                                                        _np.array(y_test),
+                                                                                                        verbose =0)
             
             if self.verbose >=1:
-                print('\tbest_cv_score:',self.models_dict[key]['best_cv_score'])
-                print('\tbest_pred_score:',self.models_dict[key]['best_pred_score'])
+                try:
+                    print('\tbest_cv_score:',self.models_dict[key]['best_cv_score'])
+                except Exception as e:
+                    print('Exception occured for:'+str(e))
+                try:
+                    print('\tbest_pred_score:',self.models_dict[key]['best_pred_score'])
+                except Exception as e:
+                    print('Exception occured for:'+str(e))
 
             for metric_key in self.metrics.keys():
                 if self.metrics[metric_key] !=None:
                     try:
-                        self.models_dict[key][metric_key] = self.metrics[metric_key](y_test, y_pred)
+                        if 'roc' in metric_key:
+                            self.models_dict[key][metric_key] = self.metrics[metric_key](y_test, y_pred_proba)
+                        else:
+                            self.models_dict[key][metric_key] = self.metrics[metric_key](y_test, y_pred)
                         print('\t',metric_key,':',self.models_dict[key][metric_key])
                     except Exception as e:
                         print('Exception occured for',metric_key,':',str(e))
@@ -650,4 +765,3 @@ class BayesianSearchCV():
                     if key not in ['y_test','y_pred','best_pred_score'] +list(self.metrics.keys()):
                         model_dict_subset.pop(key)
                         
-            

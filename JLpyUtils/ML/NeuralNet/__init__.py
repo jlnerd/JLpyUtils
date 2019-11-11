@@ -4,7 +4,9 @@ sub-modules/functions/classes for streamlining common neural-net architectures i
 """
 from . import Conv2D
 from . import plot
-from . import search
 from . import DenseNet
 from . import utils
 from . import Bert
+
+from ._search import GridSearchCV
+from ._search import cross_val_score

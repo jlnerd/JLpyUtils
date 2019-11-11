@@ -4,11 +4,11 @@ def uniques(df):
     Inspect number of unique values and the unique values themselves for the passed dataframe
     """
     
-    dtypes = df.dtypes.reset_index()
-    dtypes.columns = ['column','dtype']
-    dtypes = dtypes.sort_values(['dtype','column'])
+#     dtypes = df.dtypes.reset_index()
+#     dtypes.columns = ['column','dtype']
+#     dtypes = dtypes.sort_values(['dtype','column'])
     
-    for col in dtypes['column']:
+    for col in df.columns:#dtypes['column']:
         
         if 'dask' in str(type(df)):
             uniques = df[col].compute().sort_values().unique()

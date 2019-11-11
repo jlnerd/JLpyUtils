@@ -86,8 +86,8 @@ def feature_importance(model, model_ID, feature_headers,
     
     try:
         fig.tight_layout(rect=tight_layout_rect)
-    except:
-        None
+    except Exception as e:
+        print(e)
     
     plt.show()
     

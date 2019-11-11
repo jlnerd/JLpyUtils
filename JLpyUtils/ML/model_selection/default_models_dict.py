@@ -201,7 +201,7 @@ def regression(n_features,
 def classification(n_features, n_labels, 
                models = ['Logistic', 'SVM', 'KNN', 
                          'DecisionTree', 'RandomForest', 
-                         'xgboost', 'DenseNet'],
+                         'xgboost', 'DenseNet']
                ):
     
     """
@@ -245,11 +245,11 @@ def classification(n_features, n_labels,
 
         if 'DecisionTree' in model:
             import sklearn.tree
-            models_dict['DecisionTree'] = {'model':sklearn.tree.DecisionTreeRegressor(),
-                                           'param_grid': {'criterion':     ['mse','friedman_mse'],#,'mae'],
-                                                          'splitter':       ['best','random'],
-                                                         'max_depth':      [None,5,10,100],
-                                                         'max_features':   [0.25,0.5,0.75,1.0]}
+            models_dict['DecisionTree'] = {'model':sklearn.tree.DecisionTreeClassifier(),
+                                           'param_grid': {'criterion':['gini','entropy'],
+                                                          'splitter':  ['best','random'],
+                                                         'max_depth':  [None,5,10,100],
+                                                         'max_features': [0.25,0.5,0.75,1.0]}
                                           }
         if 'RandomForest' in model:
             import sklearn.ensemble
@@ -322,12 +322,14 @@ def classification(n_features, n_labels,
             from .. import NeuralNet
             if n_labels > 1:
                 loss = 'categorical_crossentropy'
+                final_activation = 'softmax'
             else:
                 loss = 'binary_crossentropy'
+                final_activation = 'sigmoid'
 
             models_dict['DenseNet'] = NeuralNet.DenseNet.model_dict(n_features=n_features,
                                                                      n_labels = n_labels,
-                                                                    final_activation = 'softmax',
+                                                                    final_activation = final_activation,
                                                                     loss = loss,
                                                                     metrics=['accuracy'])
             
