@@ -44,25 +44,25 @@ def build_data_and_headers_dict():
     
     return data_dict, headers_dict
 
-def test_feat_eng_pipe_with_pandas_df(tmpdir):
+def test_PreprocessPipe_with_pandas_df(tmpdir):
 
     data_dict, headers_dict = build_data_and_headers_dict()
 
     df_ID = 'df_X'
-    feat_eng_pipe = JLpyUtils.ML.preprocessing.feat_eng_pipe(
+    PreprocessPipe = JLpyUtils.ML.preprocessing.PreprocessPipe(
                             path_feat_eng_root_dir = tmpdir, overwrite=True)
-    feat_eng_pipe.fit(data_dict[df_ID], headers_dict)
-    feat_eng_pipe.transform(data_dict[df_ID])
+    PreprocessPipe.fit(data_dict[df_ID], headers_dict)
+    PreprocessPipe.transform(data_dict[df_ID])
 
-def test_feat_eng_pipe_with_dask_df(tmpdir):
+def test_PreprocessPipe_with_dask_df(tmpdir):
 
     data_dict, headers_dict = build_data_and_headers_dict()
 
     df_ID = 'ddf_X'
-    feat_eng_pipe = JLpyUtils.ML.preprocessing.feat_eng_pipe(
+    PreprocessPipe = JLpyUtils.ML.preprocessing.PreprocessPipe(
                             path_feat_eng_root_dir = tmpdir, overwrite=True)
-    feat_eng_pipe.fit(data_dict[df_ID], headers_dict)
-    feat_eng_pipe.transform(data_dict[df_ID])
+    PreprocessPipe.fit(data_dict[df_ID], headers_dict)
+    PreprocessPipe.transform(data_dict[df_ID])
         
         
         
