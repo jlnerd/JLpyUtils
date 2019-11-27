@@ -116,4 +116,5 @@ This module contains simple but extremely useful helper functions to save and lo
 Basic notebook examples can be found in the (notebooks)[notebooks] folder. Some examples include:
 * [example_ML_NeuralNet_Bert_Word2Vec](notebooks/example_ML_NeuralNet_Bert_Word2Vec.ipynb)
 * [example_ML_model_selection_BayesianSearchCV](notebooks/example_ML_model_selection_BayesianSearchCV.ipynb)
+* [example_Conv2D_AutoEncoder](notebooks/example_Conv2D_AutoEncoder.ipynb)
 

@@ -13,7 +13,7 @@ import functools as _functools
 
 _pooling_layer = _tf.keras.layers.MaxPool2D
 _loss= _tf.keras.losses.MSE
-_optimizer = _tf.keras.optimizers.Adam
+_optimizer = 'adam'
 
 from . import utils as _utils
 

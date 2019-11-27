@@ -7,7 +7,7 @@ import numpy as _np
 import warnings as _warnings
 import os as _os
 
-def from_list(imgs_list, n_plot_columns = 3, cmap = 'virdis', title_list = None):
+def from_list(imgs_list, n_plot_columns = 3, cmap = 'viridis', title_list = None):
     """
     Plot the images contained in the list of images passed
     
