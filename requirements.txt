@@ -2,6 +2,7 @@
 pytest
 pytest-cov
 codecov
+Cython
 
 gitpython
 
@@ -28,7 +29,6 @@ opencv-python
 imgaug
 
 #coco tools
-Cython
 pycocotools
 
 nose
