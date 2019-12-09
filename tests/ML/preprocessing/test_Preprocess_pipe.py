@@ -5,7 +5,7 @@ import dask, dask.dataframe
 
 import pytest
 
-import JLpyUtils
+import pyDSlib
 
 def build_data_and_headers_dict():
     """
@@ -49,7 +49,7 @@ def test_PreprocessPipe_with_pandas_df(tmpdir):
     data_dict, headers_dict = build_data_and_headers_dict()
 
     df_ID = 'df_X'
-    PreprocessPipe = JLpyUtils.ML.preprocessing.PreprocessPipe(
+    PreprocessPipe = pyDSlib.ML.preprocessing.PreprocessPipe(
                             path_preprocess_root_dir = tmpdir, overwrite=True)
     PreprocessPipe.fit(data_dict[df_ID], headers_dict)
     PreprocessPipe.transform(data_dict[df_ID])
@@ -59,7 +59,7 @@ def test_PreprocessPipe_with_dask_df(tmpdir):
     data_dict, headers_dict = build_data_and_headers_dict()
 
     df_ID = 'ddf_X'
-    PreprocessPipe = JLpyUtils.ML.preprocessing.PreprocessPipe(
+    PreprocessPipe = pyDSlib.ML.preprocessing.PreprocessPipe(
                             path_preprocess_root_dir = tmpdir, overwrite=True)
     PreprocessPipe.fit(data_dict[df_ID], headers_dict)
     PreprocessPipe.transform(data_dict[df_ID])

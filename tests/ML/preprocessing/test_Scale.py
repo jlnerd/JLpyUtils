@@ -1,6 +1,6 @@
 import pytest
 
-import JLpyUtils
+import pyDSlib
 
 import sys, os
 import numpy as np
@@ -50,7 +50,7 @@ def test_Scale_continuous_features_on_pandas_df():
     
     X = data_dict['df_X'][headers_dict['continuous features']]
     
-    Scaler = JLpyUtils.ML.preprocessing.Scale.continuous_features()
+    Scaler = pyDSlib.ML.preprocessing.Scale.continuous_features()
     Scaler.fit(X)
     X = Scaler.transform(X)
     
@@ -62,7 +62,7 @@ def test_Scale_continuous_features_on_dask_df():
     
     X = data_dict['ddf_X'][headers_dict['continuous features']]
     
-    Scaler = JLpyUtils.ML.preprocessing.Scale.continuous_features()
+    Scaler = pyDSlib.ML.preprocessing.Scale.continuous_features()
     Scaler.fit(X)
     X = Scaler.transform(X)
     

@@ -5,7 +5,7 @@ import dask, dask.dataframe
 
 import pytest
 
-import JLpyUtils
+import pyDSlib
 
 import sklearn, sklearn.datasets
 
@@ -32,7 +32,7 @@ def test_fetch_color_map_for_primary_color():
                 {'primary_color':'G', 'n_colors':3},
                 {'primary_color':'B', 'n_colors':3}]
     
-    actual = [JLpyUtils.plot.fetch_color_map_for_primary_color(**args) for args in arg_grid]
+    actual = [pyDSlib.plot.fetch_color_map_for_primary_color(**args) for args in arg_grid]
                  
     expected = [np.array([[0.2989711 , 0.        , 0.        , 1.        ],
                         [1.        , 0.09166748, 0.        , 1.        ],
@@ -53,7 +53,7 @@ def test_hist_or_bar():
     for key in data_dict.keys():
         
         try:
-            JLpyUtils.plot.hist_or_bar(data_dict[key], n_plot_columns=min([3,len(data_dict[key].columns)]))
+            pyDSlib.plot.hist_or_bar(data_dict[key], n_plot_columns=min([3,len(data_dict[key].columns)]))
         except:
             print(key)
             raise

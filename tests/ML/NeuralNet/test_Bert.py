@@ -1,6 +1,6 @@
 import pytest
 
-import JLpyUtils.ML as ML
+import pyDSlib.ML as ML
 
 text_list = ['Marietta Boulevard Northwest', 'Peachtree Street Southwest', 'Mitchell Street Southwest']
 
