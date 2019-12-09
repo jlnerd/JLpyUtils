@@ -5,6 +5,6 @@ intstall:
     - pip install -e .
     - pip install pytest-cov codecov
 script:
-    - pytest --cov=JLpyUtils tests
+    - pytest --cov=pyDSlib tests
 after_success:
     - codecov
