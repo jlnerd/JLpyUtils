@@ -39,9 +39,13 @@ import imgaug  # https://github.com/aleju/imgaug (pip3 install imgaug)
 # I submitted a pull request https://github.com/cocodataset/cocoapi/pull/50
 # If the PR is merged then use the original repo.
 # Note: Edit PythonAPI/Makefile and replace "python" with "python3".
-from pycocotools.coco import COCO
-from pycocotools.cocoeval import COCOeval
-from pycocotools import mask as maskUtils
+
+try: 
+    from pycocotools.coco import COCO
+    from pycocotools.cocoeval import COCOeval
+    from pycocotools import mask as maskUtils
+except Exception as e:
+    print("pycocotools is not installed. To use pretrained mask-RCNN on coco, run $pip install pycocotools")
 
 import zipfile
 import urllib.request

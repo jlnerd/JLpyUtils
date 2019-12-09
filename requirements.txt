@@ -2,7 +2,6 @@
 pytest
 pytest-cov
 codecov
-Cython
 
 gitpython
 
@@ -29,7 +28,8 @@ opencv-python
 imgaug
 
 #coco tools
-pycocotools
+#Cython
+#pycocotools #required for RCNN.mask.pretrained.coco, however installing fails to recognize installed Cython during unit testing
 
 nose
 
