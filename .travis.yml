@@ -4,7 +4,6 @@ python:
 intstall:
     - pip install -e .
     - pip install pytest-cov codecov
-    - pip install -r requirements.txt
 script:
     - pytest --cov=pyDSlib tests
 after_success:
