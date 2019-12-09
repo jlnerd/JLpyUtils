@@ -53,8 +53,8 @@ def _determine_requirements_txt_location():
     this_dir = Path(__file__).parent
     if Path(this_dir, 'requirements.txt').exists():
         return 'requirements.txt'
-    elif Path(this_dir, 'JLpyUtils.egg-info', 'requires.txt').exists():
-        return 'JLpyUtils.egg-info/requires.txt'
+    elif Path(this_dir, 'pyDSlib.egg-info', 'requires.txt').exists():
+        return 'pyDSlib.egg-info/requires.txt'
     else:
         raise FileExistsError('Unable to find a requirements.txt file')
 
@@ -72,14 +72,14 @@ except OSError:
     scripts = []
     
 setuptools.setup(
-    name = 'JLpyUtils',
-    version= find_version('JLpyUtils', '__init__.py'),
+    name = 'pyDSlib',
+    version= find_version('pyDSlib', '__init__.py'),
     author="John T. Leonard",
     author_email="jtleona01@gmail.com",
     description='General utilities to streamline data science and machine learning routines in python',
     long_description= README,
     long_description_content_type="text/markdown",
-    url="https://github.com/jlnerd/JLpyUtils.git",
+    url="https://github.com/jlnerd/pyDSlib.git",
     packages= setuptools.find_packages(exclude=exclude_dirs),
     include_package_data=True,
     scripts=scripts,

@@ -7,11 +7,13 @@ gitpython
 
 numpy
 pandas
-sklearn
-scipy
 matplotlib
+scipy
+
+sklearn
 tensorflow-gpu
 tensorflow
+keras 
 
 torch
 transformers
@@ -19,10 +21,12 @@ transformers
 hyperopt
 bson
 
-kaggle
 scikit-image
 Pillow
 opencv-python
+#mask-rcnn-12rics #Mask_RCNN: https://github.com/matterport/Mask_RCNN - skipped due to  incompatabilities w/ new tensorflow versions
+imgaug
+
 nose
 
 dill
@@ -38,3 +42,5 @@ xgboost
 lightgbm
 
 pydicom #allows interacting with DICOM files (*.dcm), which medical images are typically stored as
+
+kaggle

@@ -1,55 +1,55 @@
-[![Build Status](https://travis-ci.com/jlnerd/JLpyUtils.svg?branch=master)](https://travis-ci.com/jlnerd/JLpyUtils)
-[![codecov](https://codecov.io/gh/jlnerd/JLpyUtils/branch/master/graph/badge.svg)](https://codecov.io/gh/jlnerd/JLpyUtils)
+[![Build Status](https://travis-ci.com/jlnerd/pyDSlib.svg?branch=master)](https://travis-ci.com/jlnerd/pyDSlib)
+[![codecov](https://codecov.io/gh/jlnerd/pyDSlib/branch/master/graph/badge.svg)](https://codecov.io/gh/jlnerd/pyDSlib)
 
 
-# JLpyUtils
+# Python Data Science Library (pyDSlib)
 __Author: [John T. Leonard](https://www.linkedin.com/in/johntleonard/)__<br>
-__Repo: [JLpyUtils](https://github.com/jlnerd/JLpyUtils)__
+__Repo: [pyDSlib](https://github.com/jlnerd/pyDSlib)__
 
 Custom modules/classes/methods for various data science, computer vision, and machine learning operations in python
     
 ## Installing & Importing
 In your command line interface (CLI):
 ```
-$ pip install --upgrade JLpyUtils
+$ pip install --upgrade pyDSlib
 ```
 After this, the package can be imported into jupyter notebook or python in general via the comman:
-```import JLpyUtils```
+```import pyDSlib```
 
 
 # Modules:
 ```
-JLpyUtils.ML
-JLpyUtils.plot
-JLpyUtils.img
-JLpyUtils.video
-JLpyUtils.file_utils
-JLpyUtils.summary_tables
-JLpyUtils.kaggle
+pyDSlib.ML
+pyDSlib.plot
+pyDSlib.img
+pyDSlib.video
+pyDSlib.file_utils
+pyDSlib.summary_tables
+pyDSlib.kaggle
 ```
 
 ## Modules Overview
 
 Below, we highlight several of the most interesting modules in more detail.
 
-### JLpyUtils.ML
+### pyDSlib.ML
 Machine learning module for python focusing on streamlining and wrapping sklearn, xgboost, dask_ml, & tensorflow/keras functions
 
-__JLpyUtils.ML Sub-Modules:__
+__pyDSlib.ML Sub-Modules:__
 ```
-JLpyUtils.ML.preprocessing 
-JLpyUtils.ML.model_selection
-JLpyUtils.ML.NeuralNet
-JLpyUtils.ML.inspection
-JLpyUtils.ML.postprocessing
+pyDSlib.ML.preprocessing 
+pyDSlib.ML.model_selection
+pyDSlib.ML.NeuralNet
+pyDSlib.ML.inspection
+pyDSlib.ML.postprocessing
 ````
 
-The sub-modules within JLpyUtils.ML are summarized below:
+The sub-modules within pyDSlib.ML are summarized below:
 
-#### JLpyUtils.ML.preprocessing 
+#### pyDSlib.ML.preprocessing 
 Functions related to preprocessing/feature engineering for machine learning
 
-The main class of interest is the ```JLpyUtils.ML.preprocessing.Preprocessing_pipe``` class, which iterates through a standard preprocessing sequence and saves the resulting engineered data. The standard sequence is:
+The main class of interest is the ```pyDSlib.ML.preprocessing.Preprocessing_pipe``` class, which iterates through a standard preprocessing sequence and saves the resulting engineered data. The standard sequence is:
 
 1. LabelEncode.categorical_features
 2. Scale.continuous_features
@@ -64,52 +64,52 @@ The main class of interest is the ```JLpyUtils.ML.preprocessing.Preprocessing_pi
 6. CorrCoeffThreshold
 Finished!
         
-#### JLpyUtils.ML.model_selection
+#### pyDSlib.ML.model_selection
 Functions/classes for running hyperparameter searches across multiple types of models & comparing those models
 
-The main classes of interest are the ```JLpyUtils.ML.model_selection.GridSearchCV``` class and the ```JLpyUtils.ML.model_selection.BayesianSearchCV``` class, which run hyperparameter GridSearchCV and BayesianSearchCV optimizations across different types of models & compares the results to allow one to find the best-of-best (BoB) model. The ```.fit``` functions for both these classes are compatible with evaluating sklearn models, tensorflow/keras models, and xgboost models. Check out the doc-strings for each class for additional notes on implementation.
+The main classes of interest are the ```pyDSlib.ML.model_selection.GridSearchCV``` class and the ```pyDSlib.ML.model_selection.BayesianSearchCV``` class, which run hyperparameter GridSearchCV and BayesianSearchCV optimizations across different types of models & compares the results to allow one to find the best-of-best (BoB) model. The ```.fit``` functions for both these classes are compatible with evaluating sklearn models, tensorflow/keras models, and xgboost models. Check out the doc-strings for each class for additional notes on implementation.
 
-#### JLpyUtils.ML.NeuralNet
+#### pyDSlib.ML.NeuralNet
 sub-modules/functions/classes for streamlining common neural-net architectures implemented in tensorflow/keras.
 
 The most notetable sub-modules are the ```DenseNet``` and ```Conv2D``` modules, which provide a keras implementation of a general dense neural network & 2D convolutional neural network, where the depth & general architecture of the network s are defined by generic hyperparameters, such that one can easily perform a grid search across multiple neural network architectures.
 
-#### JLpyUtils.ML.inspection
+#### pyDSlib.ML.inspection
 Functions to inspect features and/or models after training
 
-#### JLpyUtils.ML.postprocessing
+#### pyDSlib.ML.postprocessing
 ML model outputs postprocessing helper functions
 
 
-### JLpyUtils.plot
+### pyDSlib.plot
 This module contains helper functions related to common plotting operations via matplotlib.
 
 The most noteable functions are:
 
-```JLpyUtils.plot.corr_matrix()```: Plot a correlation matrix chart
+```pyDSlib.plot.corr_matrix()```: Plot a correlation matrix chart
 
-```JLpyUtils.plot.ccorr_pareto()```: Plot a pareto bar-chart for 1 label of interest within a correlation dataframe
+```pyDSlib.plot.ccorr_pareto()```: Plot a pareto bar-chart for 1 label of interest within a correlation dataframe
 
-```JLpyUtils.plot.hist_or_bar()```: Iterate through each column in a dataframe and plot the histogram or bar chart for the data.
+```pyDSlib.plot.hist_or_bar()```: Iterate through each column in a dataframe and plot the histogram or bar chart for the data.
 
-### JLpyUtils.img
+### pyDSlib.img
 This module contains functions/classes related to image analysis, most of which wrap SciKit image functions in some way.
 
 The most noteable functions are: 
 
-```JLpyUtils.img.auto_crop.use_edges()```: Use skimage.feature.canny method to find edges in the image passed and autocrop on the outermost edges
+```pyDSlib.img.auto_crop.use_edges()```: Use skimage.feature.canny method to find edges in the image passed and autocrop on the outermost edges
 
-```JLpyUtils.img.decompose_video_to_img()```: Use cv2 to pull out image frames from a video and save them as png files
+```pyDSlib.img.decompose_video_to_img()```: Use cv2 to pull out image frames from a video and save them as png files
 
 
-### JLpyUtils.kaggle
+### pyDSlib.kaggle
 This module contains functions for interacting with kaggle. The simplest and most useful function is:
 ```
-JLpyUtils.kaggle.competition_download_files(competition)
+pyDSlib.kaggle.competition_download_files(competition)
 ```
 where ```competition``` is the competition name, such as  "home-credit-default-risk"
 
-### JLpyUtils.file_utils
+### pyDSlib.file_utils
 This module contains simple but extremely useful helper functions to save and load standard file types including 'hdf', 'csv', 'json', 'dill'. Essentially the ```save``` and ```load``` functions take care of the boiler plate operations related to saving or loading on the file-types specified above.
 
 # Example Notebooks
@@ -117,4 +117,7 @@ Basic notebook examples can be found in the (notebooks)[notebooks] folder. Some 
 * [example_ML_NeuralNet_Bert_Word2Vec](notebooks/example_ML_NeuralNet_Bert_Word2Vec.ipynb)
 * [example_ML_model_selection_BayesianSearchCV](notebooks/example_ML_model_selection_BayesianSearchCV.ipynb)
 * [example_Conv2D_AutoEncoder](notebooks/example_Conv2D_AutoEncoder.ipynb)
+* [examples_RCNN](notebooks/examples_RCNN)
+     * This folder contains various examples related to region-based Conv. Nets., which are typically used for object detections tasks
+     * [example-RCNN-mask-pretrained-coco](example-RCNN-mask-pretrained-coco.ipynb
 
