@@ -2173,7 +2173,10 @@ class MaskRCNN():
             if layer.output in self.keras_model.losses:
                 continue
             
-            loss = tf.reduce_mean(layer.output, keepdims=True) * self.config.LOSS_WEIGHTS.get(name, 1.)
+            loss = (tf.reduce_mean(layer.output, 
+                                  keepdims=True)*
+                    self.config.LOSS_WEIGHTS.get(name, 1.))
+            print(loss)
             
             self.keras_model.add_loss(loss)
 

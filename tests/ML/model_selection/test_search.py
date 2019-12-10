@@ -6,7 +6,7 @@ import sklearn, sklearn.datasets, sklearn.model_selection
 
 import pytest
 
-import JLpyUtils
+import pyDSlib
 
 def build_data_and_headers_dict():
     """
@@ -56,11 +56,11 @@ def test_GridSearchCV_regression_linear_single_output_pandas_df(tmpdir):
     n_features = X.shape[1]
     n_labels = y.shape[1]
 
-    models_dict = JLpyUtils.ML.model_selection.default_models_dict.regression(
+    models_dict = pyDSlib.ML.model_selection.default_models_dict.regression(
                                                         n_features, 
                                                         n_labels,
                                                         models = ['Linear'])
-    GridSearchCV = JLpyUtils.ML.model_selection.GridSearchCV(
+    GridSearchCV = pyDSlib.ML.model_selection.GridSearchCV(
                                      models_dict,
                                      cv=2,
                                      path_root_dir=tmpdir)
@@ -76,11 +76,11 @@ def test_GridSearchCV_regression_xgboost_single_output_pandas_df(tmpdir):
     n_features = X.shape[1]
     n_labels = y.shape[1]
 
-    models_dict = JLpyUtils.ML.model_selection.default_models_dict.regression(
+    models_dict = pyDSlib.ML.model_selection.default_models_dict.regression(
                                                         n_features, 
                                                         n_labels,
                                                         models = ['xgboost'])
-    GridSearchCV = JLpyUtils.ML.model_selection.GridSearchCV(
+    GridSearchCV = pyDSlib.ML.model_selection.GridSearchCV(
                                      models_dict,
                                      cv=2,
                                      path_root_dir=tmpdir)
@@ -103,7 +103,7 @@ def test_BayesianSearchCV_classification_xgboost_single_output_pandas_df(tmpdir)
     n_features = X_train.shape[1]
     n_labels = y_train.shape[1]
 
-    models_dict = JLpyUtils.ML.model_selection.default_models_dict.classification(n_features, 
+    models_dict = pyDSlib.ML.model_selection.default_models_dict.classification(n_features, 
                                                                                   n_labels, 
                                                                                   models)
     
@@ -113,7 +113,7 @@ def test_BayesianSearchCV_classification_xgboost_single_output_pandas_df(tmpdir)
            'recall': sklearn.metrics.recall_score,
            'f1_score': sklearn.metrics.f1_score}
 
-    BayesianSearchCV = JLpyUtils.ML.model_selection.BayesianSearchCV(
+    BayesianSearchCV = pyDSlib.ML.model_selection.BayesianSearchCV(
                                                      models_dict, 
                                                      cv=2, 
                                                      scoring={'metric': None,
@@ -142,11 +142,11 @@ def test_BayesianSearchCV_classification_xgboost_single_output_pandas_df(tmpdir)
 #         n_features = X.shape[1]
 #         n_labels = y.shape[1]
 
-#         models_dict = JLpyUtils.ML.model_selection.default_models_dict.regression(
+#         models_dict = pyDSlib.ML.model_selection.default_models_dict.regression(
 #                                                             n_features, 
 #                                                             n_labels,
 #                                                             models = ['Linear'])
-#         GridSearchCV = JLpyUtils.ML.model_selection.GridSearchCV(
+#         GridSearchCV = pyDSlib.ML.model_selection.GridSearchCV(
 #                                          models_dict,
 #                                          cv=2,
 #                                          path_root_dir=tmpdir)
@@ -172,10 +172,10 @@ def test_BayesianSearchCV_classification_xgboost_single_output_pandas_df(tmpdir)
 #         n_features = X.shape[1]
 #         n_labels = y.shape[1]
 
-#         models_dict = JLpyUtils.ML.model_selection.default_models_dict.regression(
+#         models_dict = pyDSlib.ML.model_selection.default_models_dict.regression(
 #                                                                 n_features, 
 #                                                                 n_labels)
-#         GridSearchCV = JLpyUtils.ML.model_selection.GridSearchCV(
+#         GridSearchCV = pyDSlib.ML.model_selection.GridSearchCV(
 #                                                      models_dict,
 #                                                      cv=2, 
 #                                                      path_root_dir=tmpdir)
