@@ -9,6 +9,9 @@ from . import DenseNet
 from . import utils
 from . import Bert
 from . import RCNN
+from . import blocks
+from . import losses
+from . import ResNet50
 
 from ._search import GridSearchCV
 from ._search import cross_val_score
